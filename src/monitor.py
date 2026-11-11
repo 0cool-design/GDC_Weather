@@ -14,6 +14,8 @@ from rich import box
 from .client import WeatherLinkClient, WeatherLinkV1Client, WeatherLinkError
 from .processor import parse_current, parse_v1_current, summary_line
 from .storage import SQLiteStorage, JsonLogger, InfluxLineProtocolWriter
+from . import metrics as prom_metrics
+from .alerting import AlertManager
 
 logger = logging.getLogger(__name__)
 console = Console()
@@ -49,6 +51,7 @@ class WeatherMonitor:
             bucket=config.get("influx_bucket", "weather"),
         )
 
+        self._alerts = AlertManager(config.get("alert_webhook"))
         self._running = False
         signal.signal(signal.SIGTERM, self._handle_signal)
         signal.signal(signal.SIGINT, self._handle_signal)
@@ -78,6 +81,8 @@ class WeatherMonitor:
         inserted = self.db.insert(records)
         self.json_log.write(records)
         self.lp_writer.write(records)
+        prom_metrics.update(records)
+        self._alerts.record_poll(records)
 
         logger.info(
             "Poll complete: %d sensors, %d new DB rows",
@@ -134,9 +139,13 @@ class WeatherMonitor:
             self.station_id, self.poll_interval,
         )
 
+        metrics_port = 9001
+        prom_metrics.start(metrics_port)
+
         # Run immediately on start, then on schedule
         self.fetch_and_store()
         schedule.every(self.poll_interval).seconds.do(self.fetch_and_store)
+        schedule.every(60).seconds.do(self._alerts.check_stale)
 
         while self._running:
             schedule.run_pending()

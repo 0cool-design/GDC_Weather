@@ -71,6 +71,8 @@ def build_config() -> dict:
         "influx_client": None,
         "influx_org": os.getenv("INFLUXDB_ORG", "GDC"),
         "influx_bucket": os.getenv("INFLUXDB_BUCKET", "weather"),
+        "alert_webhook": os.getenv("ALERT_WEBHOOK_URL", ""),
+        "metrics_port": int(os.getenv("METRICS_PORT", "9001")),
     }
 
     if os.getenv("INFLUXDB_ENABLED", "false").lower() == "true":
