@@ -1,0 +1,104 @@
+{
+  "title": "GDC Weather Station",
+  "uid": "gdc-weather",
+  "timezone": "browser",
+  "refresh": "1m",
+  "schemaVersion": 39,
+  "tags": ["weather", "gdc"],
+  "time": {"from": "now-24h", "to": "now"},
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Station Status",
+      "gridPos": {"h": 3, "w": 3, "x": 0, "y": 0},
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [{"type": "value", "options": {"0": {"text": "OFFLINE", "color": "red"}, "1": {"text": "ONLINE", "color": "green"}}}],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": 0}, {"color": "green", "value": 1}]}
+        }
+      },
+      "targets": [{"datasource": "Prometheus", "expr": "weather_up", "instant": true}]
+    },
+    {
+      "id": 2, "type": "stat", "title": "Temperature",
+      "gridPos": {"h": 3, "w": 3, "x": 3, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "°F", "decimals": 1, "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": 32}, {"color": "green", "value": 60}, {"color": "orange", "value": 90}, {"color": "red", "value": 110}]}}},
+      "targets": [{"datasource": "Prometheus", "expr": "weather_temperature_f", "instant": true}]
+    },
+    {
+      "id": 3, "type": "stat", "title": "Humidity",
+      "gridPos": {"h": 3, "w": 3, "x": 6, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "percent", "decimals": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "yellow", "value": 0}, {"color": "green", "value": 30}, {"color": "blue", "value": 80}]}}},
+      "targets": [{"datasource": "Prometheus", "expr": "weather_humidity_pct", "instant": true}]
+    },
+    {
+      "id": 4, "type": "stat", "title": "Wind Speed",
+      "gridPos": {"h": 3, "w": 3, "x": 9, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "mph", "decimals": 1, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": 0}, {"color": "yellow", "value": 25}, {"color": "orange", "value": 45}, {"color": "red", "value": 60}]}}},
+      "targets": [{"datasource": "Prometheus", "expr": "weather_wind_speed_last", "instant": true}]
+    },
+    {
+      "id": 5, "type": "stat", "title": "Barometer",
+      "gridPos": {"h": 3, "w": 3, "x": 12, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "inHg", "decimals": 2, "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": 0}, {"color": "green", "value": 29.6}, {"color": "blue", "value": 30.5}]}}},
+      "targets": [{"datasource": "Prometheus", "expr": "weather_barometer_inhg", "instant": true}]
+    },
+    {
+      "id": 6, "type": "stat", "title": "UV Index",
+      "gridPos": {"h": 3, "w": 3, "x": 15, "y": 0},
+      "fieldConfig": {"defaults": {"decimals": 1, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": 0}, {"color": "yellow", "value": 3}, {"color": "orange", "value": 6}, {"color": "red", "value": 8}, {"color": "purple", "value": 11}]}}},
+      "targets": [{"datasource": "Prometheus", "expr": "weather_uv_index", "instant": true}]
+    },
+    {
+      "id": 7, "type": "timeseries", "title": "Temperature & Dew Point",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 3},
+      "fieldConfig": {"defaults": {"unit": "°F"}},
+      "targets": [
+        {"datasource": "Prometheus", "expr": "weather_temperature_f", "legendFormat": "Temperature"},
+        {"datasource": "Prometheus", "expr": "weather_dew_point_f", "legendFormat": "Dew Point"}
+      ]
+    },
+    {
+      "id": 8, "type": "timeseries", "title": "Wind Speed",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 3},
+      "fieldConfig": {"defaults": {"unit": "mph"}},
+      "targets": [
+        {"datasource": "Prometheus", "expr": "weather_wind_speed_last", "legendFormat": "Current"},
+        {"datasource": "Prometheus", "expr": "weather_wind_speed_avg_10min_mph", "legendFormat": "10-min avg"},
+        {"datasource": "Prometheus", "expr": "weather_wind_speed_hi_10min_mph", "legendFormat": "10-min high"}
+      ]
+    },
+    {
+      "id": 9, "type": "timeseries", "title": "Barometric Pressure",
+      "gridPos": {"h": 7, "w": 12, "x": 0, "y": 11},
+      "fieldConfig": {"defaults": {"unit": "inHg", "decimals": 2}},
+      "targets": [{"datasource": "Prometheus", "expr": "weather_barometer_inhg", "legendFormat": "Sea Level Pressure"}]
+    },
+    {
+      "id": 10, "type": "timeseries", "title": "Solar Radiation & UV",
+      "gridPos": {"h": 7, "w": 12, "x": 12, "y": 11},
+      "fieldConfig": {"overrides": [{"matcher": {"id": "byName", "options": "UV Index"}, "properties": [{"id": "custom.axisPlacement", "value": "right"}]}]},
+      "targets": [
+        {"datasource": "Prometheus", "expr": "weather_solar_radiation_wm2", "legendFormat": "Solar Radiation (W/m²)"},
+        {"datasource": "Prometheus", "expr": "weather_uv_index", "legendFormat": "UV Index"}
+      ]
+    },
+    {
+      "id": 11, "type": "timeseries", "title": "Rain Rate",
+      "gridPos": {"h": 7, "w": 12, "x": 0, "y": 18},
+      "fieldConfig": {"defaults": {"unit": "in/hr"}},
+      "targets": [
+        {"datasource": "Prometheus", "expr": "weather_rain_rate_in_hr", "legendFormat": "Rain Rate"},
+        {"datasource": "Prometheus", "expr": "weather_rainfall_daily_in", "legendFormat": "Daily Total (in)"}
+      ]
+    },
+    {
+      "id": 12, "type": "timeseries", "title": "Humidity",
+      "gridPos": {"h": 7, "w": 12, "x": 12, "y": 18},
+      "fieldConfig": {"defaults": {"unit": "percent", "min": 0, "max": 100}},
+      "targets": [
+        {"datasource": "Prometheus", "expr": "weather_humidity_pct", "legendFormat": "Outdoor"},
+        {"datasource": "Prometheus", "expr": "weather_humidity_indoor_pct", "legendFormat": "Indoor"}
+      ]
+    }
+  ]
+}

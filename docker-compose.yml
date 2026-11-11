@@ -1,0 +1,79 @@
+services:
+
+  # ── WeatherLink poller ──────────────────────────────────────────────────────
+  gdc-weather:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      INFLUXDB_ENABLED: "true"
+      INFLUXDB_URL: "http://influxdb:8086"
+    volumes:
+      - weather-data:/app/data
+      - weather-logs:/app/logs
+    ports:
+      - "9001:9001"       # Prometheus /metrics scrape endpoint
+    depends_on:
+      influxdb:
+        condition: service_healthy
+
+  # ── InfluxDB 2 ──────────────────────────────────────────────────────────────
+  influxdb:
+    image: influxdb:2.7
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: GDCweather123
+      DOCKER_INFLUXDB_INIT_ORG: GDC
+      DOCKER_INFLUXDB_INIT_BUCKET: weather
+      DOCKER_INFLUXDB_INIT_RETENTION: 0        # infinite retention
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: gdc-influx-token-change-me
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── Grafana ─────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.3.0
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: GDCweather123
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/weather.json
+    depends_on:
+      - influxdb
+
+  # ── Prometheus (scrapes :9001/metrics) ─────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./grafana/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=365d"
+
+volumes:
+  weather-data:
+  weather-logs:
+  influxdb-data:
+  influxdb-config:
+  grafana-data:
+  prometheus-data:

@@ -6,3 +6,7 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+# Docker
+influxdb-data/
+grafana-data/
+prometheus-data/

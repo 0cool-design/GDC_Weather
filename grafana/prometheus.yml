@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 60s
+  evaluation_interval: 60s
+
+scrape_configs:
+  - job_name: gdc_weather
+    static_configs:
+      - targets: ['gdc-weather:9001']
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: weather_.*
+        action: keep
