@@ -96,13 +96,19 @@ class WeatherLinkV1Client:
     Find it at weatherlink.com → My Stations → select station → Device ID.
     """
 
-    def __init__(self, api_token: str, did: str):
+    def __init__(self, api_token: str, did: str, username: str = "", password: str = ""):
         self.api_token = api_token
         self.did = did
+        self.username = username
+        self.password = password
         self.session = requests.Session()
 
     def _get(self, path: str, params: dict | None = None, retries: int = 3) -> dict[str, Any]:
-        p = {"apiToken": self.api_token}
+        p: dict = {"apiToken": self.api_token}
+        if self.username:
+            p["user"] = self.username
+        if self.password:
+            p["pass"] = self.password
         if params:
             p.update(params)
 

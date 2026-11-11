@@ -61,6 +61,8 @@ def build_config() -> dict:
         "api_key": _require_env("WEATHERLINK_API_KEY"),
         "api_secret": _require_env("WEATHERLINK_API_SECRET"),
         "api_token_v1": os.getenv("WEATHERLINK_API_TOKEN_V1", ""),
+        "wl_username": os.getenv("WEATHERLINK_USERNAME", ""),
+        "wl_password": os.getenv("WEATHERLINK_PASSWORD", ""),
         "station_id": os.getenv("WEATHERLINK_STATION_ID", ""),
         # v1 Device ID (WeatherLinkIP/USB/SER) — found in weatherlink.com station settings
         "did": os.getenv("WEATHERLINK_DID", ""),
@@ -184,7 +186,11 @@ def cmd_probe_v1(cfg: dict):
         print("Set WEATHERLINK_DID in .env first (find it at weatherlink.com → My Stations → Device ID).")
         sys.exit(1)
     from src.client import WeatherLinkV1Client, WeatherLinkError
-    client = WeatherLinkV1Client(cfg["api_token_v1"], cfg["did"])
+    client = WeatherLinkV1Client(
+        cfg["api_token_v1"], cfg["did"],
+        username=cfg.get("wl_username", ""),
+        password=cfg.get("wl_password", ""),
+    )
     try:
         data = client.current_conditions()
         import json

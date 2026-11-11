@@ -32,6 +32,8 @@ class WeatherMonitor:
             self.client = WeatherLinkV1Client(
                 api_token=config["api_token_v1"],
                 did=self.did,
+                username=config.get("wl_username", ""),
+                password=config.get("wl_password", ""),
             )
             self._api_version = 1
             logger.info("Using WeatherLink v1 API (DID: %s)", self.did)
