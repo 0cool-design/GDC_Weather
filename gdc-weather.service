@@ -1,0 +1,17 @@
+[Unit]
+Description=GDC Weather Monitoring System
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/Ocool/Claude_Coding/GDC_Weather
+EnvironmentFile=/home/Ocool/Claude_Coding/GDC_Weather/.env
+ExecStart=/usr/bin/python3 /home/Ocool/Claude_Coding/GDC_Weather/main.py
+Restart=on-failure
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
