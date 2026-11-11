@@ -197,19 +197,19 @@ def summary_line(record: dict[str, Any]) -> str:
     """One-line human-readable summary of a weather record."""
     parts = [f"[{record['timestamp_iso']}]"]
 
-    if "temp" in record:
+    if record.get("temp") is not None:
         parts.append(f"Temp={record['temp']:.1f}°F")
-    if "humidity" in record:
+    if record.get("humidity") is not None:
         parts.append(f"Hum={record['humidity']:.0f}%")
-    if "wind_speed_last" in record:
+    if record.get("wind_speed_last") is not None:
         parts.append(f"Wind={record['wind_speed_last']:.1f}mph@{record.get('wind_dir_last', '?')}°")
-    if "bar_sea_level" in record:
+    if record.get("bar_sea_level") is not None:
         parts.append(f"Bar={record['bar_sea_level']:.2f}inHg")
-    if "rain_rate_last" in record:
+    if record.get("rain_rate_last") is not None:
         parts.append(f"Rain={record['rain_rate_last']:.2f}in/hr")
-    if "solar_rad" in record:
+    if record.get("solar_rad") is not None:
         parts.append(f"Solar={record['solar_rad']}W/m²")
-    if "uv_index" in record:
+    if record.get("uv_index") is not None:
         parts.append(f"UV={record['uv_index']:.1f}")
 
     return "  ".join(parts)

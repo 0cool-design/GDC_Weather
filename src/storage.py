@@ -134,18 +134,30 @@ class SQLiteStorage:
         return inserted
 
     def latest(self, station_uuid: str | None = None) -> dict | None:
-        """Return the most recent observation."""
-        if station_uuid:
-            row = self._conn.execute(
-                "SELECT * FROM weather_observations WHERE station_uuid=? "
-                "ORDER BY timestamp DESC LIMIT 1",
-                (station_uuid,),
-            ).fetchone()
-        else:
-            row = self._conn.execute(
-                "SELECT * FROM weather_observations ORDER BY timestamp DESC LIMIT 1"
-            ).fetchone()
-        return dict(row) if row else None
+        """Return most recent observation, merging all sensors from the latest timestamp."""
+        base = "WHERE station_uuid=?" if station_uuid else ""
+        args = (station_uuid,) if station_uuid else ()
+
+        ts_row = self._conn.execute(
+            f"SELECT MAX(timestamp) FROM weather_observations {base}", args
+        ).fetchone()
+        if not ts_row or ts_row[0] is None:
+            return None
+        latest_ts = ts_row[0]
+
+        rows = self._conn.execute(
+            f"SELECT * FROM weather_observations {base} AND timestamp=?"
+            if station_uuid else
+            "SELECT * FROM weather_observations WHERE timestamp=?",
+            (station_uuid, latest_ts) if station_uuid else (latest_ts,),
+        ).fetchall()
+
+        merged: dict = {}
+        for row in rows:
+            for k, v in dict(row).items():
+                if v is not None:
+                    merged[k] = v
+        return merged if merged else None
 
     def close(self):
         self._conn.close()

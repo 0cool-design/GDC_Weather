@@ -64,6 +64,7 @@ def build_config() -> dict:
         "wl_username": os.getenv("WEATHERLINK_USERNAME", ""),
         "wl_password": os.getenv("WEATHERLINK_PASSWORD", ""),
         "station_id": os.getenv("WEATHERLINK_STATION_ID", ""),
+        "station_uuid": os.getenv("WEATHERLINK_STATION_UUID", ""),
         # v1 Device ID (WeatherLinkIP/USB/SER) — found in weatherlink.com station settings
         "did": os.getenv("WEATHERLINK_DID", ""),
         "poll_interval": int(os.getenv("POLL_INTERVAL", "300")),
@@ -172,7 +173,7 @@ def cmd_show_latest(cfg: dict):
     from src.storage import SQLiteStorage
     from src.processor import summary_line
     db = SQLiteStorage(cfg["db_path"])
-    rec = db.latest(cfg.get("station_id") or None)
+    rec = db.latest(cfg.get("station_uuid") or None)
     db.close()
     if rec:
         print(summary_line(rec))
