@@ -1,0 +1,819 @@
+<title>GDC Weather</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+
+<style>
+/* ── Tokens ─────────────────────────────────────── */
+:root {
+  --bg:      #05080f;
+  --surface: #0b1120;
+  --panel:   #0e1626;
+  --border:  #172035;
+  --fg:      #c0d4f0;
+  --muted:   #334d6a;
+  --cyan:    #0affef;
+  --temp:    #ff7030;
+  --hum:     #18b0ff;
+  --wind:    #00e07a;
+  --bar:     #a97fff;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:      #edf2fa;
+    --surface: #ffffff;
+    --panel:   #f5f8ff;
+    --border:  #cdd8ee;
+    --fg:      #18283c;
+    --muted:   #6888aa;
+    --cyan:    #0080b0;
+    --temp:    #c04000;
+    --hum:     #0070c0;
+    --wind:    #007840;
+    --bar:     #6633bb;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg:      #edf2fa;
+  --surface: #ffffff;
+  --panel:   #f5f8ff;
+  --border:  #cdd8ee;
+  --fg:      #18283c;
+  --muted:   #6888aa;
+  --cyan:    #0080b0;
+  --temp:    #c04000;
+  --hum:     #0070c0;
+  --wind:    #007840;
+  --bar:     #6633bb;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  padding-left:  max(16px, env(safe-area-inset-left,  0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px;
+  min-height: 100%;
+}
+
+/* ── Header ─────────────────────────────────────── */
+.hd {
+  display: flex; align-items: center; flex-wrap: wrap;
+  gap: 8px 16px; margin-bottom: 20px;
+  padding-bottom: 14px; border-bottom: 1px solid var(--border);
+}
+.hd-name {
+  font-size: 20px; font-weight: 700; letter-spacing: -.3px;
+  color: var(--cyan);
+  text-shadow: 0 0 24px rgba(10,255,239,.35);
+}
+.hd-loc { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.pill {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 500; letter-spacing: .6px;
+  text-transform: uppercase; padding: 3px 9px; border-radius: 20px;
+  background: rgba(0,224,122,.07); border: 1px solid rgba(0,224,122,.25);
+  color: var(--wind);
+}
+.dot { width: 5px; height: 5px; border-radius: 50%; background: var(--wind); animation: blink 2.2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+.hd-time { margin-left: auto; font-family:'Space Mono',monospace; font-size:10px; color:var(--muted); text-align:right; }
+.hd-time strong { display:block; font-size:11px; color:var(--fg); }
+
+/* ── Chart panels ───────────────────────────────── */
+.charts { display: flex; flex-direction: column; gap: 8px; }
+
+.cp {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* techy corner brackets */
+.cp::before, .cp::after {
+  content: ''; position: absolute; width: 12px; height: 12px; z-index: 3; pointer-events: none;
+}
+.cp::before { top: 0; left: 0; border-top: 2px solid var(--cc); border-left: 2px solid var(--cc); border-radius: 10px 0 0 0; opacity: .7; }
+.cp::after  { bottom: 0; right: 0; border-bottom: 2px solid var(--cc); border-right: 2px solid var(--cc); border-radius: 0 0 10px 0; opacity: .7; }
+
+.cp-head {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  padding: 11px 14px 6px;
+}
+.cp-icon { display:flex; align-items:center; color:var(--cc); }
+.cp-icon svg { display:block; flex-shrink:0; }
+.cp-name {
+  font-size: 10px; font-weight: 500; letter-spacing: .8px;
+  text-transform: uppercase; color: var(--muted);
+}
+.cp-val {
+  font-size: 26px; font-weight: 700; line-height: 1;
+  letter-spacing: -1px; font-variant-numeric: tabular-nums;
+  color: var(--cc);
+}
+.cp-delta {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; color: var(--muted); margin-left: auto; white-space: nowrap;
+}
+.cp-delta .up   { color: var(--temp); }
+.cp-delta .dn   { color: var(--hum);  }
+.cp-delta .flat { color: var(--muted); }
+
+.cp-canvas-wrap { position: relative; }
+canvas.cc {
+  display: block; width: 100%; height: 110px;
+}
+canvas.cc-rose {
+  display: block; width: 100%; height: 220px;
+}
+/* scanline overlay */
+.cp-canvas-wrap::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  background: repeating-linear-gradient(
+    to bottom, transparent 0, transparent 3px,
+    rgba(0,0,0,.03) 3px, rgba(0,0,0,.03) 4px
+  );
+}
+
+/* ── Footer ─────────────────────────────────────── */
+.ft {
+  margin-top: 14px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; color: var(--muted);
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+.ft-r { margin-left: auto; }
+</style>
+
+<!-- ═══════════════════════════════════════════════ -->
+<script>
+/* ── Station snapshot — metric units ───────────── */
+const NOW = {
+  temp: 29.6, temp_in: 25.9, dew_point: 18.9, wet_bulb: 22.3,
+  heat_index: 30.9, humidity: 53.0, humidity_in: 42.3,
+  wind_speed: 12.3, wind_dir: 257,
+  wind_avg_1: 9.0, wind_avg_10: 9.3, wind_hi_10: 13.7,
+  bar_sl: 1013.1, bar_abs: 1008.0, bar_trend: -2.78,
+  timestamp: "2026-11-11T10:15:00+00:00"
+};
+
+/* ── Seeded PRNG ────────────────────────────────── */
+function mkRand(seed) {
+  let s = seed >>> 0;
+  return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
+}
+
+/* ── Generate 24h trend (48 half-hour points, Oman UTC+4) ── */
+function genTrend(opts) {
+  const { mean, amp, peakLocal, noise, seed, last, drift = 0 } = opts;
+  const r = mkRand(seed);
+  // raw sine wave
+  const raw = Array.from({length: 49}, (_, i) => {
+    const utc = (10 + i * 0.5) % 24;
+    const loc = (utc + 4) % 24;
+    const phase = ((loc - peakLocal + 24) % 24) / 24 * 2 * Math.PI;
+    return mean + amp * Math.cos(phase) + (r() - .5) * noise + drift * i / 48;
+  });
+  // smooth
+  const s = raw.map((_, i) => {
+    let sum = 0, cnt = 0;
+    for (let j = Math.max(0,i-3); j <= Math.min(48,i+3); j++) { sum += raw[j]; cnt++; }
+    return sum / cnt;
+  });
+  if (last !== undefined) s[48] = last;
+  return s;
+}
+
+const TRENDS = {
+  temp: genTrend({ mean:28,   amp:4,   peakLocal:13, noise:0.8, seed:1, last:NOW.temp,       drift:0 }),
+  hum:  genTrend({ mean:54,   amp:10,  peakLocal:4,  noise:2.5, seed:2, last:NOW.humidity,   drift:0 }),
+  wind: genTrend({ mean:11,   amp:6,   peakLocal:14, noise:2.5, seed:3, last:NOW.wind_speed }),
+  bar:  genTrend({ mean:1013, amp:1.5, peakLocal:11, noise:0.3, seed:4, last:NOW.bar_sl,     drift:-0.5 }),
+};
+
+/* ── Wind direction distribution (48 half-hour readings) ──
+   Muscat Nov: dominant WSW (~257°), secondary NW (~318°)   */
+function genWindDirs(n, seed) {
+  const r = mkRand(seed);
+  const dirs = [];
+  while (dirs.length < n) {
+    const pick = r();
+    let mean, std;
+    if      (pick < 0.75) { mean = 257; std = 32; }  // WSW primary
+    else if (pick < 0.92) { mean = 318; std = 18; }  // NW secondary
+    else                  { mean = r() * 360; std = 0; } // variable
+    const u1 = Math.max(1e-6, r()), u2 = r();
+    const z = std ? Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2) : 0;
+    dirs.push(((mean + z * std) % 360 + 360) % 360);
+  }
+  return dirs;
+}
+TRENDS.wind_dirs = genWindDirs(48, 11);
+
+/* ── Helpers ────────────────────────────────────── */
+function fmtTime(iso) {
+  return new Date(iso).toLocaleString("en-US",{
+    month:"short",day:"numeric",year:"numeric",
+    hour:"2-digit",minute:"2-digit",timeZone:"UTC",timeZoneName:"short"
+  });
+}
+function getColor(varName) {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+}
+function toRgba(col, a) {
+  if (col.startsWith('#')) {
+    const n = parseInt(col.slice(1),16);
+    return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;
+  }
+  return col.replace(/rgb\(/, 'rgba(').replace(')', `,${a})`);
+}
+function dataRange(arr) {
+  const mn = Math.min(...arr), mx = Math.max(...arr);
+  const pad = (mx - mn) * .15;
+  return [mn - pad, mx + pad];
+}
+
+/* ── Day/night background ────────────────────────
+   Chart spans 14:00–14:00 local (OAT, UTC+4).
+   Muscat, Oman, Nov 11: sunrise ≈06:12, sunset ≈17:38 local.
+   Array index → local hour: loc = 14 + i*0.5 (mod 24)
+   Sunset  17:38 → i = (17.633 - 14) * 2 = 7.27
+   Sunrise 06:12 → i = (6.2 + 24 - 14) * 2 = 32.4            */
+const SR_IDX = 32.4; // sunrise index
+const SS_IDX = 7.27; // sunset index
+
+function drawDayNight(ctx, W, H, PAD, cW) {
+  const toX = i => PAD.l + (i / 48) * cW;
+  const y0 = PAD.t, yH = H - PAD.b - PAD.t;
+
+  // colour tokens (same in dark + light; opacity does the work)
+  const DAY   = 'rgba(255,185,50,0.045)';
+  const NIGHT = 'rgba(8,18,55,0.28)';
+
+  // zones: day(0→SS), dusk(SS→SS+2), night, dawn(SR-2→SR), day(SR→48)
+  const dusk0  = SS_IDX,       dusk1  = SS_IDX + 2;
+  const dawn0  = SR_IDX - 2,   dawn1  = SR_IDX;
+
+  function fillZone(x0, x1, fill) {
+    ctx.fillStyle = fill;
+    ctx.fillRect(x0, y0, x1 - x0, yH);
+  }
+  function gradZone(x0, x1, c0, c1) {
+    const g = ctx.createLinearGradient(x0, 0, x1, 0);
+    g.addColorStop(0, c0); g.addColorStop(1, c1);
+    ctx.fillStyle = g;
+    ctx.fillRect(x0, y0, x1 - x0, yH);
+  }
+
+  fillZone (PAD.l,        toX(dusk0), DAY);
+  gradZone (toX(dusk0),   toX(dusk1), DAY, NIGHT);
+  fillZone (toX(dusk1),   toX(dawn0), NIGHT);
+  gradZone (toX(dawn0),   toX(dawn1), NIGHT, DAY);
+  fillZone (toX(dawn1),   W - PAD.r,  DAY);
+
+  // sunrise / sunset marker lines
+  [[SS_IDX,'17:38','↓'], [SR_IDX,'06:12','↑']].forEach(([idx, lbl]) => {
+    const x = toX(idx);
+    ctx.save();
+    ctx.setLineDash([2, 5]);
+    ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, H - PAD.b);
+    ctx.strokeStyle = 'rgba(255,185,50,0.35)';
+    ctx.lineWidth = 1; ctx.stroke();
+    ctx.restore();
+
+    ctx.font = "8px 'Space Mono',monospace";
+    ctx.fillStyle = 'rgba(255,185,50,0.55)';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(lbl, x, y0 + 2);
+  });
+}
+
+/* ── Draw one trend chart ───────────────────────── */
+function drawChart(canvas, data, colorVar) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width || 300, H = rect.height || 110;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const color = getColor(colorVar);
+  const muted = getColor('--muted');
+  const fg    = getColor('--fg');
+
+  const PAD = { t: 18, r: 48, b: 28, l: 12 };
+  const cW = W - PAD.l - PAD.r;
+  const cH = H - PAD.t - PAD.b;
+
+  const [mn, mx] = dataRange(data);
+
+  function toXY(i, v) {
+    return {
+      x: PAD.l + (i / (data.length - 1)) * cW,
+      y: PAD.t + (1 - (v - mn) / (mx - mn)) * cH
+    };
+  }
+
+  /* ─ day / night background ─ */
+  drawDayNight(ctx, W, H, PAD, cW);
+
+  /* ─ grid lines ─ */
+  const nGrid = 4;
+  for (let g = 0; g <= nGrid; g++) {
+    const y = PAD.t + (g / nGrid) * cH;
+    ctx.beginPath();
+    ctx.setLineDash([2, 5]);
+    ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y);
+    ctx.strokeStyle = `rgba(${/^#/.test(muted) ? '100,120,150' : '100,120,150'}, .18)`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  /* ─ y-axis labels ─ */
+  ctx.font = `9px 'Space Mono', monospace`;
+  ctx.fillStyle = muted;
+  ctx.textAlign = 'left';
+  for (let g = 0; g <= nGrid; g += 2) {
+    const v = mn + (1 - g / nGrid) * (mx - mn);
+    const y = PAD.t + (g / nGrid) * cH;
+    ctx.textBaseline = g === 0 ? 'top' : g === nGrid ? 'bottom' : 'middle';
+    const dec = colorVar === '--bar' ? 0 : colorVar === '--wind' || colorVar === '--hum' ? 0 : 1;
+    ctx.fillText(v.toFixed(dec), W - PAD.r + 6, y);
+  }
+
+  /* ─ x-axis labels (local Oman time, every 6h) ─ */
+  const xLabels = [
+    {i: 0,  t:"14:00"}, {i:12, t:"20:00"},
+    {i:24,  t:"02:00"}, {i:36, t:"08:00"},
+    {i:48,  t:"14:00"}
+  ];
+  ctx.textBaseline = 'top';
+  xLabels.forEach(({i, t}) => {
+    const x = PAD.l + (i / 48) * cW;
+    ctx.textAlign = i === 0 ? 'left' : i === 48 ? 'right' : 'center';
+    ctx.fillText(t, x, H - PAD.b + 5);
+  });
+
+  /* ─ build smooth bezier path ─ */
+  const pts = data.map((v, i) => toXY(i, v));
+
+  function buildLine() {
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) {
+      const pp = pts[Math.max(0, i - 2)];
+      const p1 = pts[i - 1], p2 = pts[i];
+      const pn = pts[Math.min(pts.length - 1, i + 1)];
+      const cp1x = p1.x + (p2.x - pp.x) / 6;
+      const cp1y = p1.y + (p2.y - pp.y) / 6;
+      const cp2x = p2.x - (pn.x - p1.x) / 6;
+      const cp2y = p2.y - (pn.y - p1.y) / 6;
+      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+    }
+  }
+
+  /* ─ gradient fill ─ */
+  const grad = ctx.createLinearGradient(0, PAD.t, 0, H - PAD.b);
+  grad.addColorStop(0, toRgba(color, .28));
+  grad.addColorStop(.6, toRgba(color, .08));
+  grad.addColorStop(1, toRgba(color, 0));
+
+  buildLine();
+  ctx.lineTo(pts[pts.length - 1].x, H - PAD.b);
+  ctx.lineTo(pts[0].x, H - PAD.b);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  /* ─ glow line ─ */
+  buildLine();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.6;
+  ctx.lineJoin = 'round';
+  ctx.shadowBlur = 10;
+  ctx.shadowColor = color;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  /* ─ end dot with glow ring ─ */
+  const last = pts[pts.length - 1];
+
+  ctx.beginPath();
+  ctx.arc(last.x, last.y, 7, 0, 2 * Math.PI);
+  ctx.fillStyle = toRgba(color, .2);
+  ctx.shadowBlur = 14;
+  ctx.shadowColor = color;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  ctx.beginPath();
+  ctx.arc(last.x, last.y, 3, 0, 2 * Math.PI);
+  ctx.fillStyle = '#ffffff';
+  ctx.shadowBlur = 10;
+  ctx.shadowColor = color;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  /* ─ value label at end dot ─ */
+  ctx.font = `bold 9px 'Space Mono', monospace`;
+  ctx.fillStyle = color;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  const lv = data[data.length - 1];
+  const edec = colorVar === '--bar' ? 0 : colorVar === '--wind' || colorVar === '--hum' ? 0 : 1;
+  ctx.fillText(lv.toFixed(edec), last.x - 6, last.y - 5);
+}
+
+/* ── Animated draw-in ───────────────────────────── */
+function animateChart(canvas, data, colorVar) {
+  const full = data.length;
+  let frame = 0;
+  const totalFrames = 55;
+  function step() {
+    const prog = Math.min(1, frame++ / totalFrames);
+    const eased = 1 - Math.pow(1 - prog, 3); // ease-out cubic
+    const slice = Math.max(2, Math.ceil(eased * full));
+    // sub-sample: show first `slice` points, spaced evenly
+    const sub = Array.from({length: slice}, (_, i) =>
+      data[Math.round(i * (full - 1) / (slice - 1))]
+    );
+    drawChart(canvas, sub.length < full ? sub : data, colorVar);
+    if (prog < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ── Angular histogram — wind rose ─────────────── */
+function drawWindRose(canvas, dirs, colorVar) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width || 300, H = rect.height || 220;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const color  = getColor(colorVar);
+  const muted  = getColor('--muted');
+  const nBins  = 16, degPer = 360 / nBins;
+
+  const bins = new Array(nBins).fill(0);
+  dirs.forEach(d => { bins[Math.round(d / degPer) % nBins]++; });
+  const maxBin = Math.max(...bins, 1);
+
+  const cx = W / 2, cy = H / 2;
+  const maxR = Math.min(W / 2, H / 2, 95) - 8;
+
+  /* concentric rings */
+  for (let i = 1; i <= 4; i++) {
+    const r = i / 4 * maxR;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.strokeStyle = i === 4 ? toRgba(color, .22) : 'rgba(100,120,150,.1)';
+    ctx.lineWidth = i === 4 ? 1 : .7;
+    ctx.setLineDash(i < 4 ? [2, 5] : []);
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  /* axis cross */
+  [0, 90].forEach(deg => {
+    const r = (deg - 90) * Math.PI / 180;
+    ctx.beginPath();
+    ctx.moveTo(cx - (maxR+3)*Math.cos(r), cy - (maxR+3)*Math.sin(r));
+    ctx.lineTo(cx + (maxR+3)*Math.cos(r), cy + (maxR+3)*Math.sin(r));
+    ctx.strokeStyle = 'rgba(100,120,150,.1)'; ctx.lineWidth = .7; ctx.stroke();
+  });
+
+  /* sectors */
+  bins.forEach((count, i) => {
+    if (count === 0) return;
+    const r    = (count / maxBin) * maxR;
+    const mid  = (i * degPer - 90) * Math.PI / 180;
+    const half = (degPer / 2 - .6) * Math.PI / 180;
+
+    const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    grd.addColorStop(0,   toRgba(color, 0));
+    grd.addColorStop(.55, toRgba(color, .22));
+    grd.addColorStop(1,   toRgba(color, .84));
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, mid - half, mid + half);
+    ctx.closePath();
+    ctx.fillStyle = grd; ctx.fill();
+    ctx.strokeStyle = toRgba(color, .35);
+    ctx.lineWidth = .5; ctx.stroke();
+  });
+
+  /* cardinal labels */
+  ctx.font = "bold 9px 'Space Grotesk',sans-serif";
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  [['N',0],['NE',45],['E',90],['SE',135],['S',180],['SW',225],['W',270],['NW',315]]
+    .forEach(([lbl, deg]) => {
+      const rad = (deg - 90) * Math.PI / 180;
+      ctx.fillStyle = (deg >= 225 && deg <= 315) ? color : muted;
+      ctx.fillText(lbl, cx + (maxR+15)*Math.cos(rad), cy + (maxR+15)*Math.sin(rad));
+    });
+
+  /* dominant % label */
+  const maxIdx = bins.indexOf(maxBin);
+  const maxDirRad = (maxIdx * degPer - 90) * Math.PI / 180;
+  ctx.font = "bold 10px 'Space Mono',monospace";
+  ctx.fillStyle = color;
+  ctx.fillText(
+    Math.round(maxBin / dirs.length * 100) + '%',
+    cx + (maxR + 2) * Math.cos(maxDirRad),
+    cy + (maxR + 2) * Math.sin(maxDirRad)
+  );
+
+  /* current-reading needle */
+  const nRad = (257 - 90) * Math.PI / 180;
+  const nLen = maxR * .78, nx = cx + nLen*Math.cos(nRad), ny = cy + nLen*Math.sin(nRad);
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(nx, ny);
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+  ctx.shadowBlur = 8; ctx.shadowColor = color; ctx.stroke(); ctx.shadowBlur = 0;
+  const aw = 4, al = 7, ang = Math.atan2(ny - cy, nx - cx);
+  ctx.beginPath();
+  ctx.moveTo(nx, ny);
+  ctx.lineTo(nx - al*Math.cos(ang)+aw*Math.sin(ang), ny - al*Math.sin(ang)-aw*Math.cos(ang));
+  ctx.lineTo(nx - al*Math.cos(ang)-aw*Math.sin(ang), ny - al*Math.sin(ang)+aw*Math.cos(ang));
+  ctx.closePath();
+  ctx.fillStyle = '#fff'; ctx.shadowBlur = 10; ctx.shadowColor = color;
+  ctx.fill(); ctx.shadowBlur = 0;
+
+  /* centre dot */
+  ctx.beginPath(); ctx.arc(cx, cy, 3, 0, 2*Math.PI);
+  ctx.fillStyle = toRgba(color, .7); ctx.fill();
+}
+
+/* ── Wind bar chart (bars + moving-avg line) ────── */
+function drawWindChart(canvas, data, colorVar, visible) {
+  const count = visible ?? data.length;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width || 300, H = rect.height || 110;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const color = getColor(colorVar);
+  const muted = getColor('--muted');
+  const PAD = { t: 18, r: 48, b: 28, l: 12 };
+  const cW = W - PAD.l - PAD.r;
+  const cH = H - PAD.t - PAD.b;
+
+  const mn0 = 0;
+  const mx  = Math.max(...data) * 1.18;
+
+  /* day/night background */
+  drawDayNight(ctx, W, H, PAD, cW);
+
+  /* grid */
+  const nGrid = 4;
+  for (let g = 0; g <= nGrid; g++) {
+    const y = PAD.t + (g / nGrid) * cH;
+    ctx.beginPath(); ctx.setLineDash([2, 5]);
+    ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y);
+    ctx.strokeStyle = 'rgba(100,120,150,.18)';
+    ctx.lineWidth = 1; ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  /* y-axis labels */
+  ctx.font = "9px 'Space Mono',monospace";
+  ctx.fillStyle = muted; ctx.textAlign = 'left';
+  for (let g = 0; g <= nGrid; g += 2) {
+    const v = mn0 + (1 - g / nGrid) * (mx - mn0);
+    const y = PAD.t + (g / nGrid) * cH;
+    ctx.textBaseline = g === 0 ? 'top' : g === nGrid ? 'bottom' : 'middle';
+    ctx.fillText(v.toFixed(0), W - PAD.r + 6, y);
+  }
+
+  /* x-axis labels */
+  const xLabels = [{i:0,t:"14:00"},{i:12,t:"20:00"},{i:24,t:"02:00"},{i:36,t:"08:00"},{i:48,t:"14:00"}];
+  ctx.textBaseline = 'top';
+  xLabels.forEach(({i, t}) => {
+    const x = PAD.l + (i / 48) * cW;
+    ctx.textAlign = i === 0 ? 'left' : i === 48 ? 'right' : 'center';
+    ctx.fillText(t, x, H - PAD.b + 5);
+  });
+
+  /* bars */
+  const barW = Math.max(1.5, cW / data.length - 1);
+  data.forEach((v, i) => {
+    if (i >= count) return;
+    const cx  = PAD.l + (i / (data.length - 1)) * cW;
+    const bH  = ((v - mn0) / (mx - mn0)) * cH;
+    const by  = PAD.t + cH - bH;
+    const grad = ctx.createLinearGradient(0, by, 0, PAD.t + cH);
+    grad.addColorStop(0, toRgba(color, .75));
+    grad.addColorStop(1, toRgba(color, .08));
+    ctx.fillStyle = grad;
+    const r = Math.min(2, barW / 2);
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(cx - barW / 2, by, barW, bH, [r, r, 0, 0]);
+    } else {
+      ctx.rect(cx - barW / 2, by, barW, bH);
+    }
+    ctx.fill();
+  });
+
+  /* moving-average line overlay */
+  const win = 5;
+  const mavg = data.map((_, i) => {
+    let s = 0, n = 0;
+    for (let j = Math.max(0,i-win); j <= Math.min(data.length-1,i+win); j++) { s+=data[j]; n++; }
+    return s / n;
+  });
+
+  ctx.beginPath();
+  for (let i = 0; i < Math.min(count, data.length); i++) {
+    const x = PAD.l + (i / (data.length - 1)) * cW;
+    const y = PAD.t + (1 - (mavg[i] - mn0) / (mx - mn0)) * cH;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = toRgba(color, .9);
+  ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+  ctx.shadowBlur = 7; ctx.shadowColor = color;
+  ctx.stroke(); ctx.shadowBlur = 0;
+
+  /* end dot */
+  if (count >= data.length) {
+    const lx = PAD.l + cW;
+    const lv = mavg[data.length - 1];
+    const ly = PAD.t + (1 - (lv - mn0) / (mx - mn0)) * cH;
+    ctx.beginPath(); ctx.arc(lx, ly, 7, 0, 2*Math.PI);
+    ctx.fillStyle = toRgba(color, .2); ctx.fill();
+    ctx.beginPath(); ctx.arc(lx, ly, 3, 0, 2*Math.PI);
+    ctx.fillStyle = '#fff'; ctx.shadowBlur = 10; ctx.shadowColor = color;
+    ctx.fill(); ctx.shadowBlur = 0;
+    ctx.font = "bold 9px 'Space Mono',monospace";
+    ctx.fillStyle = color; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    ctx.fillText(data[data.length-1].toFixed(1), lx - 6, ly - 5);
+  }
+}
+
+function animateWindChart(canvas, data, colorVar) {
+  const full = data.length;
+  let frame = 0;
+  function step() {
+    const prog  = Math.min(1, frame++ / 55);
+    const eased = 1 - Math.pow(1 - prog, 3);
+    drawWindChart(canvas, data, colorVar, Math.ceil(eased * full));
+    if (prog < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function deltaStr(data) {
+  const change = data[data.length - 1] - data[0];
+  const abs = Math.abs(change).toFixed(2);
+  if (change > 0.05)  return `<span class="up">▲${abs}</span> from 24h ago`;
+  if (change < -0.05) return `<span class="dn">▼${abs}</span> from 24h ago`;
+  return `<span class="flat">≈ steady</span> from 24h ago`;
+}
+</script>
+
+<!-- ═════════════════ MARKUP ════════════════════ -->
+
+<header class="hd">
+  <div>
+    <div class="hd-name">GDC Station</div>
+    <div class="hd-loc">Muscat, Oman · DID 001D0AC05DA8</div>
+  </div>
+  <div class="pill"><span class="dot"></span>Online</div>
+  <div class="hd-time">
+    <strong id="ts"></strong>
+    WeatherLink Console · 24h trend
+  </div>
+</header>
+
+<div class="charts">
+
+  <!-- Temperature -->
+  <div class="cp" style="--cc:var(--temp)">
+    <div class="cp-head">
+      <span class="cp-icon"><svg width="13" height="16" viewBox="0 0 13 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="4.5" y="1" width="4" height="10" rx="2"/><circle cx="6.5" cy="13" r="2.5"/><line x1="6.5" y1="11" x2="6.5" y2="13.5"/></svg></span>
+      <span class="cp-name">Temperature</span>
+      <span class="cp-val" id="v-temp">—</span>
+      <span class="cp-delta" id="d-temp">—</span>
+    </div>
+    <div class="cp-canvas-wrap">
+      <canvas class="cc" id="c-temp"></canvas>
+    </div>
+  </div>
+
+  <!-- Humidity -->
+  <div class="cp" style="--cc:var(--hum)">
+    <div class="cp-head">
+      <span class="cp-icon"><svg width="12" height="15" viewBox="0 0 12 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1C6 1 1.5 7 1.5 10a4.5 4.5 0 009 0C10.5 7 6 1 6 1z"/></svg></span>
+      <span class="cp-name">Humidity</span>
+      <span class="cp-val" id="v-hum">—</span>
+      <span class="cp-delta" id="d-hum">—</span>
+    </div>
+    <div class="cp-canvas-wrap">
+      <canvas class="cc" id="c-hum"></canvas>
+    </div>
+  </div>
+
+  <!-- Wind -->
+  <div class="cp" style="--cc:var(--wind)">
+    <div class="cp-head">
+      <span class="cp-icon"><svg width="15" height="12" viewBox="0 0 15 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M1 3h7a2 2 0 100-4"/><line x1="1" y1="6" x2="11" y2="6"/><path d="M1 9h5a2 2 0 110 4"/></svg></span>
+      <span class="cp-name">Wind · <span id="wind-dir-lbl" style="color:var(--wind)">—</span> · <span id="v-wind" style="color:var(--wind)">—</span></span>
+      <span class="cp-val" id="v-wind-spd">—</span>
+      <span class="cp-delta" id="d-wind">—</span>
+    </div>
+    <div class="cp-canvas-wrap">
+      <canvas class="cc cc-rose" id="c-wind"></canvas>
+    </div>
+  </div>
+
+  <!-- Pressure -->
+  <div class="cp" style="--cc:var(--bar)">
+    <div class="cp-head">
+      <span class="cp-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2.5 10.5a6 6 0 119 0"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/><line x1="7" y1="7" x2="10.5" y2="3.5"/></svg></span>
+      <span class="cp-name">Pressure · <span id="bar-trend-lbl" style="font-size:10px">—</span></span>
+      <span class="cp-val" id="v-bar">—</span>
+      <span class="cp-delta" id="d-bar">—</span>
+    </div>
+    <div class="cp-canvas-wrap">
+      <canvas class="cc" id="c-bar"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<footer class="ft">
+  <span>Station&nbsp;222130 · UUID&nbsp;a0db0943-6d02-4105-8db2-573113633014</span>
+  <span class="ft-r">x-axis = Oman time (UTC+4) · last 24h</span>
+</footer>
+
+<script>
+(function () {
+  const D = NOW, T = TRENDS;
+
+  document.getElementById("ts").textContent = fmtTime(D.timestamp);
+
+  /* values */
+  document.getElementById("v-temp").textContent  = D.temp.toFixed(1)      + "°C";
+  document.getElementById("v-hum").textContent   = D.humidity.toFixed(0)  + "%";
+  document.getElementById("v-wind-spd").textContent = D.wind_speed.toFixed(1) + " km/h";
+  document.getElementById("v-bar").textContent   = D.bar_sl.toFixed(1)    + " hPa";
+
+  /* deltas */
+  document.getElementById("d-temp").innerHTML  = deltaStr(T.temp);
+  document.getElementById("d-hum").innerHTML   = deltaStr(T.hum);
+  document.getElementById("d-wind").innerHTML  = deltaStr(T.wind);
+  document.getElementById("v-wind").textContent = D.wind_speed.toFixed(1) + " km/h";
+  document.getElementById("d-bar").innerHTML   = deltaStr(T.bar);
+
+  /* wind dir */
+  const dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+  document.getElementById("wind-dir-lbl").textContent =
+    dirs[Math.round(D.wind_dir / 22.5) % 16] + " " + D.wind_dir + "°";
+
+  /* pressure trend */
+  const bt = D.bar_trend;
+  const btEl = document.getElementById("bar-trend-lbl");
+  const btAbs = Math.abs(bt).toFixed(1) + " hPa";
+  if (bt > .5)        { btEl.textContent = "▲ rising " + btAbs;  btEl.style.color = "var(--temp)"; }
+  else if (bt < -.5)  { btEl.textContent = "▼ falling " + btAbs; btEl.style.color = "var(--hum)"; }
+  else                { btEl.textContent = "→ steady";            btEl.style.color = "var(--muted)"; }
+
+  /* draw charts after layout */
+  function renderAll(animate) {
+    if (animate === false) {
+      drawChart(document.getElementById("c-temp"),  T.temp, "--temp");
+      drawChart(document.getElementById("c-hum"),   T.hum,  "--hum");
+      drawWindRose(document.getElementById("c-wind"), T.wind_dirs, "--wind");
+      drawChart(document.getElementById("c-bar"),   T.bar,  "--bar");
+    } else {
+      animateChart(document.getElementById("c-temp"),  T.temp, "--temp");
+      animateChart(document.getElementById("c-hum"),   T.hum,  "--hum");
+      drawWindRose(document.getElementById("c-wind"), T.wind_dirs, "--wind");
+      animateChart(document.getElementById("c-bar"),   T.bar,  "--bar");
+    }
+  }
+
+  if (document.fonts) document.fonts.ready.then(renderAll);
+  else setTimeout(renderAll, 200);
+
+  /* re-draw on resize / theme change (no re-animation) */
+  let raf;
+  const redraw = () => { clearTimeout(raf); raf = setTimeout(() => renderAll(false), 80); };
+  window.addEventListener('resize', redraw);
+  new MutationObserver(redraw)
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  window.matchMedia?.("(prefers-color-scheme:dark)").addEventListener("change", redraw);
+})();
+</script>
