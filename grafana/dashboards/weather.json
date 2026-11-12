@@ -180,9 +180,7 @@
         "wideLayout": true,
         "showPercentChange": false,
         "orientation": "auto",
-        "text": {
-          "valueSize": 34
-        }
+        "text": {}
       }
     },
     {
@@ -260,9 +258,7 @@
         "wideLayout": true,
         "showPercentChange": false,
         "orientation": "auto",
-        "text": {
-          "valueSize": 34
-        }
+        "text": {}
       }
     },
     {
@@ -328,9 +324,7 @@
         "wideLayout": true,
         "showPercentChange": false,
         "orientation": "auto",
-        "text": {
-          "valueSize": 34
-        }
+        "text": {}
       }
     },
     {
@@ -408,9 +402,7 @@
         "wideLayout": true,
         "showPercentChange": false,
         "orientation": "auto",
-        "text": {
-          "valueSize": 34
-        }
+        "text": {}
       }
     },
     {
@@ -488,9 +480,7 @@
         "wideLayout": true,
         "showPercentChange": false,
         "orientation": "auto",
-        "text": {
-          "valueSize": 34
-        }
+        "text": {}
       }
     },
     {
@@ -727,17 +717,13 @@
         "wideLayout": true,
         "showPercentChange": false,
         "orientation": "auto",
-        "text": {
-          "valueSize": 34
-        }
-      },
-      "timeFrom": "24h",
-      "hideTimeOverride": true
+        "text": {}
+      }
     },
     {
       "id": 8,
       "type": "row",
-      "title": "Summary · selected range",
+      "title": "Summary",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -759,8 +745,8 @@
       "gridPos": {
         "x": 0,
         "y": 6,
-        "w": 6,
-        "h": 6
+        "w": 8,
+        "h": 8
       },
       "targets": [
         {
@@ -780,20 +766,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "text",
-                "value": null
-              },
-              {
                 "color": "yellow",
-                "value": 39
-              },
-              {
-                "color": "orange",
-                "value": 62
-              },
-              {
-                "color": "red",
-                "value": 89
+                "value": null
               }
             ]
           },
@@ -819,9 +793,7 @@
         "wideLayout": true,
         "showPercentChange": false,
         "orientation": "auto",
-        "text": {
-          "valueSize": 72
-        }
+        "text": {}
       }
     },
     {
@@ -834,10 +806,10 @@
         "uid": "influxdb"
       },
       "gridPos": {
-        "x": 6,
+        "x": 8,
         "y": 6,
         "w": 4,
-        "h": 3
+        "h": 4
       },
       "targets": [
         {
@@ -857,7 +829,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "text",
+                "color": "blue",
                 "value": null
               }
             ]
@@ -884,9 +856,7 @@
         "wideLayout": true,
         "showPercentChange": false,
         "orientation": "auto",
-        "text": {
-          "valueSize": 34
-        }
+        "text": {}
       }
     },
     {
@@ -899,10 +869,10 @@
         "uid": "influxdb"
       },
       "gridPos": {
-        "x": 10,
+        "x": 12,
         "y": 6,
         "w": 4,
-        "h": 3
+        "h": 4
       },
       "targets": [
         {
@@ -924,14 +894,6 @@
               {
                 "color": "text",
                 "value": null
-              },
-              {
-                "color": "orange",
-                "value": 40
-              },
-              {
-                "color": "red",
-                "value": 46
               }
             ]
           },
@@ -957,90 +919,11 @@
         "wideLayout": true,
         "showPercentChange": false,
         "orientation": "auto",
-        "text": {
-          "valueSize": 34
-        }
+        "text": {}
       }
     },
     {
       "id": 12,
-      "type": "stat",
-      "title": "Peak Feels-like",
-      "description": "Highest heat index in the range.",
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb"
-      },
-      "gridPos": {
-        "x": 14,
-        "y": 6,
-        "w": 4,
-        "h": 3
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "influxdb"
-          },
-          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"heat_index\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> max()\n  |> keep(columns: [\"_value\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "celsius",
-          "decimals": 1,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "text",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 32
-              },
-              {
-                "color": "red",
-                "value": 41
-              },
-              {
-                "color": "dark-red",
-                "value": 54
-              }
-            ]
-          },
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": []
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "textMode": "value",
-        "wideLayout": true,
-        "showPercentChange": false,
-        "orientation": "auto",
-        "text": {
-          "valueSize": 34
-        }
-      }
-    },
-    {
-      "id": 13,
       "type": "stat",
       "title": "Min Humidity",
       "description": "",
@@ -1049,10 +932,10 @@
         "uid": "influxdb"
       },
       "gridPos": {
-        "x": 6,
-        "y": 9,
+        "x": 8,
+        "y": 10,
         "w": 4,
-        "h": 3
+        "h": 4
       },
       "targets": [
         {
@@ -1099,13 +982,11 @@
         "wideLayout": true,
         "showPercentChange": false,
         "orientation": "auto",
-        "text": {
-          "valueSize": 34
-        }
+        "text": {}
       }
     },
     {
-      "id": 14,
+      "id": 13,
       "type": "stat",
       "title": "Max Humidity",
       "description": "",
@@ -1114,10 +995,10 @@
         "uid": "influxdb"
       },
       "gridPos": {
-        "x": 10,
-        "y": 9,
+        "x": 12,
+        "y": 10,
         "w": 4,
-        "h": 3
+        "h": 4
       },
       "targets": [
         {
@@ -1137,7 +1018,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "text",
+                "color": "blue",
                 "value": null
               }
             ]
@@ -1164,90 +1045,23 @@
         "wideLayout": true,
         "showPercentChange": false,
         "orientation": "auto",
-        "text": {
-          "valueSize": 34
-        }
+        "text": {}
       }
     },
     {
-      "id": 15,
+      "id": 14,
       "type": "stat",
-      "title": "Rain",
-      "description": "Total rainfall in the selected range.",
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb"
-      },
-      "gridPos": {
-        "x": 14,
-        "y": 9,
-        "w": 4,
-        "h": 3
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "influxdb"
-          },
-          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"rainfall_last_24_hr\")\n  |> map(fn: (r) => ({r with _value: r._value * 25.4}))\n  |> sum()\n  |> keep(columns: [\"_value\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "lengthmm",
-          "decimals": 1,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "text",
-                "value": null
-              }
-            ]
-          },
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": []
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "textMode": "value",
-        "wideLayout": true,
-        "showPercentChange": false,
-        "orientation": "auto",
-        "text": {
-          "valueSize": 34
-        }
-      }
-    },
-    {
-      "id": 16,
-      "type": "stat",
-      "title": "Prevailing Wind",
+      "title": "Prevailing Wind Direction",
       "description": "Speed-weighted circular mean of wind direction (vector average, so 350° and 10° average to N, not S).",
       "datasource": {
         "type": "influxdb",
         "uid": "influxdb"
       },
       "gridPos": {
-        "x": 18,
+        "x": 16,
         "y": 6,
-        "w": 6,
-        "h": 6
+        "w": 8,
+        "h": 8
       },
       "targets": [
         {
@@ -1256,7 +1070,7 @@
             "type": "influxdb",
             "uid": "influxdb"
           },
-          "query": "import \"math\"\n\nfrom(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and (r._field == \"wind_dir_last\" or r._field == \"wind_speed_last\"))\n  |> group()\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => exists r.wind_dir_last and exists r.wind_speed_last)\n  |> map(fn: (r) => ({u: r.wind_speed_last * math.sin(x: float(v: r.wind_dir_last) * math.pi / 180.0), v: r.wind_speed_last * math.cos(x: float(v: r.wind_dir_last) * math.pi / 180.0)}))\n  |> reduce(identity: {u: 0.0, v: 0.0}, fn: (r, accumulator) => ({u: accumulator.u + r.u, v: accumulator.v + r.v}))\n  |> map(fn: (r) => {\n      d = math.atan2(y: r.u, x: r.v) * 180.0 / math.pi\n      return {_value: if d < 0.0 then d + 360.0 else d}\n  })"
+          "query": "import \"math\"\n\ncompass = [\"N\", \"NNE\", \"NE\", \"ENE\", \"E\", \"ESE\", \"SE\", \"SSE\", \"S\", \"SSW\", \"SW\", \"WSW\", \"W\", \"WNW\", \"NW\", \"NNW\"]\n\nfrom(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and (r._field == \"wind_dir_last\" or r._field == \"wind_speed_last\"))\n  |> group()\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => exists r.wind_dir_last and exists r.wind_speed_last)\n  |> map(fn: (r) => ({u: r.wind_speed_last * math.sin(x: float(v: r.wind_dir_last) * math.pi / 180.0), v: r.wind_speed_last * math.cos(x: float(v: r.wind_dir_last) * math.pi / 180.0)}))\n  |> reduce(identity: {u: 0.0, v: 0.0}, fn: (r, accumulator) => ({u: accumulator.u + r.u, v: accumulator.v + r.v}))\n  |> map(fn: (r) => {\n      d = math.atan2(y: r.u, x: r.v) * 180.0 / math.pi\n      deg = if d < 0.0 then d + 360.0 else d\n      return {Degrees: deg, Compass: compass[int(v: (deg + 11.25) / 22.5) % 16]}\n  })"
         }
       ],
       "fieldConfig": {
@@ -1267,7 +1081,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "text",
+                "color": "green",
                 "value": null
               }
             ]
@@ -1275,178 +1089,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [
-            {
-              "type": "range",
-              "options": {
-                "from": 0.0,
-                "to": 11.25,
-                "result": {
-                  "text": "N"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 348.75,
-                "to": 360.0,
-                "result": {
-                  "text": "N"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 11.25,
-                "to": 33.75,
-                "result": {
-                  "text": "NNE"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 33.75,
-                "to": 56.25,
-                "result": {
-                  "text": "NE"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 56.25,
-                "to": 78.75,
-                "result": {
-                  "text": "ENE"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 78.75,
-                "to": 101.25,
-                "result": {
-                  "text": "E"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 101.25,
-                "to": 123.75,
-                "result": {
-                  "text": "ESE"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 123.75,
-                "to": 146.25,
-                "result": {
-                  "text": "SE"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 146.25,
-                "to": 168.75,
-                "result": {
-                  "text": "SSE"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 168.75,
-                "to": 191.25,
-                "result": {
-                  "text": "S"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 191.25,
-                "to": 213.75,
-                "result": {
-                  "text": "SSW"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 213.75,
-                "to": 236.25,
-                "result": {
-                  "text": "SW"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 236.25,
-                "to": 258.75,
-                "result": {
-                  "text": "WSW"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 258.75,
-                "to": 281.25,
-                "result": {
-                  "text": "W"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 281.25,
-                "to": 303.75,
-                "result": {
-                  "text": "WNW"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 303.75,
-                "to": 326.25,
-                "result": {
-                  "text": "NW"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 326.25,
-                "to": 348.75,
-                "result": {
-                  "text": "NNW"
-                }
-              }
-            }
-          ]
+          "mappings": []
         },
         "overrides": []
       },
@@ -1455,7 +1098,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
+          "fields": "/.*/",
           "values": false
         },
         "colorMode": "value",
@@ -1464,14 +1107,12 @@
         "textMode": "value",
         "wideLayout": true,
         "showPercentChange": false,
-        "orientation": "auto",
-        "text": {
-          "valueSize": 72
-        }
+        "orientation": "vertical",
+        "text": {}
       }
     },
     {
-      "id": 17,
+      "id": 15,
       "type": "row",
       "title": "Wind",
       "collapsed": false,
@@ -1479,22 +1120,22 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 14
       },
       "panels": []
     },
     {
-      "id": 18,
+      "id": 16,
       "type": "nline-plotlyjs-panel",
-      "title": "Wind Rose",
-      "description": "Share of readings by direction (16 sectors) and speed band. Raw readings, not averaged — averaging would invent calm directions in gusty wind.",
+      "title": "Wind Speed vs Wind Direction",
+      "description": "Share of readings by direction and speed band. Raw readings, not averaged — averaging would invent calm directions in gusty wind.",
       "datasource": {
         "type": "influxdb",
         "uid": "influxdb"
       },
       "gridPos": {
         "x": 0,
-        "y": 13,
+        "y": 15,
         "w": 8,
         "h": 10
       },
@@ -1513,7 +1154,136 @@
         "data": [],
         "layout": {},
         "config": {},
-        "script": "const s = data.series[0];\nconst sectors = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst bins = [[0, 5, '0–5'], [5, 10, '5–10'], [10, 20, '10–20'], [20, 30, '20–30'], [30, 40, '30–40'], [40, Infinity, '40+']];\nconst colors = ['#D9C2EE', '#D3B8EC', '#B877D9', '#9A57C4', '#7A3FA5', '#552C7A'];\nif (!s) return { data: [], layout: { annotations: [{ text: 'No data in range', showarrow: false }] } };\nconst col = (name, i) => (s.fields.find(f => f.name === name) || s.fields[i]).values;\nconst dir = col('dir', 2), spd = col('speed', 1);\nconst counts = bins.map(() => new Array(16).fill(0));\nlet n = 0;\nfor (let i = 0; i < dir.length; i++) {\n  const d = dir[i], v = spd[i];\n  if (d == null || v == null) continue;\n  const sector = Math.round((((d % 360) + 360) % 360) / 22.5) % 16;\n  const b = bins.findIndex(([lo, hi]) => v >= lo && v < hi);\n  counts[b][sector]++;\n  n++;\n}\nreturn {\n  data: bins.map(([, , label], i) => ({\n    type: 'barpolar', name: label + ' km/h', theta: sectors,\n    r: counts[i].map(c => (n ? (100 * c) / n : 0)),\n    marker: { color: colors[i], line: { width: 0 } },\n    hovertemplate: '%{theta} · ' + label + ' km/h<br>%{r:.1f}% of readings<extra></extra>',\n  })),\n  layout: {\n    polar: {\n      bgcolor: 'rgba(0,0,0,0)', bargap: 0.06,\n      angularaxis: { direction: 'clockwise', rotation: 90, tickfont: { size: 10 }, gridcolor: 'rgba(128,128,128,0.25)' },\n      radialaxis: { ticksuffix: '%', angle: 90, tickangle: 90, tickfont: { size: 9 }, gridcolor: 'rgba(128,128,128,0.25)', showline: false },\n    },\n    showlegend: true,\n    legend: { orientation: 'v', x: 1.02, y: 0.5, font: { size: 10 }, traceorder: 'reversed' },\n    margin: { t: 24, b: 24, l: 24, r: 24 },\n    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',\n  },\n  config: { displayModeBar: false, responsive: true },\n};",
+        "script": "const BINS = [[0, 5], [5, 10], [10, 15], [15, 20], [20, 30], [30, null]];\nconst s = data.series[0];\nconst viridis = ['#440154', '#414487', '#2A788E', '#22A884', '#7AD151', '#FDE725'];\nif (!s) return { data: [], layout: { annotations: [{ text: 'No data in range', showarrow: false }] } };\nconst col = (name, i) => (s.fields.find(f => f.name === name) || s.fields[i]).values;\nconst dir = col('dir', 2), spd = col('speed', 1);\nconst names = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst counts = BINS.map(() => new Array(16).fill(0));\nlet n = 0;\nfor (let i = 0; i < dir.length; i++) {\n  const d = dir[i], v = spd[i];\n  if (d == null || v == null) continue;\n  const sector = Math.round((((d % 360) + 360) % 360) / 22.5) % 16;\n  const b = BINS.findIndex(([lo, hi]) => v >= lo && (hi === null || v < hi));\n  counts[b][sector]++;\n  n++;\n}\nconst label = ([lo, hi]) => (hi === null ? lo + '+' : lo + ' – ' + hi) + ' km/h';\nconst grid = 'rgba(128,128,128,0.45)';\nreturn {\n  data: BINS.map((bin, i) => ({\n    type: 'barpolar', name: label(bin),\n    theta: names.map((_, k) => k * 22.5), width: 21,\n    r: counts[i].map(c => (n ? (100 * c) / n : 0)),\n    customdata: names,\n    marker: { color: viridis[i], line: { width: 0 } },\n    hovertemplate: '%{customdata} · ' + label(bin) + '<br>%{r:.1f}% of readings<extra></extra>',\n  })),\n  layout: {\n    polar: {\n      bgcolor: 'rgba(0,0,0,0)', barmode: 'stack',\n      angularaxis: { direction: 'clockwise', rotation: 90, thetaunit: 'degrees',\n        tickmode: 'array', tickvals: [0, 45, 90, 135, 180, 225, 270, 315],\n        ticktext: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'], tickfont: { size: 12 },\n        gridcolor: grid, linecolor: 'rgba(0,0,0,0)', ticks: '' },\n      radialaxis: { ticksuffix: '%', angle: 90, tickangle: 90, tickfont: { size: 10 }, nticks: 5,\n        gridcolor: grid, griddash: 'dash', showline: false },\n    },\n    showlegend: true,\n    legend: { orientation: 'v', x: 1.05, y: 0.95, font: { size: 11 }, traceorder: 'reversed' },\n    margin: { t: 30, b: 30, l: 30, r: 30 },\n    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',\n  },\n  config: { displayModeBar: false, responsive: true },\n};",
+        "onclick": "",
+        "syncTimeRange": false,
+        "imgFormat": "png",
+        "exportWidth": 0,
+        "exportHeight": 0,
+        "resScale": 2,
+        "timeCol": ""
+      }
+    },
+    {
+      "id": 17,
+      "type": "heatmap",
+      "title": "Wind Speed",
+      "description": "Each column is 3 h, each cell 3 km/h; brighter = more readings in that bucket.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 15,
+        "w": 16,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_last\")\n  |> map(fn: (r) => ({r with _value: r._value * 1.609344}))\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> rename(columns: {_value: \"Wind\"})"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "calculate": true,
+        "calculation": {
+          "yBuckets": {
+            "mode": "size",
+            "value": "3"
+          },
+          "xBuckets": {
+            "mode": "size",
+            "value": "3h"
+          }
+        },
+        "cellGap": 2,
+        "color": {
+          "mode": "scheme",
+          "scheme": "Viridis",
+          "scale": "linear",
+          "exponent": 0.5,
+          "steps": 64,
+          "reverse": false
+        },
+        "yAxis": {
+          "axisPlacement": "left",
+          "unit": "velocitykmh",
+          "reverse": false
+        },
+        "rowsFrame": {
+          "layout": "auto"
+        },
+        "cellValues": {
+          "unit": "none"
+        },
+        "tooltip": {
+          "mode": "single",
+          "yHistogram": true,
+          "showColorScale": true
+        },
+        "legend": {
+          "show": false
+        },
+        "showValue": "never",
+        "filterValues": {
+          "le": 1e-09
+        },
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        }
+      }
+    },
+    {
+      "id": 18,
+      "type": "nline-plotlyjs-panel",
+      "title": "Gust Speed vs Wind Direction",
+      "description": "10-minute peak gust and the direction it came from.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 25,
+        "w": 8,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and (r._field == \"wind_dir_at_hi_speed_last_10_min\" or r._field == \"wind_speed_hi_last_10_min\"))\n  |> group()\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => exists r.wind_dir_at_hi_speed_last_10_min and exists r.wind_speed_hi_last_10_min)\n  |> map(fn: (r) => ({_time: r._time, dir: float(v: r.wind_dir_at_hi_speed_last_10_min), speed: r.wind_speed_hi_last_10_min * 1.609344}))"
+        }
+      ],
+      "options": {
+        "allData": {},
+        "data": [],
+        "layout": {},
+        "config": {},
+        "script": "const BINS = [[0, 10], [10, 20], [20, 30], [30, 40], [40, 50], [50, null]];\nconst s = data.series[0];\nconst viridis = ['#440154', '#414487', '#2A788E', '#22A884', '#7AD151', '#FDE725'];\nif (!s) return { data: [], layout: { annotations: [{ text: 'No data in range', showarrow: false }] } };\nconst col = (name, i) => (s.fields.find(f => f.name === name) || s.fields[i]).values;\nconst dir = col('dir', 2), spd = col('speed', 1);\nconst names = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst counts = BINS.map(() => new Array(16).fill(0));\nlet n = 0;\nfor (let i = 0; i < dir.length; i++) {\n  const d = dir[i], v = spd[i];\n  if (d == null || v == null) continue;\n  const sector = Math.round((((d % 360) + 360) % 360) / 22.5) % 16;\n  const b = BINS.findIndex(([lo, hi]) => v >= lo && (hi === null || v < hi));\n  counts[b][sector]++;\n  n++;\n}\nconst label = ([lo, hi]) => (hi === null ? lo + '+' : lo + ' – ' + hi) + ' km/h';\nconst grid = 'rgba(128,128,128,0.45)';\nreturn {\n  data: BINS.map((bin, i) => ({\n    type: 'barpolar', name: label(bin),\n    theta: names.map((_, k) => k * 22.5), width: 21,\n    r: counts[i].map(c => (n ? (100 * c) / n : 0)),\n    customdata: names,\n    marker: { color: viridis[i], line: { width: 0 } },\n    hovertemplate: '%{customdata} · ' + label(bin) + '<br>%{r:.1f}% of readings<extra></extra>',\n  })),\n  layout: {\n    polar: {\n      bgcolor: 'rgba(0,0,0,0)', barmode: 'stack',\n      angularaxis: { direction: 'clockwise', rotation: 90, thetaunit: 'degrees',\n        tickmode: 'array', tickvals: [0, 45, 90, 135, 180, 225, 270, 315],\n        ticktext: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'], tickfont: { size: 12 },\n        gridcolor: grid, linecolor: 'rgba(0,0,0,0)', ticks: '' },\n      radialaxis: { ticksuffix: '%', angle: 90, tickangle: 90, tickfont: { size: 10 }, nticks: 5,\n        gridcolor: grid, griddash: 'dash', showline: false },\n    },\n    showlegend: true,\n    legend: { orientation: 'v', x: 1.05, y: 0.95, font: { size: 11 }, traceorder: 'reversed' },\n    margin: { t: 30, b: 30, l: 30, r: 30 },\n    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',\n  },\n  config: { displayModeBar: false, responsive: true },\n};",
         "onclick": "",
         "syncTimeRange": false,
         "imgFormat": "png",
@@ -1525,17 +1295,106 @@
     },
     {
       "id": 19,
-      "type": "timeseries",
-      "title": "Wind & Gust Speed",
-      "description": "Per window (see Window variable): wind min–max ribbon with mean line; gust mean (dashed) and max.",
+      "type": "heatmap",
+      "title": "Gust Speed",
+      "description": "Each column is 3 h, each cell 5 km/h; brighter = more readings in that bucket.",
       "datasource": {
         "type": "influxdb",
         "uid": "influxdb"
       },
       "gridPos": {
         "x": 8,
-        "y": 13,
+        "y": 25,
         "w": 16,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_hi_last_10_min\")\n  |> map(fn: (r) => ({r with _value: r._value * 1.609344}))\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> rename(columns: {_value: \"Gust\"})"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "calculate": true,
+        "calculation": {
+          "yBuckets": {
+            "mode": "size",
+            "value": "5"
+          },
+          "xBuckets": {
+            "mode": "size",
+            "value": "3h"
+          }
+        },
+        "cellGap": 2,
+        "color": {
+          "mode": "scheme",
+          "scheme": "Viridis",
+          "scale": "linear",
+          "exponent": 0.5,
+          "steps": 64,
+          "reverse": false
+        },
+        "yAxis": {
+          "axisPlacement": "left",
+          "unit": "velocitykmh",
+          "reverse": false
+        },
+        "rowsFrame": {
+          "layout": "auto"
+        },
+        "cellValues": {
+          "unit": "none"
+        },
+        "tooltip": {
+          "mode": "single",
+          "yHistogram": true,
+          "showColorScale": true
+        },
+        "legend": {
+          "show": false
+        },
+        "showValue": "never",
+        "filterValues": {
+          "le": 1e-09
+        },
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        }
+      }
+    },
+    {
+      "id": 20,
+      "type": "timeseries",
+      "title": "Wind & Gust Speed",
+      "description": "Per window: max, mean and min wind with max and mean gust, as overlapping translucent areas.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 35,
+        "w": 12,
         "h": 10
       },
       "targets": [
@@ -1554,14 +1413,14 @@
           "decimals": 1,
           "color": {
             "mode": "fixed",
-            "fixedColor": "purple"
+            "fixedColor": "blue"
           },
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "smooth",
             "lineWidth": 1,
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "fillOpacity": 14,
+            "gradientMode": "opacity",
             "showPoints": "never",
             "spanNulls": false,
             "axisPlacement": "auto",
@@ -1599,71 +1458,6 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Wind max"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "purple"
-                }
-              },
-              {
-                "id": "custom.fillBelowTo",
-                "value": "Wind min"
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 22
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 0
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Wind min"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "purple"
-                }
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 0
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Wind mean"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "purple"
-                }
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 2
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "Gust max"
             },
             "properties": [
@@ -1671,20 +1465,8 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "yellow"
+                  "fixedColor": "#8B7BA8"
                 }
-              },
-              {
-                "id": "custom.fillBelowTo",
-                "value": "Gust mean"
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 15
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 0
               }
             ]
           },
@@ -1698,22 +1480,57 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "yellow"
+                  "fixedColor": "#A89CC0"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Wind max"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#5A7FBF"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Wind min"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#3F5F99"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Wind mean"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
                 }
               },
               {
                 "id": "custom.lineWidth",
-                "value": 1
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    6,
-                    4
-                  ]
-                }
+                "value": 2
               }
             ]
           }
@@ -1733,104 +1550,19 @@
       }
     },
     {
-      "id": 20,
-      "type": "heatmap",
-      "title": "Wind Speed Distribution",
-      "description": "Each column is a time slice, each cell a 5 km/h band; brighter = more readings. Shows where the bulk of the wind sits, not just the peaks.",
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 23,
-        "w": 12,
-        "h": 9
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "influxdb"
-          },
-          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_last\")\n  |> map(fn: (r) => ({r with _value: r._value * 1.609344}))\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> rename(columns: {_value: \"Wind\"})"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "scaleDistribution": {
-              "type": "linear"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "calculate": true,
-        "calculation": {
-          "yBuckets": {
-            "mode": "size",
-            "value": "5"
-          }
-        },
-        "cellGap": 1,
-        "color": {
-          "mode": "opacity",
-          "fill": "purple",
-          "scale": "exponential",
-          "exponent": 0.5,
-          "steps": 64,
-          "reverse": false
-        },
-        "yAxis": {
-          "axisPlacement": "left",
-          "unit": "velocitykmh",
-          "reverse": false
-        },
-        "rowsFrame": {
-          "layout": "auto"
-        },
-        "cellValues": {
-          "unit": "none"
-        },
-        "tooltip": {
-          "mode": "single",
-          "yHistogram": true,
-          "showColorScale": false
-        },
-        "legend": {
-          "show": false
-        },
-        "showValue": "never",
-        "filterValues": {
-          "le": 1e-09
-        },
-        "exemplars": {
-          "color": "rgba(255,0,255,0.7)"
-        }
-      }
-    },
-    {
       "id": 21,
       "type": "timeseries",
-      "title": "Wind Direction · percentiles",
-      "description": "Median direction (solid) with 25–75 % (inner) and 10–90 % (outer) ribbons per window. Narrow = steady wind, wide = shifting. The axis wraps at SE, the rarest direction here, so the common W ↔ N swings stay continuous.",
+      "title": "Wind Direction History",
+      "description": "Percentiles p10–p90 of wind direction per window: purple below the median, green above, median solid. Narrow river = steady wind, wide = shifting. The axis wraps at SE, the rarest direction here.",
       "datasource": {
         "type": "influxdb",
         "uid": "influxdb"
       },
       "gridPos": {
         "x": 12,
-        "y": 23,
+        "y": 35,
         "w": 12,
-        "h": 9
+        "h": 10
       },
       "targets": [
         {
@@ -1839,7 +1571,7 @@
             "type": "influxdb",
             "uid": "influxdb"
           },
-          "query": "data = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_dir_last\")\n  |> map(fn: (r) => ({r with _value: float(v: (int(v: r._value) + 225) % 360) * 400.0 / 360.0}))\n\npct = (q, name) => data\n  |> aggregateWindow(every: ${period}, fn: (column, tables=<-) => tables |> quantile(q: q, column: column), createEmpty: false)\n  |> set(key: \"_field\", value: name)\n\nunion(tables: [pct(q: 0.10, name: \"p10\"), pct(q: 0.25, name: \"p25\"), pct(q: 0.50, name: \"p50\"), pct(q: 0.75, name: \"p75\"), pct(q: 0.90, name: \"p90\")])\n  |> group()\n  |> keep(columns: [\"_time\", \"_field\", \"_value\"])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+          "query": "data = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_dir_last\")\n  |> map(fn: (r) => ({r with _value: float(v: (int(v: r._value) + 225) % 360) * 400.0 / 360.0}))\n\npct = (q, name) => data\n  |> aggregateWindow(every: ${period}, fn: (column, tables=<-) => tables |> quantile(q: q, column: column), createEmpty: false)\n  |> set(key: \"_field\", value: name)\n\nunion(tables: [pct(q: 0.10, name: \"p10\"), pct(q: 0.20, name: \"p20\"), pct(q: 0.30, name: \"p30\"), pct(q: 0.40, name: \"p40\"), pct(q: 0.50, name: \"p50\"), pct(q: 0.60, name: \"p60\"), pct(q: 0.70, name: \"p70\"), pct(q: 0.80, name: \"p80\"), pct(q: 0.90, name: \"p90\")])\n  |> group()\n  |> keep(columns: [\"_time\", \"_field\", \"_value\"])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
         }
       ],
       "fieldConfig": {
@@ -1865,10 +1597,14 @@
               "type": "linear"
             },
             "thresholdsStyle": {
-              "mode": "dashed"
+              "mode": "dashed+area"
             },
             "lineStyle": {
-              "fill": "solid"
+              "fill": "dash",
+              "dash": [
+                2,
+                4
+              ]
             },
             "barAlignment": 0,
             "pointSize": 4,
@@ -1882,19 +1618,19 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent",
+                "color": "#1F60C4",
                 "value": null
               },
               {
-                "color": "#8E8E8E55",
+                "color": "#1F60C4",
                 "value": 100
               },
               {
-                "color": "#8E8E8E55",
+                "color": "#1F60C4",
                 "value": 200
               },
               {
-                "color": "#8E8E8E55",
+                "color": "#1F60C4",
                 "value": 300
               }
             ]
@@ -2078,60 +1814,6 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "p90"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "purple"
-                }
-              },
-              {
-                "id": "custom.fillBelowTo",
-                "value": "p10"
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 12
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 0
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "p75"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "purple"
-                }
-              },
-              {
-                "id": "custom.fillBelowTo",
-                "value": "p25"
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 28
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 0
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "p10"
             },
             "properties": [
@@ -2143,15 +1825,19 @@
                 }
               },
               {
-                "id": "custom.lineWidth",
-                "value": 0
+                "id": "custom.fillBelowTo",
+                "value": "p20"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 24
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "p25"
+              "options": "p20"
             },
             "properties": [
               {
@@ -2162,8 +1848,150 @@
                 }
               },
               {
-                "id": "custom.lineWidth",
-                "value": 0
+                "id": "custom.fillBelowTo",
+                "value": "p30"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 24
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p30"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              },
+              {
+                "id": "custom.fillBelowTo",
+                "value": "p40"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 24
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p40"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              },
+              {
+                "id": "custom.fillBelowTo",
+                "value": "p50"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 24
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p60"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              },
+              {
+                "id": "custom.fillBelowTo",
+                "value": "p50"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 24
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p70"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              },
+              {
+                "id": "custom.fillBelowTo",
+                "value": "p60"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 24
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p80"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              },
+              {
+                "id": "custom.fillBelowTo",
+                "value": "p70"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 24
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p90"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              },
+              {
+                "id": "custom.fillBelowTo",
+                "value": "p80"
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 24
               }
             ]
           },
@@ -2177,12 +2005,18 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "purple"
+                  "fixedColor": "#E8DAF5"
                 }
               },
               {
                 "id": "custom.lineWidth",
                 "value": 2
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "solid"
+                }
               }
             ]
           }
@@ -2210,7 +2044,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 45
       },
       "panels": []
     },
@@ -2225,7 +2059,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 33,
+        "y": 46,
         "w": 12,
         "h": 9
       },
@@ -2245,7 +2079,7 @@
           "decimals": 1,
           "color": {
             "mode": "fixed",
-            "fixedColor": "orange"
+            "fixedColor": "blue"
           },
           "custom": {
             "drawStyle": "line",
@@ -2283,7 +2117,7 @@
                 "value": null
               },
               {
-                "color": "red",
+                "color": "#8E8E8E",
                 "value": 40
               }
             ]
@@ -2301,7 +2135,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "orange"
+                  "fixedColor": "blue"
                 }
               },
               {
@@ -2310,7 +2144,7 @@
               },
               {
                 "id": "custom.fillOpacity",
-                "value": 20
+                "value": 35
               },
               {
                 "id": "custom.lineWidth",
@@ -2328,7 +2162,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "orange"
+                  "fixedColor": "blue"
                 }
               },
               {
@@ -2347,12 +2181,31 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "orange"
+                  "fixedColor": "blue"
                 }
               },
               {
                 "id": "custom.lineWidth",
                 "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mean"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 1
               }
             ]
           },
@@ -2366,7 +2219,7 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "red"
+                  "fixedColor": "orange"
                 }
               },
               {
@@ -2407,7 +2260,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 33,
+        "y": 46,
         "w": 12,
         "h": 9
       },
@@ -2427,7 +2280,7 @@
           "decimals": 0,
           "color": {
             "mode": "fixed",
-            "fixedColor": "blue"
+            "fixedColor": "text"
           },
           "custom": {
             "drawStyle": "line",
@@ -2480,9 +2333,12 @@
               {
                 "id": "color",
                 "value": {
-                  "mode": "fixed",
-                  "fixedColor": "blue"
+                  "mode": "continuous-YlBl"
                 }
+              },
+              {
+                "id": "custom.gradientMode",
+                "value": "scheme"
               },
               {
                 "id": "custom.fillBelowTo",
@@ -2490,7 +2346,7 @@
               },
               {
                 "id": "custom.fillOpacity",
-                "value": 20
+                "value": 40
               },
               {
                 "id": "custom.lineWidth",
@@ -2504,13 +2360,6 @@
               "options": "Min"
             },
             "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "mode": "fixed",
-                  "fixedColor": "blue"
-                }
-              },
               {
                 "id": "custom.lineWidth",
                 "value": 0
@@ -2527,12 +2376,12 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "blue"
+                  "fixedColor": "text"
                 }
               },
               {
                 "id": "custom.lineWidth",
-                "value": 2
+                "value": 1
               }
             ]
           }
@@ -2560,7 +2409,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 55
       },
       "panels": []
     },
@@ -2575,7 +2424,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 43,
+        "y": 56,
         "w": 12,
         "h": 7
       },
@@ -2662,7 +2511,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 43,
+        "y": 56,
         "w": 12,
         "h": 7
       },
@@ -2748,7 +2597,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 50
+        "y": 63
       },
       "panels": [
         {
@@ -2762,7 +2611,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 51,
+            "y": 64,
             "w": 24,
             "h": 10
           },
@@ -2803,11 +2652,11 @@
                 "value": "1d"
               }
             },
-            "cellGap": 1,
+            "cellGap": 2,
             "color": {
-              "mode": "opacity",
-              "fill": "orange",
-              "scale": "exponential",
+              "mode": "scheme",
+              "scheme": "Plasma",
+              "scale": "linear",
               "exponent": 0.5,
               "steps": 64,
               "reverse": false
@@ -2826,7 +2675,7 @@
             "tooltip": {
               "mode": "single",
               "yHistogram": true,
-              "showColorScale": false
+              "showColorScale": true
             },
             "legend": {
               "show": false
@@ -2852,7 +2701,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 51
+        "y": 64
       },
       "panels": [
         {
@@ -2866,7 +2715,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 52,
+            "y": 65,
             "w": 6,
             "h": 4
           },
@@ -2948,7 +2797,7 @@
           },
           "gridPos": {
             "x": 6,
-            "y": 52,
+            "y": 65,
             "w": 6,
             "h": 4
           },
@@ -3019,7 +2868,7 @@
           },
           "gridPos": {
             "x": 12,
-            "y": 52,
+            "y": 65,
             "w": 6,
             "h": 4
           },
@@ -3082,7 +2931,7 @@
           },
           "gridPos": {
             "x": 18,
-            "y": 52,
+            "y": 65,
             "w": 6,
             "h": 4
           },
