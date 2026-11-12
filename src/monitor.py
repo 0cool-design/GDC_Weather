@@ -27,8 +27,15 @@ class WeatherMonitor:
         self.did = config.get("did", "")
         self.poll_interval = config.get("poll_interval", 300)
 
-        # Auto-select API version
-        if self.did:
+        # Prefer v2 when station_id is set; fall back to v1 (DID) only if no station_id
+        if self.station_id:
+            self.client = WeatherLinkClient(
+                api_key=config["api_key"],
+                api_secret=config["api_secret"],
+            )
+            self._api_version = 2
+            logger.info("Using WeatherLink v2 API (station: %s)", self.station_id)
+        elif self.did:
             self.client = WeatherLinkV1Client(
                 api_token=config["api_token_v1"],
                 did=self.did,
@@ -37,13 +44,6 @@ class WeatherMonitor:
             )
             self._api_version = 1
             logger.info("Using WeatherLink v1 API (DID: %s)", self.did)
-        else:
-            self.client = WeatherLinkClient(
-                api_key=config["api_key"],
-                api_secret=config["api_secret"],
-            )
-            self._api_version = 2
-            logger.info("Using WeatherLink v2 API (station: %s)", self.station_id)
         self.db = SQLiteStorage(config["db_path"])
         self.json_log = JsonLogger(config["log_dir"])
         self.lp_writer = InfluxLineProtocolWriter(
