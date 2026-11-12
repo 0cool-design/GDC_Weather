@@ -8,6 +8,7 @@ Grafana → Prometheus datasource → scrape :9001/metrics
 
 import logging
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
 
@@ -22,13 +23,14 @@ GAUGE_FIELDS = [
     ("weather_humidity_pct", "humidity", "Outdoor relative humidity percent"),
     ("weather_humidity_indoor_pct", "humidity_in", "Indoor relative humidity percent"),
     ("weather_dew_point_f", "dew_point", "Dew point temperature in Fahrenheit"),
+    ("weather_heat_index_f", "heat_index", "Heat index (feels-like) in Fahrenheit"),
     ("weather_wind_speed_mph", "wind_speed_last", "Current wind speed in mph"),
     ("weather_wind_dir_deg", "wind_dir_last", "Current wind direction in degrees"),
     ("weather_wind_speed_avg_10min_mph", "wind_speed_avg_last_10_min", "10-minute average wind speed"),
     ("weather_wind_speed_hi_10min_mph", "wind_speed_hi_last_10_min", "10-minute high wind speed"),
     ("weather_barometer_inhg", "bar_sea_level", "Barometric pressure sea level in inHg"),
-    ("weather_rain_rate_in_hr", "rain_rate_last", "Current rain rate in/hr"),
-    ("weather_rainfall_daily_in", "rainfall_daily", "Daily rainfall in inches"),
+    ("weather_rain_rate_in_hr", "rain_rate_hi", "Peak rain rate over the last interval in/hr"),
+    ("weather_rainfall_24h_in", "rainfall_last_24_hr", "Rolling 24-hour rainfall in inches"),
     ("weather_rainfall_monthly_in", "rainfall_monthly", "Monthly rainfall in inches"),
     ("weather_rainfall_yearly_in", "rainfall_year", "Yearly rainfall in inches"),
     ("weather_solar_radiation_wm2", "solar_rad", "Solar radiation W/m²"),
@@ -56,7 +58,6 @@ def _build_metrics() -> str:
 
     lines = []
     station = snapshot.get("station_uuid", "gdc")
-    ts_ms = snapshot.get("timestamp", 0) * 1000  # Prometheus wants milliseconds
 
     for prom_name, field, help_text in GAUGE_FIELDS:
         val = snapshot.get(field)
@@ -67,7 +68,6 @@ def _build_metrics() -> str:
         lines.append(f'{prom_name}{{station="{station}"}} {float(val)}')
 
     # Uptime indicator — 1 if data is fresh (<15 min old), 0 if stale
-    import time
     age = time.time() - snapshot.get("timestamp", 0)
     fresh = 1 if age < 900 else 0
     lines.append("# HELP weather_up 1 if station data is fresh (<15 min), 0 if stale")

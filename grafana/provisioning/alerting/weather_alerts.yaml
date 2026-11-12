@@ -1,127 +1,178 @@
 apiVersion: 1
 
-# Contact points and policies are configured via Grafana UI (Alerting → Contact points).
-# Add your webhook URL there after first login.
+# Rules evaluate live Prometheus metrics. With no contact point configured they show
+# under Alerting → Alert rules only; add a contact point in the UI to get notified.
+
+# Remove rules left in Grafana's database by earlier versions of this file.
+deleteRules:
+  - {orgId: 1, uid: gdc-station-offline}
+  - {orgId: 1, uid: gdc-high-wind}
+  - {orgId: 1, uid: gdc-extreme-temp}
+  - {orgId: 1, uid: gdc-heavy-rain}
+  - {orgId: 1, uid: gdc-heat-critical}
+  - {orgId: 1, uid: gdc-heat-warning}
+  - {orgId: 1, uid: gdc-wind-warning}
+  - {orgId: 1, uid: gdc-wind-critical}
+  - {orgId: 1, uid: gdc-rain-critical}
+  - {orgId: 1, uid: gdc-sensor-stale}
+  - {orgId: 1, uid: gdc-dewpoint-warning}
+  - {orgId: 1, uid: gdc-uv-critical}
+  - {orgId: 1, uid: gdc-pressure-drop}
+  - {orgId: 1, uid: gdc-solar-info}
 
 groups:
   - orgId: 1
-    name: GDC Weather
+    name: Station
     folder: GDC
     interval: 1m
     rules:
 
-      - uid: gdc-station-offline
-        title: WeatherStationOffline
+      - uid: gdcw-offline
+        title: Station offline
         condition: C
         data:
           - refId: A
-            relativeTimeRange: {from: 300, to: 0}
-            datasourceUid: "-- Prometheus --"
-            model:
-              expr: weather_up
-              instant: true
-              refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: prometheus
+            model: {refId: A, expr: 'min(weather_up)', instant: true}
           - refId: C
-            relativeTimeRange: {from: 300, to: 0}
-            datasourceUid: "__expr__"
-            model:
-              type: threshold
-              refId: C
-              conditions:
-                - evaluator: {params: [1], type: lt}
-                  operator: {type: and}
-                  query: {params: [A]}
-                  reducer: {params: [], type: last}
+            datasourceUid: __expr__
+            model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: lt, params: [1]}}]}
         noDataState: Alerting
-        execErrState: Alerting
-        for: 2m
-        labels: {severity: critical, station: gdc}
+        execErrState: Error
+        for: 5m
+        labels: {severity: critical}
         annotations:
-          summary: "GDC weather station is offline"
-          description: "No weather data received for >15 minutes."
+          summary: No fresh reading from the GDC station for more than 15 minutes.
 
-      - uid: gdc-high-wind
-        title: HighWindSpeed
+      - uid: gdcw-implausible-temp
+        title: Implausible temperature (sensor fault?)
         condition: C
         data:
           - refId: A
-            relativeTimeRange: {from: 300, to: 0}
-            datasourceUid: "-- Prometheus --"
-            model:
-              expr: weather_wind_speed_hi_10min_mph
-              instant: true
-              refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: prometheus
+            model: {refId: A, expr: '(weather_temperature_f - 32) * 5 / 9', instant: true}
           - refId: C
-            relativeTimeRange: {from: 300, to: 0}
-            datasourceUid: "__expr__"
-            model:
-              type: threshold
-              refId: C
-              conditions:
-                - evaluator: {params: [60], type: gt}
-                  operator: {type: and}
-                  query: {params: [A]}
-                  reducer: {params: [], type: last}
-        noDataState: NoData
+            datasourceUid: __expr__
+            model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: outside_range, params: [-5, 55]}}]}
+        noDataState: OK
         execErrState: Error
-        for: 5m
-        labels: {severity: warning, station: gdc}
+        for: 10m
+        labels: {severity: warning}
         annotations:
-          summary: "High wind at GDC station"
-          description: "10-min high wind {{ $values.A.Value | printf \"%.1f\" }} mph (threshold 60 mph)"
+          summary: 'Temperature reads {{ printf "%.1f" $values.A.Value }} °C — outside -5…55 °C, likely a sensor fault.'
 
-      - uid: gdc-extreme-temp
-        title: ExtremeTemperature
+  - orgId: 1
+    name: Weather
+    folder: GDC
+    interval: 1m
+    rules:
+
+      - uid: gdcw-heat-warning
+        title: High heat index
         condition: C
         data:
           - refId: A
-            relativeTimeRange: {from: 300, to: 0}
-            datasourceUid: "-- Prometheus --"
-            model:
-              expr: weather_temperature_f
-              instant: true
-              refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: prometheus
+            model: {refId: A, expr: '(weather_heat_index_f - 32) * 5 / 9', instant: true}
           - refId: C
-            relativeTimeRange: {from: 300, to: 0}
-            datasourceUid: "__expr__"
-            model:
-              type: math
-              refId: C
-              expression: "$A < -10 || $A > 130"
-        noDataState: NoData
+            datasourceUid: __expr__
+            model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [40]}}]}
+        noDataState: OK
         execErrState: Error
-        for: 5m
-        labels: {severity: warning, station: gdc}
+        for: 10m
+        labels: {severity: warning}
         annotations:
-          summary: "Extreme temperature reading at GDC"
-          description: "Temperature {{ $values.A.Value | printf \"%.1f\" }} °F — may indicate sensor fault"
+          summary: 'Feels like {{ printf "%.1f" $values.A.Value }} °C (> 40 °C). Limit outdoor work; hydrate.'
 
-      - uid: gdc-heavy-rain
-        title: HeavyRainRate
+      - uid: gdcw-heat-critical
+        title: Extreme heat index
         condition: C
         data:
           - refId: A
-            relativeTimeRange: {from: 300, to: 0}
-            datasourceUid: "-- Prometheus --"
-            model:
-              expr: weather_rain_rate_in_hr
-              instant: true
-              refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: prometheus
+            model: {refId: A, expr: '(weather_heat_index_f - 32) * 5 / 9', instant: true}
           - refId: C
-            relativeTimeRange: {from: 300, to: 0}
-            datasourceUid: "__expr__"
-            model:
-              type: threshold
-              refId: C
-              conditions:
-                - evaluator: {params: [2.0], type: gt}
-                  operator: {type: and}
-                  query: {params: [A]}
-                  reducer: {params: [], type: last}
-        noDataState: NoData
+            datasourceUid: __expr__
+            model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [46]}}]}
+        noDataState: OK
         execErrState: Error
         for: 5m
-        labels: {severity: warning, station: gdc}
+        labels: {severity: critical}
         annotations:
-          summary: "Heavy rain at GDC"
-          description: "Rain rate {{ $values.A.Value | printf \"%.2f\" }} in/hr (threshold 2.0 in/hr)"
+          summary: 'Feels like {{ printf "%.1f" $values.A.Value }} °C (> 46 °C). Heat-stroke risk.'
+
+      - uid: gdcw-wind-warning
+        title: High wind / dust storm watch
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: prometheus
+            model: {refId: A, expr: 'weather_wind_speed_hi_10min_mph * 1.609344', instant: true}
+          - refId: C
+            datasourceUid: __expr__
+            model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [40]}}]}
+        noDataState: OK
+        execErrState: Error
+        for: 10m
+        labels: {severity: warning}
+        annotations:
+          summary: '10-min gust {{ printf "%.0f" $values.A.Value }} km/h (> 40). Dust likely; secure loose items.'
+
+      - uid: gdcw-wind-critical
+        title: Severe wind
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: prometheus
+            model: {refId: A, expr: 'weather_wind_speed_hi_10min_mph * 1.609344', instant: true}
+          - refId: C
+            datasourceUid: __expr__
+            model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [64]}}]}
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels: {severity: critical}
+        annotations:
+          summary: '10-min gust {{ printf "%.0f" $values.A.Value }} km/h (> 64, gale). Structural / crane risk.'
+
+      - uid: gdcw-dew-point
+        title: Oppressive dew point
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: {from: 600, to: 0}
+            datasourceUid: prometheus
+            model: {refId: A, expr: '(weather_dew_point_f - 32) * 5 / 9', instant: true}
+          - refId: C
+            datasourceUid: __expr__
+            model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [28]}}]}
+        noDataState: OK
+        execErrState: Error
+        for: 15m
+        labels: {severity: warning}
+        annotations:
+          summary: 'Dew point {{ printf "%.1f" $values.A.Value }} °C (> 28). Sweat stops cooling the body.'
+
+      - uid: gdcw-pressure-drop
+        title: Rapid pressure drop
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: {from: 10800, to: 0}
+            datasourceUid: prometheus
+            model: {refId: A, expr: 'delta(weather_barometer_inhg[3h]) * 33.8639', instant: true}
+          - refId: C
+            datasourceUid: __expr__
+            model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: lt, params: [-3]}}]}
+        noDataState: OK
+        execErrState: Error
+        for: 15m
+        labels: {severity: warning}
+        annotations:
+          summary: 'Pressure fell {{ printf "%.1f" $values.A.Value }} hPa in 3 h. Weather change / storm approaching.'

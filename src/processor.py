@@ -99,7 +99,7 @@ def _flatten_historic_obs(obs: dict, sensor: dict, station_uuid: str) -> dict[st
             if obs.get(src) is not None:
                 record[dst] = obs[src]
 
-        # Rain
+        # Rain — archive rainfall_in is per-interval; stored under the legacy name, so sum it, never max it.
         if obs.get("rainfall_in") is not None:
             record["rainfall_last_24_hr"] = obs["rainfall_in"]
         if obs.get("rain_rate_hi_in") is not None:

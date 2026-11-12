@@ -4,15 +4,31 @@ services:
   gdc-weather:
     build: .
     restart: unless-stopped
-    env_file: .env
+    # Only the variables the poller reads — no Grafana/InfluxDB admin secrets.
     environment:
+      WEATHERLINK_API_KEY: ${WEATHERLINK_API_KEY:?set in .env}
+      WEATHERLINK_API_SECRET: ${WEATHERLINK_API_SECRET:?set in .env}
+      WEATHERLINK_API_TOKEN_V1: ${WEATHERLINK_API_TOKEN_V1:-}
+      WEATHERLINK_USERNAME: ${WEATHERLINK_USERNAME:-}
+      WEATHERLINK_PASSWORD: ${WEATHERLINK_PASSWORD:-}
+      WEATHERLINK_STATION_ID: ${WEATHERLINK_STATION_ID:?set in .env}
+      WEATHERLINK_STATION_UUID: ${WEATHERLINK_STATION_UUID:-}
+      WEATHERLINK_DID: ${WEATHERLINK_DID:-}
+      POLL_INTERVAL: ${POLL_INTERVAL:-300}
       INFLUXDB_ENABLED: "true"
       INFLUXDB_URL: "http://influxdb:8086"
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN:?write-only token, set in .env}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-GDC}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-weather}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+      ALERT_STALE_MINUTES: ${ALERT_STALE_MINUTES:-15}
+      METRICS_PORT: "9001"
     volumes:
       - weather-data:/app/data
       - weather-logs:/app/logs
-    ports:
-      - "9001:9001"       # Prometheus /metrics scrape endpoint
+    # /metrics on :9001 is reached by Prometheus over the compose network; not published on the host.
+    expose:
+      - "9001"
     depends_on:
       influxdb:
         condition: service_healthy
@@ -22,18 +38,19 @@ services:
     image: influxdb:2.7
     restart: unless-stopped
     ports:
-      - "8086:8086"
+      - "127.0.0.1:8086:8086"
     volumes:
       - influxdb-data:/var/lib/influxdb2
       - influxdb-config:/etc/influxdb2
     environment:
+      # INIT_* values apply only on first start with an empty volume.
       DOCKER_INFLUXDB_INIT_MODE: setup
       DOCKER_INFLUXDB_INIT_USERNAME: admin
-      DOCKER_INFLUXDB_INIT_PASSWORD: GDCweather123
-      DOCKER_INFLUXDB_INIT_ORG: GDC
-      DOCKER_INFLUXDB_INIT_BUCKET: weather
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD:?set in .env}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG:-GDC}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET:-weather}
       DOCKER_INFLUXDB_INIT_RETENTION: 0        # infinite retention
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: gdc-influx-token-change-me
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN:?set in .env}
     healthcheck:
       test: ["CMD", "influx", "ping"]
       interval: 10s
@@ -45,17 +62,26 @@ services:
     image: grafana/grafana:11.3.0
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     environment:
       GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: GDCweather123
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_ADMIN_PASSWORD:?set in .env}
+      INFLUXDB_GRAFANA_TOKEN: ${INFLUXDB_GRAFANA_TOKEN:?read-only token, set in .env}
       GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/weather.json
-      GF_INSTALL_PLUGINS: "fatcloud-windrose-panel"
-      GF_SECURITY_ANGULAR_SUPPORT_ENABLED: "true"
+      GF_INSTALL_PLUGINS: "nline-plotlyjs-panel 1.8.1"
+      # Hardening
+      GF_SECURITY_ANGULAR_SUPPORT_ENABLED: "false"
+      GF_SECURITY_DISABLE_GRAVATAR: "true"
+      GF_SECURITY_COOKIE_SAMESITE: strict
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_SNAPSHOTS_EXTERNAL_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: ""
     depends_on:
       - influxdb
 
@@ -64,7 +90,7 @@ services:
     image: prom/prometheus:v2.55.0
     restart: unless-stopped
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     volumes:
       - ./grafana/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
