@@ -1,52 +1,8 @@
-# Grafana alerting provisioning — GDC Weather Station
-# Follows alerting-irm skill guidance: contact points → policies → rules
-
 apiVersion: 1
 
-# ── Contact Points ────────────────────────────────────────────────────────────
-# Add your webhook/Slack URL in ALERT_WEBHOOK_URL env or override here.
-contactPoints:
-  - orgId: 1
-    name: gdc-webhook
-    receivers:
-      - uid: gdc-webhook-recv
-        type: webhook
-        settings:
-          url: "${ALERT_WEBHOOK_URL:-}"
-          httpMethod: POST
-        disableResolveMessage: false
+# Contact points and policies are configured via Grafana UI (Alerting → Contact points).
+# Add your webhook URL there after first login.
 
-  - orgId: 1
-    name: gdc-email
-    receivers:
-      - uid: gdc-email-recv
-        type: email
-        settings:
-          addresses: "${ALERT_EMAIL:-}"
-        disableResolveMessage: false
-
-# ── Notification Policies ─────────────────────────────────────────────────────
-policies:
-  - orgId: 1
-    receiver: grafana-default-email   # fallback
-    group_by: [alertname, station]
-    group_wait: 30s
-    group_interval: 5m
-    repeat_interval: 4h
-    routes:
-      - receiver: gdc-webhook
-        matchers:
-          - name: severity
-            value: critical
-            isEqual: true
-        continue: true
-      - receiver: gdc-webhook
-        matchers:
-          - name: alertname
-            value: WeatherStationOffline
-            isEqual: true
-
-# ── Alert Rules ───────────────────────────────────────────────────────────────
 groups:
   - orgId: 1
     name: GDC Weather
@@ -54,20 +10,23 @@ groups:
     interval: 1m
     rules:
 
-      # Station offline — weather_up drops to 0 when no data for >15 min
       - uid: gdc-station-offline
         title: WeatherStationOffline
         condition: C
         data:
           - refId: A
+            relativeTimeRange: {from: 300, to: 0}
             datasourceUid: "-- Prometheus --"
             model:
               expr: weather_up
               instant: true
+              refId: A
           - refId: C
+            relativeTimeRange: {from: 300, to: 0}
             datasourceUid: "__expr__"
             model:
               type: threshold
+              refId: C
               conditions:
                 - evaluator: {params: [1], type: lt}
                   operator: {type: and}
@@ -76,27 +35,28 @@ groups:
         noDataState: Alerting
         execErrState: Alerting
         for: 2m
-        labels:
-          severity: critical
-          station: gdc
+        labels: {severity: critical, station: gdc}
         annotations:
           summary: "GDC weather station is offline"
-          description: "No weather data received for >15 minutes. Check the WeatherLink device and network."
+          description: "No weather data received for >15 minutes."
 
-      # High wind speed
       - uid: gdc-high-wind
         title: HighWindSpeed
         condition: C
         data:
           - refId: A
+            relativeTimeRange: {from: 300, to: 0}
             datasourceUid: "-- Prometheus --"
             model:
               expr: weather_wind_speed_hi_10min_mph
               instant: true
+              refId: A
           - refId: C
+            relativeTimeRange: {from: 300, to: 0}
             datasourceUid: "__expr__"
             model:
               type: threshold
+              refId: C
               conditions:
                 - evaluator: {params: [60], type: gt}
                   operator: {type: and}
@@ -105,52 +65,54 @@ groups:
         noDataState: NoData
         execErrState: Error
         for: 5m
-        labels:
-          severity: warning
-          station: gdc
+        labels: {severity: warning, station: gdc}
         annotations:
           summary: "High wind at GDC station"
-          description: "10-min high wind speed is {{ $values.A.Value | printf \"%.1f\" }} mph (threshold: 60 mph)"
+          description: "10-min high wind {{ $values.A.Value | printf \"%.1f\" }} mph (threshold 60 mph)"
 
-      # Extreme temperature (outside −10 to 130 °F)
       - uid: gdc-extreme-temp
         title: ExtremeTemperature
         condition: C
         data:
           - refId: A
+            relativeTimeRange: {from: 300, to: 0}
             datasourceUid: "-- Prometheus --"
             model:
               expr: weather_temperature_f
               instant: true
+              refId: A
           - refId: C
+            relativeTimeRange: {from: 300, to: 0}
             datasourceUid: "__expr__"
             model:
               type: math
+              refId: C
               expression: "$A < -10 || $A > 130"
         noDataState: NoData
         execErrState: Error
         for: 5m
-        labels:
-          severity: warning
-          station: gdc
+        labels: {severity: warning, station: gdc}
         annotations:
           summary: "Extreme temperature reading at GDC"
-          description: "Temperature is {{ $values.A.Value | printf \"%.1f\" }} °F — may indicate a sensor fault"
+          description: "Temperature {{ $values.A.Value | printf \"%.1f\" }} °F — may indicate sensor fault"
 
-      # Heavy rain rate
       - uid: gdc-heavy-rain
         title: HeavyRainRate
         condition: C
         data:
           - refId: A
+            relativeTimeRange: {from: 300, to: 0}
             datasourceUid: "-- Prometheus --"
             model:
               expr: weather_rain_rate_in_hr
               instant: true
+              refId: A
           - refId: C
+            relativeTimeRange: {from: 300, to: 0}
             datasourceUid: "__expr__"
             model:
               type: threshold
+              refId: C
               conditions:
                 - evaluator: {params: [2.0], type: gt}
                   operator: {type: and}
@@ -159,9 +121,7 @@ groups:
         noDataState: NoData
         execErrState: Error
         for: 5m
-        labels:
-          severity: warning
-          station: gdc
+        labels: {severity: warning, station: gdc}
         annotations:
           summary: "Heavy rain at GDC"
-          description: "Rain rate is {{ $values.A.Value | printf \"%.2f\" }} in/hr (heavy rain threshold: 2.0 in/hr)"
+          description: "Rain rate {{ $values.A.Value | printf \"%.2f\" }} in/hr (threshold 2.0 in/hr)"
