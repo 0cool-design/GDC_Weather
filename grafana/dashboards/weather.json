@@ -7,21 +7,169 @@
   "timezone": "browser",
   "refresh": "1m",
   "schemaVersion": 39,
-  "time": {"from": "now-400d", "to": "now"},
+  "time": {"from": "now-30d", "to": "now"},
   "timepicker": {},
   "panels": [
 
     {
-      "id": 100, "type": "row",
-      "title": "⛅ Current Conditions",
+      "id": 900, "type": "row",
+      "title": "📋 Period Summary",
       "collapsed": false,
       "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0}
     },
 
     {
+      "id": 901, "type": "stat",
+      "title": "Max Gust",
+      "gridPos": {"h": 3, "w": 3, "x": 0, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none", "textMode": "auto"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "velocitykmh", "decimals": 1,
+          "color": {"mode": "fixed", "fixedColor": "#f59e0b"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "#f59e0b", "value": null}]}
+        }
+      },
+      "targets": [{"datasource": "InfluxDB", "refId": "A",
+        "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_hi_last_10_min\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> max() |> yield(name:\"Max Gust km/h\")"
+      }]
+    },
+
+    {
+      "id": 902, "type": "stat",
+      "title": "Min Temp",
+      "gridPos": {"h": 3, "w": 3, "x": 3, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius", "decimals": 1,
+          "color": {"mode": "fixed", "fixedColor": "#60a5fa"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "#60a5fa", "value": null}]}
+        }
+      },
+      "targets": [{"datasource": "InfluxDB", "refId": "A",
+        "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"temp\") |> map(fn:(r)=>({r with _value:(r._value-32.0)*5.0/9.0})) |> min() |> yield(name:\"Min °C\")"
+      }]
+    },
+
+    {
+      "id": 903, "type": "stat",
+      "title": "Max Temp",
+      "gridPos": {"h": 3, "w": 3, "x": 6, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius", "decimals": 1,
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "#fb923c", "value": null}, {"color": "#ef4444", "value": 40}, {"color": "#991b1b", "value": 45}
+          ]},
+          "color": {"mode": "thresholds"}
+        }
+      },
+      "targets": [{"datasource": "InfluxDB", "refId": "A",
+        "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"temp\") |> map(fn:(r)=>({r with _value:(r._value-32.0)*5.0/9.0})) |> max() |> yield(name:\"Max °C\")"
+      }]
+    },
+
+    {
+      "id": 904, "type": "stat",
+      "title": "Min Humidity",
+      "gridPos": {"h": 3, "w": 3, "x": 9, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "decimals": 0,
+          "color": {"mode": "fixed", "fixedColor": "#fde68a"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "#fde68a", "value": null}]}
+        }
+      },
+      "targets": [{"datasource": "InfluxDB", "refId": "A",
+        "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"humidity\") |> min() |> yield(name:\"Min Humidity\")"
+      }]
+    },
+
+    {
+      "id": 905, "type": "stat",
+      "title": "Max Humidity",
+      "gridPos": {"h": 3, "w": 3, "x": 12, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "decimals": 0,
+          "color": {"mode": "fixed", "fixedColor": "#7dd3fc"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "#7dd3fc", "value": null}]}
+        }
+      },
+      "targets": [{"datasource": "InfluxDB", "refId": "A",
+        "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"humidity\") |> max() |> yield(name:\"Max Humidity\")"
+      }]
+    },
+
+    {
+      "id": 906, "type": "stat",
+      "title": "Total Rainfall",
+      "gridPos": {"h": 3, "w": 3, "x": 15, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "lengthmm", "decimals": 1,
+          "color": {"mode": "fixed", "fixedColor": "#38bdf8"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "#38bdf8", "value": null}]}
+        }
+      },
+      "targets": [{"datasource": "InfluxDB", "refId": "A",
+        "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"rainfall_last_24_hr\") |> map(fn:(r)=>({r with _value:r._value*25.4})) |> aggregateWindow(every: 1d, fn:max, createEmpty:false) |> sum() |> yield(name:\"Total mm\")"
+      }]
+    },
+
+    {
+      "id": 907, "type": "stat",
+      "title": "Peak UV Index",
+      "gridPos": {"h": 3, "w": 3, "x": 18, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "#84cc16", "value": null}, {"color": "#eab308", "value": 3},
+            {"color": "#f97316", "value": 6}, {"color": "#ef4444", "value": 8}, {"color": "#a855f7", "value": 11}
+          ]},
+          "color": {"mode": "thresholds"}
+        }
+      },
+      "targets": [{"datasource": "InfluxDB", "refId": "A",
+        "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"uv_index\") |> max() |> yield(name:\"Peak UV\")"
+      }]
+    },
+
+    {
+      "id": 908, "type": "stat",
+      "title": "Peak Solar",
+      "gridPos": {"h": 3, "w": 3, "x": 21, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watt_per_metre2", "decimals": 0,
+          "color": {"mode": "fixed", "fixedColor": "#fbbf24"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "#fbbf24", "value": null}]}
+        }
+      },
+      "targets": [{"datasource": "InfluxDB", "refId": "A",
+        "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"solar_rad\") |> max() |> yield(name:\"Peak W/m²\")"
+      }]
+    },
+
+    {
+      "id": 100, "type": "row",
+      "title": "⛅ Current Conditions",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 4}
+    },
+
+    {
       "id": 1, "type": "stat",
       "title": "Station",
-      "gridPos": {"h": 3, "w": 3, "x": 0, "y": 1},
+      "gridPos": {"h": 3, "w": 3, "x": 0, "y": 5},
       "options": {
         "reduceOptions": {"calcs": ["lastNotNull"]},
         "colorMode": "background", "textMode": "auto", "orientation": "horizontal"
@@ -44,15 +192,14 @@
     {
       "id": 2, "type": "stat",
       "title": "Temperature",
-      "gridPos": {"h": 3, "w": 3, "x": 3, "y": 1},
+      "gridPos": {"h": 3, "w": 3, "x": 3, "y": 5},
       "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
       "fieldConfig": {
         "defaults": {
           "unit": "celsius", "decimals": 1,
           "thresholds": {"mode": "absolute", "steps": [
             {"color": "blue", "value": null}, {"color": "green", "value": 20},
-            {"color": "yellow", "value": 30}, {"color": "orange", "value": 37},
-            {"color": "red", "value": 42}
+            {"color": "yellow", "value": 30}, {"color": "orange", "value": 37}, {"color": "red", "value": 42}
           ]},
           "color": {"mode": "thresholds"}
         }
@@ -63,7 +210,7 @@
     {
       "id": 3, "type": "stat",
       "title": "Humidity",
-      "gridPos": {"h": 3, "w": 3, "x": 6, "y": 1},
+      "gridPos": {"h": 3, "w": 3, "x": 6, "y": 5},
       "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
       "fieldConfig": {
         "defaults": {
@@ -80,16 +227,13 @@
     {
       "id": 4, "type": "stat",
       "title": "Dew Point",
-      "gridPos": {"h": 3, "w": 3, "x": 9, "y": 1},
-      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
+      "gridPos": {"h": 3, "w": 3, "x": 9, "y": 5},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
       "fieldConfig": {
         "defaults": {
           "unit": "celsius", "decimals": 1,
-          "thresholds": {"mode": "absolute", "steps": [
-            {"color": "blue", "value": null}, {"color": "green", "value": 10},
-            {"color": "yellow", "value": 18}, {"color": "orange", "value": 24}, {"color": "red", "value": 28}
-          ]},
-          "color": {"mode": "thresholds"}
+          "color": {"mode": "fixed", "fixedColor": "#2dd4bf"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "#2dd4bf", "value": null}]}
         }
       },
       "targets": [{"datasource": "Prometheus", "expr": "(weather_dew_point_f - 32) * 5/9", "instant": true, "legendFormat": "°C", "refId": "A"}]
@@ -98,7 +242,7 @@
     {
       "id": 5, "type": "stat",
       "title": "Wind Speed",
-      "gridPos": {"h": 3, "w": 3, "x": 12, "y": 1},
+      "gridPos": {"h": 3, "w": 3, "x": 12, "y": 5},
       "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
       "fieldConfig": {
         "defaults": {
@@ -116,14 +260,14 @@
     {
       "id": 6, "type": "stat",
       "title": "Wind Gust 10 min",
-      "gridPos": {"h": 3, "w": 3, "x": 15, "y": 1},
+      "gridPos": {"h": 3, "w": 3, "x": 15, "y": 5},
       "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
       "fieldConfig": {
         "defaults": {
           "unit": "velocitykmh", "decimals": 1,
           "thresholds": {"mode": "absolute", "steps": [
             {"color": "green", "value": null}, {"color": "yellow", "value": 30},
-            {"color": "orange", "value": 50}, {"color": "red", "value": 70}
+            {"color": "orange", "value": 50}, {"color": "red", "value": 75}
           ]},
           "color": {"mode": "thresholds"}
         }
@@ -134,15 +278,13 @@
     {
       "id": 7, "type": "stat",
       "title": "Pressure",
-      "gridPos": {"h": 3, "w": 3, "x": 18, "y": 1},
-      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
+      "gridPos": {"h": 3, "w": 3, "x": 18, "y": 5},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
       "fieldConfig": {
         "defaults": {
           "unit": "pressurehpa", "decimals": 1,
-          "thresholds": {"mode": "absolute", "steps": [
-            {"color": "blue", "value": null}, {"color": "green", "value": 1000}, {"color": "blue", "value": 1030}
-          ]},
-          "color": {"mode": "thresholds"}
+          "color": {"mode": "fixed", "fixedColor": "#a78bfa"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "#a78bfa", "value": null}]}
         }
       },
       "targets": [{"datasource": "Prometheus", "expr": "weather_barometer_inhg * 33.8639", "instant": true, "legendFormat": "hPa", "refId": "A"}]
@@ -151,7 +293,7 @@
     {
       "id": 8, "type": "stat",
       "title": "UV Index",
-      "gridPos": {"h": 3, "w": 3, "x": 21, "y": 1},
+      "gridPos": {"h": 3, "w": 3, "x": 21, "y": 5},
       "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
       "fieldConfig": {
         "defaults": {
@@ -170,13 +312,13 @@
       "id": 200, "type": "row",
       "title": "🌡️ Temperature History",
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 4}
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 8}
     },
 
     {
       "id": 20, "type": "timeseries",
-      "title": "Temperature (°C) — Min / Avg / Max with Heat Stress Zones",
-      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 5},
+      "title": "Temperature (°C) — Min / Avg / Max · Heat Stress Zones",
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 9},
       "options": {
         "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["min", "mean", "max"]},
         "tooltip": {"mode": "multi", "sort": "none"}
@@ -185,15 +327,16 @@
         "defaults": {
           "unit": "celsius",
           "custom": {
-            "lineWidth": 1.5, "fillOpacity": 8, "spanNulls": false,
+            "lineWidth": 1, "fillOpacity": 0, "spanNulls": false,
+            "lineInterpolation": "smooth",
             "thresholdsStyle": {"mode": "area"}
           },
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {"color": "transparent", "value": null},
-              {"color": "rgba(99,179,237,0.12)", "value": 25},
-              {"color": "rgba(237,137,54,0.12)", "value": 30},
+              {"color": "rgba(99,179,237,0.10)", "value": 25},
+              {"color": "rgba(237,137,54,0.10)", "value": 30},
               {"color": "rgba(245,101,101,0.12)", "value": 35},
               {"color": "rgba(197,48,48,0.15)", "value": 40}
             ]
@@ -203,9 +346,10 @@
           {
             "matcher": {"id": "byName", "options": "Max °C"},
             "properties": [
-              {"id": "color", "value": {"fixedColor": "#ef4444", "mode": "fixed"}},
+              {"id": "color", "value": {"fixedColor": "#3b82f6", "mode": "fixed"}},
               {"id": "custom.lineWidth", "value": 1},
-              {"id": "custom.fillOpacity", "value": 0}
+              {"id": "custom.fillOpacity", "value": 15},
+              {"id": "custom.fillBelowTo", "value": "Min °C"}
             ]
           },
           {
@@ -219,8 +363,9 @@
           {
             "matcher": {"id": "byName", "options": "Avg °C"},
             "properties": [
-              {"id": "color", "value": {"fixedColor": "#ff6730", "mode": "fixed"}},
-              {"id": "custom.lineWidth", "value": 2.5}
+              {"id": "color", "value": {"fixedColor": "#ef4444", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 2.5},
+              {"id": "custom.fillOpacity", "value": 0}
             ]
           }
         ]
@@ -243,43 +388,66 @@
 
     {
       "id": 300, "type": "row",
-      "title": "💨 Wind & Humidity",
+      "title": "💨 Wind History",
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 15}
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 19}
     },
 
     {
       "id": 30, "type": "timeseries",
-      "title": "Wind Speed (km/h)",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "title": "Wind & Gust Speed (km/h) — Min / Mean / Max",
+      "gridPos": {"h": 9, "w": 14, "x": 0, "y": 20},
       "options": {
         "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["mean", "max"]},
-        "tooltip": {"mode": "multi"}
+        "tooltip": {"mode": "multi", "sort": "desc"}
       },
       "fieldConfig": {
         "defaults": {
           "unit": "velocitykmh",
-          "custom": {"lineWidth": 2, "fillOpacity": 10, "spanNulls": false}
+          "custom": {"lineWidth": 1, "fillOpacity": 0, "spanNulls": false, "lineInterpolation": "smooth"}
         },
         "overrides": [
           {
-            "matcher": {"id": "byName", "options": "Avg km/h"},
-            "properties": [{"id": "color", "value": {"fixedColor": "#34d399", "mode": "fixed"}}]
-          },
-          {
-            "matcher": {"id": "byName", "options": "10m avg km/h"},
+            "matcher": {"id": "byName", "options": "Max Gust km/h"},
             "properties": [
-              {"id": "color", "value": {"fixedColor": "#6ee7b7", "mode": "fixed"}},
-              {"id": "custom.lineStyle", "value": {"dash": [6, 4], "fill": "dash"}},
-              {"id": "custom.lineWidth", "value": 1.5}
+              {"id": "color", "value": {"fixedColor": "#f59e0b", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 1.5},
+              {"id": "custom.fillOpacity", "value": 10},
+              {"id": "custom.fillBelowTo", "value": "Mean Gust km/h"}
             ]
           },
           {
-            "matcher": {"id": "byName", "options": "Gust km/h"},
+            "matcher": {"id": "byName", "options": "Mean Gust km/h"},
             "properties": [
-              {"id": "color", "value": {"fixedColor": "rgba(52,211,153,0.4)", "mode": "fixed"}},
+              {"id": "color", "value": {"fixedColor": "#fcd34d", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 1.5},
+              {"id": "custom.lineStyle", "value": {"dash": [6, 4], "fill": "dash"}},
+              {"id": "custom.fillOpacity", "value": 0}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Max Wind km/h"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "#34d399", "mode": "fixed"}},
               {"id": "custom.lineWidth", "value": 1},
-              {"id": "custom.fillOpacity", "value": 4}
+              {"id": "custom.fillOpacity", "value": 18},
+              {"id": "custom.fillBelowTo", "value": "Min Wind km/h"}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Mean Wind km/h"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "#10b981", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 2.5},
+              {"id": "custom.fillOpacity", "value": 0}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Min Wind km/h"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "#34d399", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 1},
+              {"id": "custom.fillOpacity", "value": 0}
             ]
           }
         ]
@@ -287,36 +455,201 @@
       "targets": [
         {
           "datasource": "InfluxDB", "refId": "A",
-          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_last\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Avg km/h\")"
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_last\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Mean Wind km/h\")"
         },
         {
           "datasource": "InfluxDB", "refId": "B",
-          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_avg_last_10_min\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"10m avg km/h\")"
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_last\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> aggregateWindow(every: v.windowPeriod, fn:max, createEmpty:false) |> yield(name:\"Max Wind km/h\")"
         },
         {
           "datasource": "InfluxDB", "refId": "C",
-          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_hi_last_10_min\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> aggregateWindow(every: v.windowPeriod, fn:max, createEmpty:false) |> yield(name:\"Gust km/h\")"
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_last\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> aggregateWindow(every: v.windowPeriod, fn:min, createEmpty:false) |> yield(name:\"Min Wind km/h\")"
+        },
+        {
+          "datasource": "InfluxDB", "refId": "D",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_hi_last_10_min\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> aggregateWindow(every: v.windowPeriod, fn:max, createEmpty:false) |> yield(name:\"Max Gust km/h\")"
+        },
+        {
+          "datasource": "InfluxDB", "refId": "E",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_hi_last_10_min\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Mean Gust km/h\")"
         }
       ]
     },
 
     {
+      "id": 32, "type": "timeseries",
+      "title": "Wind Direction History — Percentile Ribbon (°)",
+      "gridPos": {"h": 9, "w": 10, "x": 14, "y": 20},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom", "calcs": []},
+        "tooltip": {"mode": "multi", "sort": "none"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "degree",
+          "min": 0, "max": 360,
+          "custom": {"lineWidth": 1, "fillOpacity": 0, "spanNulls": false, "lineInterpolation": "smooth",
+            "axisLabel": "Direction (N=0° E=90° S=180° W=270°)"
+          },
+          "thresholds": {"mode": "absolute", "steps": [{"color": "transparent", "value": null}]}
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "p90"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "rgba(99,179,237,0.4)", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 1},
+              {"id": "custom.fillOpacity", "value": 10},
+              {"id": "custom.fillBelowTo", "value": "p10"}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "p75"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "rgba(59,130,246,0.6)", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 1},
+              {"id": "custom.fillOpacity", "value": 20},
+              {"id": "custom.fillBelowTo", "value": "p25"}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "p50"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "#3b82f6", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 2},
+              {"id": "custom.fillOpacity", "value": 0}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "p25"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "rgba(59,130,246,0.6)", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 1},
+              {"id": "custom.fillOpacity", "value": 0}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "p10"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "rgba(99,179,237,0.4)", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 1},
+              {"id": "custom.fillOpacity", "value": 0}
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": "InfluxDB", "refId": "A",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_dir_last\") |> aggregateWindow(every: v.windowPeriod, fn:(tables=<-,column) => tables |> quantile(q:0.50, column:column), createEmpty:false) |> yield(name:\"p50\")"
+        },
+        {
+          "datasource": "InfluxDB", "refId": "B",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_dir_last\") |> aggregateWindow(every: v.windowPeriod, fn:(tables=<-,column) => tables |> quantile(q:0.75, column:column), createEmpty:false) |> yield(name:\"p75\")"
+        },
+        {
+          "datasource": "InfluxDB", "refId": "C",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_dir_last\") |> aggregateWindow(every: v.windowPeriod, fn:(tables=<-,column) => tables |> quantile(q:0.25, column:column), createEmpty:false) |> yield(name:\"p25\")"
+        },
+        {
+          "datasource": "InfluxDB", "refId": "D",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_dir_last\") |> aggregateWindow(every: v.windowPeriod, fn:(tables=<-,column) => tables |> quantile(q:0.90, column:column), createEmpty:false) |> yield(name:\"p90\")"
+        },
+        {
+          "datasource": "InfluxDB", "refId": "E",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_dir_last\") |> aggregateWindow(every: v.windowPeriod, fn:(tables=<-,column) => tables |> quantile(q:0.10, column:column), createEmpty:false) |> yield(name:\"p10\")"
+        }
+      ]
+    },
+
+    {
+      "id": 310, "type": "row",
+      "title": "🌬️ Wind Speed Distribution",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 29}
+    },
+
+    {
+      "id": 33, "type": "heatmap",
+      "title": "Wind Speed Heatmap — Frequency of Speeds over Time",
+      "gridPos": {"h": 9, "w": 24, "x": 0, "y": 30},
+      "options": {
+        "calculate": true,
+        "calculation": {
+          "xBuckets": {"mode": "count", "value": "100"},
+          "yBuckets": {"mode": "size", "value": "5"}
+        },
+        "color": {
+          "scheme": "Viridis",
+          "mode": "scheme",
+          "reverse": false,
+          "steps": 64,
+          "min": 0
+        },
+        "yAxis": {"unit": "velocitykmh", "decimals": 0, "min": 0, "max": 100},
+        "xAxis": {"show": true},
+        "tooltip": {"show": true, "yHistogram": false},
+        "legend": {"show": true},
+        "cellGap": 1,
+        "filterValues": {"le": 1e-9},
+        "exemplars": {"color": "rgba(255,0,255,0.7)"}
+      },
+      "fieldConfig": {
+        "defaults": {"unit": "velocitykmh"}
+      },
+      "targets": [
+        {
+          "datasource": "InfluxDB", "refId": "A",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_last\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> yield(name:\"Wind km/h\")"
+        }
+      ]
+    },
+
+    {
+      "id": 400, "type": "row",
+      "title": "💧 Humidity & Dew Point",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 39}
+    },
+
+    {
       "id": 31, "type": "timeseries",
-      "title": "Humidity & Dew Point",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "title": "Humidity — Min / Mean / Max · Dew Point",
+      "gridPos": {"h": 9, "w": 24, "x": 0, "y": 40},
       "options": {
         "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["mean", "min", "max"]},
-        "tooltip": {"mode": "multi"}
+        "tooltip": {"mode": "multi", "sort": "none"}
       },
       "fieldConfig": {
         "defaults": {
           "unit": "percent", "min": 0, "max": 100,
-          "custom": {"lineWidth": 2, "fillOpacity": 10, "spanNulls": false}
+          "custom": {"lineWidth": 1, "fillOpacity": 0, "spanNulls": false, "lineInterpolation": "smooth"}
         },
         "overrides": [
           {
-            "matcher": {"id": "byName", "options": "Humidity %"},
-            "properties": [{"id": "color", "value": {"fixedColor": "#22d3ee", "mode": "fixed"}}]
+            "matcher": {"id": "byName", "options": "Max Humidity %"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "#22d3ee", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 1},
+              {"id": "custom.fillOpacity", "value": 15},
+              {"id": "custom.fillBelowTo", "value": "Min Humidity %"}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Mean Humidity %"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "#0891b2", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 2.5},
+              {"id": "custom.fillOpacity", "value": 0}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Min Humidity %"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "#22d3ee", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 1},
+              {"id": "custom.fillOpacity", "value": 0}
+            ]
           },
           {
             "matcher": {"id": "byName", "options": "Dew Point °C"},
@@ -325,7 +658,9 @@
               {"id": "min", "value": null}, {"id": "max", "value": null},
               {"id": "color", "value": {"fixedColor": "#2dd4bf", "mode": "fixed"}},
               {"id": "custom.axisPlacement", "value": "right"},
-              {"id": "custom.lineStyle", "value": {"dash": [6, 4], "fill": "dash"}}
+              {"id": "custom.lineStyle", "value": {"dash": [6, 4], "fill": "dash"}},
+              {"id": "custom.lineWidth", "value": 2},
+              {"id": "custom.fillOpacity", "value": 0}
             ]
           }
         ]
@@ -333,26 +668,34 @@
       "targets": [
         {
           "datasource": "InfluxDB", "refId": "A",
-          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"humidity\") |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Humidity %\")"
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"humidity\") |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Mean Humidity %\")"
         },
         {
           "datasource": "InfluxDB", "refId": "B",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"humidity\") |> aggregateWindow(every: v.windowPeriod, fn:max, createEmpty:false) |> yield(name:\"Max Humidity %\")"
+        },
+        {
+          "datasource": "InfluxDB", "refId": "C",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"humidity\") |> aggregateWindow(every: v.windowPeriod, fn:min, createEmpty:false) |> yield(name:\"Min Humidity %\")"
+        },
+        {
+          "datasource": "InfluxDB", "refId": "D",
           "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"dew_point\") |> map(fn:(r)=>({r with _value:(r._value-32.0)*5.0/9.0})) |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Dew Point °C\")"
         }
       ]
     },
 
     {
-      "id": 400, "type": "row",
+      "id": 500, "type": "row",
       "title": "🌧️ Pressure & Precipitation",
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 24}
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 49}
     },
 
     {
       "id": 40, "type": "timeseries",
       "title": "Barometric Pressure (hPa)",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 25},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 50},
       "options": {
         "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["mean", "min", "max"]},
         "tooltip": {"mode": "single"}
@@ -375,7 +718,7 @@
     {
       "id": 41, "type": "timeseries",
       "title": "Rain Rate & Daily Total",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 25},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 50},
       "options": {
         "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["max"]},
         "tooltip": {"mode": "multi"}
@@ -392,8 +735,8 @@
             "properties": [
               {"id": "color", "value": {"fixedColor": "#2563eb", "mode": "fixed"}},
               {"id": "custom.drawStyle", "value": "line"},
-              {"id": "custom.fillOpacity", "value": 10},
-              {"id": "custom.lineWidth", "value": 2}
+              {"id": "custom.lineWidth", "value": 2},
+              {"id": "custom.fillOpacity", "value": 8}
             ]
           }
         ]
@@ -401,7 +744,7 @@
       "targets": [
         {
           "datasource": "InfluxDB", "refId": "A",
-          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"rain_rate_last\") |> map(fn:(r)=>({r with _value:r._value*25.4})) |> aggregateWindow(every: v.windowPeriod, fn:max, createEmpty:false) |> yield(name:\"Rain Rate mm/hr\")"
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"rain_rate_last\") |> map(fn:(r)=>({r with _value:r._value*25.4})) |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Rain Rate mm/h\")"
         },
         {
           "datasource": "InfluxDB", "refId": "B",
@@ -411,16 +754,16 @@
     },
 
     {
-      "id": 500, "type": "row",
+      "id": 600, "type": "row",
       "title": "☀️ Solar Radiation & UV",
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 33}
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 58}
     },
 
     {
       "id": 50, "type": "timeseries",
       "title": "Solar Radiation (W/m²)",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 34},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 59},
       "options": {
         "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["mean", "max"]},
         "tooltip": {"mode": "single"}
@@ -428,8 +771,10 @@
       "fieldConfig": {
         "defaults": {
           "unit": "watt_per_metre2",
-          "custom": {"lineWidth": 2, "fillOpacity": 20, "spanNulls": false},
-          "color": {"mode": "fixed", "fixedColor": "#fbbf24"},
+          "custom": {
+            "lineWidth": 2, "fillOpacity": 20, "spanNulls": false,
+            "thresholdsStyle": {"mode": "area"}
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -439,10 +784,7 @@
               {"color": "rgba(239,68,68,0.15)", "value": 900}
             ]
           },
-          "custom": {
-            "lineWidth": 2, "fillOpacity": 20, "spanNulls": false,
-            "thresholdsStyle": {"mode": "area"}
-          }
+          "color": {"mode": "fixed", "fixedColor": "#fbbf24"}
         }
       },
       "targets": [
@@ -456,7 +798,7 @@
     {
       "id": 51, "type": "timeseries",
       "title": "UV Index",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 34},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 59},
       "options": {
         "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["mean", "max"]},
         "tooltip": {"mode": "single"}
@@ -490,16 +832,16 @@
     },
 
     {
-      "id": 600, "type": "row",
+      "id": 650, "type": "row",
       "title": "📅 Temperature Heatmap",
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 42}
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 67}
     },
 
     {
       "id": 60, "type": "heatmap",
-      "title": "Temperature Distribution Over Time (°C) — set time range to 30+ days for best view",
-      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 43},
+      "title": "Temperature Distribution Over Time (°C)",
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 68},
       "options": {
         "calculate": true,
         "calculation": {
@@ -533,13 +875,13 @@
       "id": 700, "type": "row",
       "title": "📊 System & Telemetry",
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 53}
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 78}
     },
 
     {
       "id": 71, "type": "timeseries",
       "title": "Station Data Age (minutes since last reading)",
-      "gridPos": {"h": 5, "w": 12, "x": 0, "y": 54},
+      "gridPos": {"h": 5, "w": 12, "x": 0, "y": 79},
       "options": {
         "legend": {"displayMode": "list", "placement": "bottom"},
         "tooltip": {"mode": "single"}
@@ -552,9 +894,7 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 10},
-              {"color": "red", "value": 30}
+              {"color": "green", "value": null}, {"color": "yellow", "value": 10}, {"color": "red", "value": 30}
             ]
           }
         }
@@ -571,7 +911,7 @@
     {
       "id": 72, "type": "stat",
       "title": "Data Points (24h)",
-      "gridPos": {"h": 5, "w": 6, "x": 12, "y": 54},
+      "gridPos": {"h": 5, "w": 6, "x": 12, "y": 79},
       "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
       "fieldConfig": {
         "defaults": {
@@ -593,7 +933,7 @@
     {
       "id": 73, "type": "stat",
       "title": "Uptime",
-      "gridPos": {"h": 5, "w": 6, "x": 18, "y": 54},
+      "gridPos": {"h": 5, "w": 6, "x": 18, "y": 79},
       "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
       "fieldConfig": {
         "defaults": {

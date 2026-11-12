@@ -64,7 +64,7 @@ def _build_metrics() -> str:
             continue
         lines.append(f"# HELP {prom_name} {help_text}")
         lines.append(f"# TYPE {prom_name} gauge")
-        lines.append(f'{prom_name}{{station="{station}"}} {float(val)} {ts_ms}')
+        lines.append(f'{prom_name}{{station="{station}"}} {float(val)}')
 
     # Uptime indicator — 1 if data is fresh (<15 min old), 0 if stale
     import time
