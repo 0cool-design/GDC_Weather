@@ -1,104 +1,633 @@
 {
-  "title": "GDC Weather Station",
+  "id": null,
   "uid": "gdc-weather",
+  "title": "GDC Weather Station",
+  "description": "GDC Weather Station · Muscat, Oman · 23°36′N 58°35′E · Alt 10 m",
+  "tags": ["weather", "gdc", "muscat", "oman", "iot"],
   "timezone": "browser",
   "refresh": "1m",
   "schemaVersion": 39,
-  "tags": ["weather", "gdc"],
   "time": {"from": "now-24h", "to": "now"},
+  "timepicker": {},
   "panels": [
+
     {
-      "id": 1, "type": "stat", "title": "Station Status",
-      "gridPos": {"h": 3, "w": 3, "x": 0, "y": 0},
+      "id": 100, "type": "row",
+      "title": "⛅ Current Conditions",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0}
+    },
+
+    {
+      "id": 1, "type": "stat",
+      "title": "Station",
+      "gridPos": {"h": 3, "w": 3, "x": 0, "y": 1},
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"]},
+        "colorMode": "background", "textMode": "auto", "orientation": "horizontal"
+      },
       "fieldConfig": {
         "defaults": {
-          "mappings": [{"type": "value", "options": {"0": {"text": "OFFLINE", "color": "red"}, "1": {"text": "ONLINE", "color": "green"}}}],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": 0}, {"color": "green", "value": 1}]}
+          "mappings": [
+            {"type": "value", "options": {
+              "0": {"text": "OFFLINE", "color": "red"},
+              "1": {"text": "ONLINE", "color": "green"}
+            }}
+          ],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]},
+          "color": {"mode": "thresholds"}
         }
       },
-      "targets": [{"datasource": "Prometheus", "expr": "weather_up", "instant": true}]
+      "targets": [{"datasource": "Prometheus", "expr": "weather_up", "instant": true, "refId": "A"}]
     },
+
     {
-      "id": 2, "type": "stat", "title": "Temperature",
-      "gridPos": {"h": 3, "w": 3, "x": 3, "y": 0},
-      "fieldConfig": {"defaults": {"unit": "°F", "decimals": 1, "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": 32}, {"color": "green", "value": 60}, {"color": "orange", "value": 90}, {"color": "red", "value": 110}]}}},
-      "targets": [{"datasource": "Prometheus", "expr": "weather_temperature_f", "instant": true}]
+      "id": 2, "type": "stat",
+      "title": "Temperature",
+      "gridPos": {"h": 3, "w": 3, "x": 3, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius", "decimals": 1,
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "blue", "value": null}, {"color": "green", "value": 20},
+            {"color": "yellow", "value": 30}, {"color": "orange", "value": 37},
+            {"color": "red", "value": 42}
+          ]},
+          "color": {"mode": "thresholds"}
+        }
+      },
+      "targets": [{"datasource": "Prometheus", "expr": "(weather_temperature_f - 32) * 5/9", "instant": true, "legendFormat": "°C", "refId": "A"}]
     },
+
     {
-      "id": 3, "type": "stat", "title": "Humidity",
-      "gridPos": {"h": 3, "w": 3, "x": 6, "y": 0},
-      "fieldConfig": {"defaults": {"unit": "percent", "decimals": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "yellow", "value": 0}, {"color": "green", "value": 30}, {"color": "blue", "value": 80}]}}},
-      "targets": [{"datasource": "Prometheus", "expr": "weather_humidity_pct", "instant": true}]
+      "id": 3, "type": "stat",
+      "title": "Humidity",
+      "gridPos": {"h": 3, "w": 3, "x": 6, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "decimals": 0,
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "yellow", "value": null}, {"color": "green", "value": 30}, {"color": "blue", "value": 70}
+          ]},
+          "color": {"mode": "thresholds"}
+        }
+      },
+      "targets": [{"datasource": "Prometheus", "expr": "weather_humidity_pct", "instant": true, "legendFormat": "%", "refId": "A"}]
     },
+
     {
-      "id": 4, "type": "stat", "title": "Wind Speed",
-      "gridPos": {"h": 3, "w": 3, "x": 9, "y": 0},
-      "fieldConfig": {"defaults": {"unit": "mph", "decimals": 1, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": 0}, {"color": "yellow", "value": 25}, {"color": "orange", "value": 45}, {"color": "red", "value": 60}]}}},
-      "targets": [{"datasource": "Prometheus", "expr": "weather_wind_speed_last", "instant": true}]
+      "id": 4, "type": "stat",
+      "title": "Dew Point",
+      "gridPos": {"h": 3, "w": 3, "x": 9, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius", "decimals": 1,
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "blue", "value": null}, {"color": "green", "value": 10},
+            {"color": "yellow", "value": 18}, {"color": "orange", "value": 24}, {"color": "red", "value": 28}
+          ]},
+          "color": {"mode": "thresholds"}
+        }
+      },
+      "targets": [{"datasource": "Prometheus", "expr": "(weather_dew_point_f - 32) * 5/9", "instant": true, "legendFormat": "°C", "refId": "A"}]
     },
+
     {
-      "id": 5, "type": "stat", "title": "Barometer",
-      "gridPos": {"h": 3, "w": 3, "x": 12, "y": 0},
-      "fieldConfig": {"defaults": {"unit": "inHg", "decimals": 2, "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": 0}, {"color": "green", "value": 29.6}, {"color": "blue", "value": 30.5}]}}},
-      "targets": [{"datasource": "Prometheus", "expr": "weather_barometer_inhg", "instant": true}]
+      "id": 5, "type": "stat",
+      "title": "Wind Speed",
+      "gridPos": {"h": 3, "w": 3, "x": 12, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "velocitykmh", "decimals": 1,
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "green", "value": null}, {"color": "yellow", "value": 20},
+            {"color": "orange", "value": 40}, {"color": "red", "value": 60}
+          ]},
+          "color": {"mode": "thresholds"}
+        }
+      },
+      "targets": [{"datasource": "Prometheus", "expr": "weather_wind_speed_mph * 1.60934", "instant": true, "legendFormat": "km/h", "refId": "A"}]
     },
+
     {
-      "id": 6, "type": "stat", "title": "UV Index",
-      "gridPos": {"h": 3, "w": 3, "x": 15, "y": 0},
-      "fieldConfig": {"defaults": {"decimals": 1, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": 0}, {"color": "yellow", "value": 3}, {"color": "orange", "value": 6}, {"color": "red", "value": 8}, {"color": "purple", "value": 11}]}}},
-      "targets": [{"datasource": "Prometheus", "expr": "weather_uv_index", "instant": true}]
+      "id": 6, "type": "stat",
+      "title": "Wind Gust 10 min",
+      "gridPos": {"h": 3, "w": 3, "x": 15, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "velocitykmh", "decimals": 1,
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "green", "value": null}, {"color": "yellow", "value": 30},
+            {"color": "orange", "value": 50}, {"color": "red", "value": 70}
+          ]},
+          "color": {"mode": "thresholds"}
+        }
+      },
+      "targets": [{"datasource": "Prometheus", "expr": "weather_wind_speed_hi_10min_mph * 1.60934", "instant": true, "legendFormat": "km/h", "refId": "A"}]
     },
+
     {
-      "id": 7, "type": "timeseries", "title": "Temperature & Dew Point",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 3},
-      "fieldConfig": {"defaults": {"unit": "°F"}},
+      "id": 7, "type": "stat",
+      "title": "Pressure",
+      "gridPos": {"h": 3, "w": 3, "x": 18, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "pressurehpa", "decimals": 1,
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "blue", "value": null}, {"color": "green", "value": 1000}, {"color": "blue", "value": 1030}
+          ]},
+          "color": {"mode": "thresholds"}
+        }
+      },
+      "targets": [{"datasource": "Prometheus", "expr": "weather_barometer_inhg * 33.8639", "instant": true, "legendFormat": "hPa", "refId": "A"}]
+    },
+
+    {
+      "id": 8, "type": "stat",
+      "title": "UV Index",
+      "gridPos": {"h": 3, "w": 3, "x": 21, "y": 1},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area"},
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "green", "value": null}, {"color": "yellow", "value": 3},
+            {"color": "orange", "value": 6}, {"color": "red", "value": 8}, {"color": "purple", "value": 11}
+          ]},
+          "color": {"mode": "thresholds"}
+        }
+      },
+      "targets": [{"datasource": "Prometheus", "expr": "weather_uv_index", "instant": true, "legendFormat": "UV", "refId": "A"}]
+    },
+
+    {
+      "id": 200, "type": "row",
+      "title": "🌡️ Temperature History",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 4}
+    },
+
+    {
+      "id": 20, "type": "timeseries",
+      "title": "Temperature (°C) — Min / Avg / Max with Heat Stress Zones",
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 5},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["min", "mean", "max"]},
+        "tooltip": {"mode": "multi", "sort": "none"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "custom": {
+            "lineWidth": 1.5, "fillOpacity": 8, "spanNulls": false,
+            "thresholdsStyle": {"mode": "area"}
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "transparent", "value": null},
+              {"color": "rgba(99,179,237,0.12)", "value": 25},
+              {"color": "rgba(237,137,54,0.12)", "value": 30},
+              {"color": "rgba(245,101,101,0.12)", "value": 35},
+              {"color": "rgba(197,48,48,0.15)", "value": 40}
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "Max °C"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "#ef4444", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 1},
+              {"id": "custom.fillOpacity", "value": 0}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Min °C"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "#3b82f6", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 1},
+              {"id": "custom.fillOpacity", "value": 0}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Avg °C"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "#ff6730", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 2.5}
+            ]
+          }
+        ]
+      },
       "targets": [
-        {"datasource": "Prometheus", "expr": "weather_temperature_f", "legendFormat": "Temperature"},
-        {"datasource": "Prometheus", "expr": "weather_dew_point_f", "legendFormat": "Dew Point"}
+        {
+          "datasource": "Prometheus", "refId": "A",
+          "expr": "(avg_over_time(weather_temperature_f[$__rate_interval]) - 32) * 5/9",
+          "legendFormat": "Avg °C"
+        },
+        {
+          "datasource": "Prometheus", "refId": "B",
+          "expr": "(max_over_time(weather_temperature_f[$__rate_interval]) - 32) * 5/9",
+          "legendFormat": "Max °C"
+        },
+        {
+          "datasource": "Prometheus", "refId": "C",
+          "expr": "(min_over_time(weather_temperature_f[$__rate_interval]) - 32) * 5/9",
+          "legendFormat": "Min °C"
+        }
       ]
     },
+
     {
-      "id": 8, "type": "timeseries", "title": "Wind Speed",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 3},
-      "fieldConfig": {"defaults": {"unit": "mph"}},
+      "id": 300, "type": "row",
+      "title": "💨 Wind & Humidity",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 15}
+    },
+
+    {
+      "id": 30, "type": "timeseries",
+      "title": "Wind Speed (km/h)",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["mean", "max"]},
+        "tooltip": {"mode": "multi"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "velocitykmh",
+          "custom": {"lineWidth": 2, "fillOpacity": 10, "spanNulls": false}
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "Avg km/h"},
+            "properties": [{"id": "color", "value": {"fixedColor": "#34d399", "mode": "fixed"}}]
+          },
+          {
+            "matcher": {"id": "byName", "options": "10m avg km/h"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "#6ee7b7", "mode": "fixed"}},
+              {"id": "custom.lineStyle", "value": {"dash": [6, 4], "fill": "dash"}},
+              {"id": "custom.lineWidth", "value": 1.5}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Gust km/h"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "rgba(52,211,153,0.4)", "mode": "fixed"}},
+              {"id": "custom.lineWidth", "value": 1},
+              {"id": "custom.fillOpacity", "value": 4}
+            ]
+          }
+        ]
+      },
       "targets": [
-        {"datasource": "Prometheus", "expr": "weather_wind_speed_last", "legendFormat": "Current"},
-        {"datasource": "Prometheus", "expr": "weather_wind_speed_avg_10min_mph", "legendFormat": "10-min avg"},
-        {"datasource": "Prometheus", "expr": "weather_wind_speed_hi_10min_mph", "legendFormat": "10-min high"}
+        {
+          "datasource": "Prometheus", "refId": "A",
+          "expr": "weather_wind_speed_mph * 1.60934",
+          "legendFormat": "Avg km/h"
+        },
+        {
+          "datasource": "Prometheus", "refId": "B",
+          "expr": "weather_wind_speed_avg_10min_mph * 1.60934",
+          "legendFormat": "10m avg km/h"
+        },
+        {
+          "datasource": "Prometheus", "refId": "C",
+          "expr": "weather_wind_speed_hi_10min_mph * 1.60934",
+          "legendFormat": "Gust km/h"
+        }
       ]
     },
+
     {
-      "id": 9, "type": "timeseries", "title": "Barometric Pressure",
-      "gridPos": {"h": 7, "w": 12, "x": 0, "y": 11},
-      "fieldConfig": {"defaults": {"unit": "inHg", "decimals": 2}},
-      "targets": [{"datasource": "Prometheus", "expr": "weather_barometer_inhg", "legendFormat": "Sea Level Pressure"}]
-    },
-    {
-      "id": 10, "type": "timeseries", "title": "Solar Radiation & UV",
-      "gridPos": {"h": 7, "w": 12, "x": 12, "y": 11},
-      "fieldConfig": {"overrides": [{"matcher": {"id": "byName", "options": "UV Index"}, "properties": [{"id": "custom.axisPlacement", "value": "right"}]}]},
+      "id": 31, "type": "timeseries",
+      "title": "Humidity & Dew Point",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["mean", "min", "max"]},
+        "tooltip": {"mode": "multi"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent", "min": 0, "max": 100,
+          "custom": {"lineWidth": 2, "fillOpacity": 10, "spanNulls": false}
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "Humidity %"},
+            "properties": [{"id": "color", "value": {"fixedColor": "#22d3ee", "mode": "fixed"}}]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Dew Point °C"},
+            "properties": [
+              {"id": "unit", "value": "celsius"},
+              {"id": "min", "value": null}, {"id": "max", "value": null},
+              {"id": "color", "value": {"fixedColor": "#2dd4bf", "mode": "fixed"}},
+              {"id": "custom.axisPlacement", "value": "right"},
+              {"id": "custom.lineStyle", "value": {"dash": [6, 4], "fill": "dash"}}
+            ]
+          }
+        ]
+      },
       "targets": [
-        {"datasource": "Prometheus", "expr": "weather_solar_radiation_wm2", "legendFormat": "Solar Radiation (W/m²)"},
-        {"datasource": "Prometheus", "expr": "weather_uv_index", "legendFormat": "UV Index"}
+        {
+          "datasource": "Prometheus", "refId": "A",
+          "expr": "weather_humidity_pct",
+          "legendFormat": "Humidity %"
+        },
+        {
+          "datasource": "Prometheus", "refId": "B",
+          "expr": "(weather_dew_point_f - 32) * 5/9",
+          "legendFormat": "Dew Point °C"
+        }
       ]
     },
+
     {
-      "id": 11, "type": "timeseries", "title": "Rain Rate",
-      "gridPos": {"h": 7, "w": 12, "x": 0, "y": 18},
-      "fieldConfig": {"defaults": {"unit": "in/hr"}},
+      "id": 400, "type": "row",
+      "title": "🌧️ Pressure & Precipitation",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 24}
+    },
+
+    {
+      "id": 40, "type": "timeseries",
+      "title": "Barometric Pressure (hPa)",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 25},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["mean", "min", "max"]},
+        "tooltip": {"mode": "single"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "pressurehpa", "decimals": 1,
+          "custom": {"lineWidth": 2, "fillOpacity": 12, "spanNulls": false},
+          "color": {"mode": "fixed", "fixedColor": "#a78bfa"}
+        }
+      },
       "targets": [
-        {"datasource": "Prometheus", "expr": "weather_rain_rate_in_hr", "legendFormat": "Rain Rate"},
-        {"datasource": "Prometheus", "expr": "weather_rainfall_daily_in", "legendFormat": "Daily Total (in)"}
+        {
+          "datasource": "Prometheus", "refId": "A",
+          "expr": "weather_barometer_inhg * 33.8639",
+          "legendFormat": "Sea Level hPa"
+        }
       ]
     },
+
     {
-      "id": 12, "type": "timeseries", "title": "Humidity",
-      "gridPos": {"h": 7, "w": 12, "x": 12, "y": 18},
-      "fieldConfig": {"defaults": {"unit": "percent", "min": 0, "max": 100}},
+      "id": 41, "type": "timeseries",
+      "title": "Rain Rate & Daily Total",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 25},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["max"]},
+        "tooltip": {"mode": "multi"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "lengthmm", "decimals": 1,
+          "custom": {"lineWidth": 1.5, "fillOpacity": 20, "spanNulls": false, "drawStyle": "bars"},
+          "color": {"mode": "fixed", "fixedColor": "#60a5fa"}
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "Daily Total mm"},
+            "properties": [
+              {"id": "color", "value": {"fixedColor": "#2563eb", "mode": "fixed"}},
+              {"id": "custom.drawStyle", "value": "line"},
+              {"id": "custom.fillOpacity", "value": 10},
+              {"id": "custom.lineWidth", "value": 2}
+            ]
+          }
+        ]
+      },
       "targets": [
-        {"datasource": "Prometheus", "expr": "weather_humidity_pct", "legendFormat": "Outdoor"},
-        {"datasource": "Prometheus", "expr": "weather_humidity_indoor_pct", "legendFormat": "Indoor"}
+        {
+          "datasource": "Prometheus", "refId": "A",
+          "expr": "weather_rain_rate_in_hr * 25.4",
+          "legendFormat": "Rain Rate mm/hr"
+        },
+        {
+          "datasource": "Prometheus", "refId": "B",
+          "expr": "weather_rainfall_daily_in * 25.4",
+          "legendFormat": "Daily Total mm"
+        }
+      ]
+    },
+
+    {
+      "id": 500, "type": "row",
+      "title": "☀️ Solar Radiation & UV",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 33}
+    },
+
+    {
+      "id": 50, "type": "timeseries",
+      "title": "Solar Radiation (W/m²)",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 34},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["mean", "max"]},
+        "tooltip": {"mode": "single"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watt_per_metre2",
+          "custom": {"lineWidth": 2, "fillOpacity": 20, "spanNulls": false},
+          "color": {"mode": "fixed", "fixedColor": "#fbbf24"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "transparent", "value": null},
+              {"color": "rgba(251,191,36,0.1)", "value": 400},
+              {"color": "rgba(251,146,60,0.12)", "value": 700},
+              {"color": "rgba(239,68,68,0.15)", "value": 900}
+            ]
+          },
+          "custom": {
+            "lineWidth": 2, "fillOpacity": 20, "spanNulls": false,
+            "thresholdsStyle": {"mode": "area"}
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus", "refId": "A",
+          "expr": "weather_solar_radiation_wm2",
+          "legendFormat": "Solar W/m²"
+        }
+      ]
+    },
+
+    {
+      "id": 51, "type": "timeseries",
+      "title": "UV Index",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 34},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom", "calcs": ["mean", "max"]},
+        "tooltip": {"mode": "single"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "custom": {
+            "lineWidth": 2, "fillOpacity": 15, "spanNulls": false,
+            "thresholdsStyle": {"mode": "area"}
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "transparent", "value": null},
+              {"color": "rgba(132,204,22,0.15)", "value": 3},
+              {"color": "rgba(245,158,11,0.15)", "value": 6},
+              {"color": "rgba(249,115,22,0.18)", "value": 8},
+              {"color": "rgba(167,139,250,0.20)", "value": 11}
+            ]
+          },
+          "color": {"mode": "fixed", "fixedColor": "#c084fc"}
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus", "refId": "A",
+          "expr": "weather_uv_index",
+          "legendFormat": "UV Index"
+        }
+      ]
+    },
+
+    {
+      "id": 600, "type": "row",
+      "title": "📅 Temperature Heatmap",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 42}
+    },
+
+    {
+      "id": 60, "type": "heatmap",
+      "title": "Temperature Distribution Over Time (°C) — set time range to 30+ days for best view",
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 43},
+      "options": {
+        "calculate": true,
+        "calculation": {
+          "xBuckets": {"mode": "count", "value": "60"},
+          "yBuckets": {"mode": "count", "value": "20"}
+        },
+        "color": {
+          "scheme": "RdYlBu",
+          "mode": "scheme",
+          "reverse": true,
+          "steps": 64
+        },
+        "yAxis": {"unit": "celsius", "decimals": 0, "min": 10, "max": 50},
+        "tooltip": {"show": true},
+        "legend": {"show": true},
+        "cellGap": 1,
+        "filterValues": {"le": 1e-9}
+      },
+      "fieldConfig": {
+        "defaults": {"unit": "celsius"}
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus", "refId": "A",
+          "expr": "(weather_temperature_f - 32) * 5/9",
+          "legendFormat": "Temp °C",
+          "format": "time_series"
+        }
+      ]
+    },
+
+    {
+      "id": 700, "type": "row",
+      "title": "📊 System & Telemetry",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 53}
+    },
+
+    {
+      "id": 71, "type": "timeseries",
+      "title": "Station Data Age (minutes since last reading)",
+      "gridPos": {"h": 5, "w": 12, "x": 0, "y": 54},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "single"}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "m",
+          "custom": {"lineWidth": 1.5, "fillOpacity": 10, "spanNulls": false},
+          "color": {"mode": "fixed", "fixedColor": "#94a3b8"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 10},
+              {"color": "red", "value": 30}
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus", "refId": "A",
+          "expr": "(time() - timestamp(weather_temperature_f)) / 60",
+          "legendFormat": "Age (min)"
+        }
+      ]
+    },
+
+    {
+      "id": 72, "type": "stat",
+      "title": "Data Points (24h)",
+      "gridPos": {"h": 5, "w": 6, "x": 12, "y": 54},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}, {"color": "green", "value": 200}]},
+          "color": {"mode": "thresholds"}
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus", "refId": "A",
+          "expr": "count_over_time(weather_temperature_f[24h])",
+          "instant": true,
+          "legendFormat": "readings"
+        }
+      ]
+    },
+
+    {
+      "id": 73, "type": "stat",
+      "title": "Uptime",
+      "gridPos": {"h": 5, "w": 6, "x": 18, "y": 54},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "red", "value": null}, {"color": "yellow", "value": 0.9}, {"color": "green", "value": 0.99}
+          ]},
+          "color": {"mode": "thresholds"}
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Prometheus", "refId": "A",
+          "expr": "avg_over_time(weather_up[24h])",
+          "instant": true,
+          "legendFormat": "uptime"
+        }
       ]
     }
+
   ]
 }
