@@ -7,7 +7,7 @@
   "timezone": "browser",
   "refresh": "1m",
   "schemaVersion": 39,
-  "time": {"from": "now-24h", "to": "now"},
+  "time": {"from": "now-400d", "to": "now"},
   "timepicker": {},
   "panels": [
 
@@ -227,19 +227,16 @@
       },
       "targets": [
         {
-          "datasource": "Prometheus", "refId": "A",
-          "expr": "(avg_over_time(weather_temperature_f[$__rate_interval]) - 32) * 5/9",
-          "legendFormat": "Avg °C"
+          "datasource": "InfluxDB", "refId": "A",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"temp\") |> map(fn:(r)=>({r with _value:(r._value-32.0)*5.0/9.0})) |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Avg °C\")"
         },
         {
-          "datasource": "Prometheus", "refId": "B",
-          "expr": "(max_over_time(weather_temperature_f[$__rate_interval]) - 32) * 5/9",
-          "legendFormat": "Max °C"
+          "datasource": "InfluxDB", "refId": "B",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"temp\") |> map(fn:(r)=>({r with _value:(r._value-32.0)*5.0/9.0})) |> aggregateWindow(every: v.windowPeriod, fn:max, createEmpty:false) |> yield(name:\"Max °C\")"
         },
         {
-          "datasource": "Prometheus", "refId": "C",
-          "expr": "(min_over_time(weather_temperature_f[$__rate_interval]) - 32) * 5/9",
-          "legendFormat": "Min °C"
+          "datasource": "InfluxDB", "refId": "C",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"temp\") |> map(fn:(r)=>({r with _value:(r._value-32.0)*5.0/9.0})) |> aggregateWindow(every: v.windowPeriod, fn:min, createEmpty:false) |> yield(name:\"Min °C\")"
         }
       ]
     },
@@ -289,19 +286,16 @@
       },
       "targets": [
         {
-          "datasource": "Prometheus", "refId": "A",
-          "expr": "weather_wind_speed_mph * 1.60934",
-          "legendFormat": "Avg km/h"
+          "datasource": "InfluxDB", "refId": "A",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_last\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Avg km/h\")"
         },
         {
-          "datasource": "Prometheus", "refId": "B",
-          "expr": "weather_wind_speed_avg_10min_mph * 1.60934",
-          "legendFormat": "10m avg km/h"
+          "datasource": "InfluxDB", "refId": "B",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_avg_last_10_min\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"10m avg km/h\")"
         },
         {
-          "datasource": "Prometheus", "refId": "C",
-          "expr": "weather_wind_speed_hi_10min_mph * 1.60934",
-          "legendFormat": "Gust km/h"
+          "datasource": "InfluxDB", "refId": "C",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"wind_speed_hi_last_10_min\") |> map(fn:(r)=>({r with _value:r._value*1.60934})) |> aggregateWindow(every: v.windowPeriod, fn:max, createEmpty:false) |> yield(name:\"Gust km/h\")"
         }
       ]
     },
@@ -338,14 +332,12 @@
       },
       "targets": [
         {
-          "datasource": "Prometheus", "refId": "A",
-          "expr": "weather_humidity_pct",
-          "legendFormat": "Humidity %"
+          "datasource": "InfluxDB", "refId": "A",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"humidity\") |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Humidity %\")"
         },
         {
-          "datasource": "Prometheus", "refId": "B",
-          "expr": "(weather_dew_point_f - 32) * 5/9",
-          "legendFormat": "Dew Point °C"
+          "datasource": "InfluxDB", "refId": "B",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"dew_point\") |> map(fn:(r)=>({r with _value:(r._value-32.0)*5.0/9.0})) |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Dew Point °C\")"
         }
       ]
     },
@@ -374,9 +366,8 @@
       },
       "targets": [
         {
-          "datasource": "Prometheus", "refId": "A",
-          "expr": "weather_barometer_inhg * 33.8639",
-          "legendFormat": "Sea Level hPa"
+          "datasource": "InfluxDB", "refId": "A",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"242\" and r._field==\"bar_sea_level\") |> map(fn:(r)=>({r with _value:r._value*33.8639})) |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Sea Level hPa\")"
         }
       ]
     },
@@ -409,14 +400,12 @@
       },
       "targets": [
         {
-          "datasource": "Prometheus", "refId": "A",
-          "expr": "weather_rain_rate_in_hr * 25.4",
-          "legendFormat": "Rain Rate mm/hr"
+          "datasource": "InfluxDB", "refId": "A",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"rain_rate_last\") |> map(fn:(r)=>({r with _value:r._value*25.4})) |> aggregateWindow(every: v.windowPeriod, fn:max, createEmpty:false) |> yield(name:\"Rain Rate mm/hr\")"
         },
         {
-          "datasource": "Prometheus", "refId": "B",
-          "expr": "weather_rainfall_daily_in * 25.4",
-          "legendFormat": "Daily Total mm"
+          "datasource": "InfluxDB", "refId": "B",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"rainfall_last_24_hr\") |> map(fn:(r)=>({r with _value:r._value*25.4})) |> aggregateWindow(every: 1d, fn:max, createEmpty:false) |> yield(name:\"Daily Total mm\")"
         }
       ]
     },
@@ -458,9 +447,8 @@
       },
       "targets": [
         {
-          "datasource": "Prometheus", "refId": "A",
-          "expr": "weather_solar_radiation_wm2",
-          "legendFormat": "Solar W/m²"
+          "datasource": "InfluxDB", "refId": "A",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"solar_rad\") |> aggregateWindow(every: v.windowPeriod, fn:mean, createEmpty:false) |> yield(name:\"Solar W/m²\")"
         }
       ]
     },
@@ -495,9 +483,8 @@
       },
       "targets": [
         {
-          "datasource": "Prometheus", "refId": "A",
-          "expr": "weather_uv_index",
-          "legendFormat": "UV Index"
+          "datasource": "InfluxDB", "refId": "A",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"uv_index\") |> aggregateWindow(every: v.windowPeriod, fn:max, createEmpty:false) |> yield(name:\"UV Index\")"
         }
       ]
     },
@@ -536,10 +523,8 @@
       },
       "targets": [
         {
-          "datasource": "Prometheus", "refId": "A",
-          "expr": "(weather_temperature_f - 32) * 5/9",
-          "legendFormat": "Temp °C",
-          "format": "time_series"
+          "datasource": "InfluxDB", "refId": "A",
+          "query": "from(bucket:\"weather\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn:(r)=>r._measurement==\"weather\" and r.sensor_type==\"37\" and r._field==\"temp\") |> map(fn:(r)=>({r with _value:(r._value-32.0)*5.0/9.0})) |> yield(name:\"Temp °C\")"
         }
       ]
     },
