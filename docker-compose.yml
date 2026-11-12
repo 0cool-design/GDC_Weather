@@ -54,6 +54,8 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: GDCweather123
       GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/weather.json
+      GF_INSTALL_PLUGINS: "fatcloud-windrose-panel"
+      GF_SECURITY_ANGULAR_SUPPORT_ENABLED: "true"
     depends_on:
       - influxdb
 
