@@ -221,6 +221,7 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--list-stations", action="store_true", help="List all stations linked to this API key")
     group.add_argument("--backfill", type=int, metavar="DAYS", help="Pull N days of historic data into the database")
+    group.add_argument("--since", metavar="YYYY-MM-DD", help="Backfill from this date to today (e.g. 2024-01-01)")
     group.add_argument("--show-latest", action="store_true", help="Print the most recent reading from the database")
     group.add_argument("--probe-v1", action="store_true", help="Test v1 API with WEATHERLINK_DID (for WeatherLinkIP/USB/SER stations)")
     args = parser.parse_args()
@@ -231,6 +232,16 @@ def main():
         cmd_list_stations(cfg)
     elif args.backfill:
         cmd_backfill(cfg, args.backfill)
+    elif args.since:
+        from datetime import date as _date
+        try:
+            start = datetime.strptime(args.since, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        except ValueError:
+            logger.error("--since expects YYYY-MM-DD format, got: %s", args.since)
+            sys.exit(1)
+        days = (datetime.now(tz=timezone.utc) - start).days + 1
+        logger.info("Backfilling %d days since %s", days, args.since)
+        cmd_backfill(cfg, days)
     elif args.show_latest:
         cmd_show_latest(cfg)
     elif args.probe_v1:

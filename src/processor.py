@@ -32,14 +32,102 @@ def parse_current(raw: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def parse_historic(raw: dict[str, Any]) -> list[dict[str, Any]]:
-    """Parse a /historic response into normalized records."""
+    """Parse a /historic response into normalized records.
+
+    Historic archive records use different field names than current-condition
+    records (e.g. temp_last / hum_last / wind_speed_avg instead of temp / hum).
+    """
     records = []
     for sensor in raw.get("sensors", []):
         for obs in sensor.get("data", []):
-            rec = _flatten_obs(obs, sensor, raw.get("station_id_uuid", ""))
+            rec = _flatten_historic_obs(obs, sensor, raw.get("station_id_uuid", ""))
             if rec:
                 records.append(rec)
     return records
+
+
+def _flatten_historic_obs(obs: dict, sensor: dict, station_uuid: str) -> dict[str, Any] | None:
+    """Flatten a single archive record from /historic.
+
+    Sensor type 37  = WeatherLink Console ISS archive (temp/wind/hum/rain)
+    Sensor type 242 = Barometric pressure archive
+    All other types fall back to _flatten_obs() (current-conditions format).
+    """
+    ts = obs.get("ts")
+    if ts is None:
+        return None
+
+    record: dict[str, Any] = {
+        "station_uuid": station_uuid,
+        "sensor_type": sensor.get("sensor_type"),
+        "sensor_lsid": sensor.get("lsid"),
+        "timestamp": ts,
+        "timestamp_iso": _ts_to_iso(ts),
+    }
+
+    stype = sensor.get("sensor_type")
+
+    if stype == 37:
+        # Temperature (°F) — prefer _last, fall back to _avg
+        record["temp"] = obs.get("temp_last") if obs.get("temp_last") is not None else obs.get("temp_avg")
+
+        # Humidity
+        if obs.get("hum_last") is not None:
+            record["humidity"] = obs["hum_last"]
+
+        # Wind
+        if obs.get("wind_speed_avg") is not None:
+            record["wind_speed_last"] = obs["wind_speed_avg"]
+            record["wind_speed_avg_last_1_min"] = obs["wind_speed_avg"]
+        if obs.get("wind_speed_hi") is not None:
+            record["wind_speed_hi_last_10_min"] = obs["wind_speed_hi"]
+        if obs.get("wind_dir_of_prevail") is not None:
+            record["wind_dir_last"] = obs["wind_dir_of_prevail"]
+        if obs.get("wind_dir_of_avg") is not None:
+            record["wind_dir_scalar_avg_last_1_min"] = obs["wind_dir_of_avg"]
+        if obs.get("wind_speed_hi_dir") is not None:
+            record["wind_dir_at_hi_speed_last_10_min"] = obs["wind_speed_hi_dir"]
+
+        # Derived temperatures
+        for src, dst in [
+            ("dew_point_last", "dew_point"),
+            ("heat_index_last", "heat_index"),
+            ("wet_bulb_last", "wet_bulb"),
+            ("wind_chill_last", "wind_chill"),
+            ("thw_index_last", "thw_index"),
+        ]:
+            if obs.get(src) is not None:
+                record[dst] = obs[src]
+
+        # Rain
+        if obs.get("rainfall_in") is not None:
+            record["rainfall_last_24_hr"] = obs["rainfall_in"]
+        if obs.get("rain_rate_hi_in") is not None:
+            record["rain_rate_hi"] = obs["rain_rate_hi_in"]
+
+        # Solar / UV
+        if obs.get("solar_rad_avg") is not None:
+            record["solar_rad"] = obs["solar_rad_avg"]
+        elif obs.get("solar_rad_hi") is not None:
+            record["solar_rad"] = obs["solar_rad_hi"]
+        if obs.get("uv_index_avg") is not None:
+            record["uv_index"] = obs["uv_index_avg"]
+
+        # Status
+        for f in ("trans_battery_flag", "rssi"):
+            if obs.get(f) is not None:
+                record[f] = obs[f]
+
+    elif stype == 242:
+        for f in ("bar_sea_level", "bar_absolute"):
+            if obs.get(f) is not None:
+                record[f] = obs[f]
+
+    else:
+        # Unknown archive sensor type — try current-conditions field names
+        return _flatten_obs(obs, sensor, station_uuid)
+
+    return record
 
 
 def _flatten_obs(obs: dict, sensor: dict, station_uuid: str) -> dict[str, Any] | None:

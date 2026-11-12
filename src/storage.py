@@ -123,7 +123,7 @@ class SQLiteStorage:
         ]
         placeholders = ",".join("?" * len(cols))
         sql = (
-            f"INSERT OR IGNORE INTO weather_observations ({','.join(cols)}) "
+            f"INSERT OR REPLACE INTO weather_observations ({','.join(cols)}) "
             f"VALUES ({placeholders})"
         )
         rows = [[r.get(c) for c in cols] for r in records]

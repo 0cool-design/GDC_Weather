@@ -1,0 +1,461 @@
+apiVersion: 1
+# GDC Weather Station — Grafana Unified Alerting Rules
+# Muscat, Oman (UTC+4)
+#
+# Before applying:
+#   1. Set DS_INFLUXDB to your InfluxDB 2 datasource UID
+#      (Grafana → Configuration → Data Sources → InfluxDB → uid field)
+#   2. Create contact points + notification policy in
+#      grafana/provisioning/alerting/contactpoints.yaml
+#   3. Copy this file to your Grafana provisioning path and restart Grafana
+#      (default: /etc/grafana/provisioning/alerting/)
+#
+# Unit note: WeatherLink stores temp/dew_point/heat_index in °F, wind in mph,
+# pressure in inHg. Each Flux query converts to metric before the threshold.
+
+groups:
+
+  # ── Evaluated every minute ───────────────────────────────────────────────
+  - orgId: 1
+    name: "GDC Weather — Fast"
+    folder: "GDC Weather"
+    interval: 1m
+    rules:
+
+      # 1. Extreme Heat Index ————————————————————————————————————————————————
+      # WHO "extreme danger" band: heat index ≥ 46.1°C (115°F)
+      # Outdoor workers at GDC face life-threatening heat stroke risk.
+      - uid: gdc-heat-critical
+        title: "Extreme Heat Index"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: "${DS_INFLUXDB}"
+            model:
+              refId: A
+              hide: false
+              query: |
+                from(bucket: "weather")
+                  |> range(start: -10m)
+                  |> filter(fn: (r) => r._measurement == "weather" and r._field == "heat_index")
+                  |> last()
+                  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              refId: B
+              hide: false
+              type: reduce
+              reducer: last
+              expression: A
+          - refId: C
+            datasourceUid: "-100"
+            model:
+              refId: C
+              hide: false
+              type: threshold
+              expression: B
+              conditions:
+                - { evaluator: { params: [46.1], type: gt }, operator: { type: and }, query: { params: [B] }, reducer: { type: last }, type: query }
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: 'Extreme heat index at GDC — {{ $values.B.Value | printf "%.1f" }}°C'
+          description: "Heat index ≥ 46°C for 5+ min. Suspend ALL outdoor operations immediately. Mandatory shelter protocol."
+        labels:
+          severity: critical
+          category: heat
+
+      # 2. High Heat Warning —————————————————————————————————————————————————
+      # WHO "danger" band: heat index ≥ 40°C (104°F)
+      # Reduces safe outdoor exposure to <30 min without water/rest breaks.
+      - uid: gdc-heat-warning
+        title: "High Heat Index Warning"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: "${DS_INFLUXDB}"
+            model:
+              refId: A
+              hide: false
+              query: |
+                from(bucket: "weather")
+                  |> range(start: -10m)
+                  |> filter(fn: (r) => r._measurement == "weather" and r._field == "heat_index")
+                  |> mean()
+                  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))
+          - refId: B
+            datasourceUid: "-100"
+            model: { refId: B, hide: false, type: reduce, reducer: last, expression: A }
+          - refId: C
+            datasourceUid: "-100"
+            model:
+              refId: C
+              hide: false
+              type: threshold
+              expression: B
+              conditions:
+                - { evaluator: { params: [40.0], type: gt }, operator: { type: and }, query: { params: [B] }, reducer: { type: last }, type: query }
+        noDataState: NoData
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: 'High heat index at GDC — {{ $values.B.Value | printf "%.1f" }}°C'
+          description: "Heat index > 40°C for 10 min. Limit outdoor exposure. Mandatory water/rest breaks every 20 min. Monitor for heat exhaustion."
+        labels:
+          severity: warning
+          category: heat
+
+      # 3. High Wind / Dust Storm Watch ——————————————————————————————————————
+      # 10-min avg wind ≥ 40.2 km/h (25 mph, Beaufort 6)
+      # Sufficient to lift dust; haboob conditions possible.
+      - uid: gdc-wind-warning
+        title: "High Wind / Dust Storm Watch"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: "${DS_INFLUXDB}"
+            model:
+              refId: A
+              hide: false
+              query: |
+                from(bucket: "weather")
+                  |> range(start: -15m)
+                  |> filter(fn: (r) => r._measurement == "weather" and r._field == "wind_speed_avg_last_10_min")
+                  |> mean()
+                  |> map(fn: (r) => ({r with _value: r._value * 1.60934}))
+          - refId: B
+            datasourceUid: "-100"
+            model: { refId: B, hide: false, type: reduce, reducer: last, expression: A }
+          - refId: C
+            datasourceUid: "-100"
+            model:
+              refId: C
+              hide: false
+              type: threshold
+              expression: B
+              conditions:
+                - { evaluator: { params: [40.2], type: gt }, operator: { type: and }, query: { params: [B] }, reducer: { type: last }, type: query }
+        noDataState: NoData
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: 'High wind at GDC — {{ $values.B.Value | printf "%.1f" }} km/h'
+          description: "Sustained 10-min wind ≥ 40 km/h. Dust storm possible. Secure all loose materials. Monitor visibility."
+        labels:
+          severity: warning
+          category: wind
+
+      # 4. Severe Wind — Structural / Operational Halt ————————————————————————
+      # 10-min avg ≥ 64.4 km/h (40 mph, Beaufort 8)
+      # Most HSE codes require crane/elevated-work halt above this.
+      - uid: gdc-wind-critical
+        title: "Severe Wind — Structural Risk"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: "${DS_INFLUXDB}"
+            model:
+              refId: A
+              hide: false
+              query: |
+                from(bucket: "weather")
+                  |> range(start: -10m)
+                  |> filter(fn: (r) => r._measurement == "weather" and r._field == "wind_speed_avg_last_10_min")
+                  |> mean()
+                  |> map(fn: (r) => ({r with _value: r._value * 1.60934}))
+          - refId: B
+            datasourceUid: "-100"
+            model: { refId: B, hide: false, type: reduce, reducer: last, expression: A }
+          - refId: C
+            datasourceUid: "-100"
+            model:
+              refId: C
+              hide: false
+              type: threshold
+              expression: B
+              conditions:
+                - { evaluator: { params: [64.4], type: gt }, operator: { type: and }, query: { params: [B] }, reducer: { type: last }, type: query }
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: 'Severe wind at GDC — {{ $values.B.Value | printf "%.1f" }} km/h'
+          description: "Severe sustained wind ≥ 64 km/h. Halt all crane, elevated work, and outdoor vehicle operations. Take shelter immediately."
+        labels:
+          severity: critical
+          category: wind
+
+      # 5. Heavy Rain / Flash Flood Risk ——————————————————————————————————————
+      # Rain rate ≥ 12.7 mm/hr (0.5 in/hr)
+      # Muscat wadis can flood within minutes at this rate; rare but lethal.
+      - uid: gdc-rain-critical
+        title: "Heavy Rain — Flash Flood Risk"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: "${DS_INFLUXDB}"
+            model:
+              refId: A
+              hide: false
+              query: |
+                from(bucket: "weather")
+                  |> range(start: -5m)
+                  |> filter(fn: (r) => r._measurement == "weather" and r._field == "rain_rate_last")
+                  |> max()
+                  |> map(fn: (r) => ({r with _value: r._value * 25.4}))
+          - refId: B
+            datasourceUid: "-100"
+            model: { refId: B, hide: false, type: reduce, reducer: last, expression: A }
+          - refId: C
+            datasourceUid: "-100"
+            model:
+              refId: C
+              hide: false
+              type: threshold
+              expression: B
+              conditions:
+                - { evaluator: { params: [12.7], type: gt }, operator: { type: and }, query: { params: [B] }, reducer: { type: last }, type: query }
+        noDataState: NoData
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: 'Heavy rain at GDC — {{ $values.B.Value | printf "%.1f" }} mm/hr'
+          description: "Rain rate ≥ 12.7 mm/hr. Flash flood risk in wadis. Clear personnel from flood-prone zones. Do NOT attempt wadi crossings."
+        labels:
+          severity: critical
+          category: rain
+
+      # 6. Sensor Stale / Station Offline ————————————————————————————————————
+      # No temp readings for 15 minutes → station/collector is down.
+      # noDataState: Alerting fires even when Flux returns empty.
+      - uid: gdc-sensor-stale
+        title: "Weather Station Offline"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: "${DS_INFLUXDB}"
+            model:
+              refId: A
+              hide: false
+              query: |
+                from(bucket: "weather")
+                  |> range(start: -15m)
+                  |> filter(fn: (r) => r._measurement == "weather" and r._field == "temp")
+                  |> count()
+          - refId: B
+            datasourceUid: "-100"
+            model: { refId: B, hide: false, type: reduce, reducer: last, expression: A }
+          - refId: C
+            datasourceUid: "-100"
+            model:
+              refId: C
+              hide: false
+              type: threshold
+              expression: B
+              conditions:
+                - { evaluator: { params: [1], type: lt }, operator: { type: and }, query: { params: [B] }, reducer: { type: last }, type: query }
+        noDataState: Alerting
+        execErrState: Alerting
+        for: 0s
+        annotations:
+          summary: "GDC weather station offline — no data for 15+ min"
+          description: "No weather readings received. Check WeatherLink Console power, network, and collector: systemctl status gdc-weather. All automated weather safety alerts are suspended."
+        labels:
+          severity: critical
+          category: sensor
+
+  # ── Evaluated every 5 minutes ────────────────────────────────────────────
+  - orgId: 1
+    name: "GDC Weather — Slow"
+    folder: "GDC Weather"
+    interval: 5m
+    rules:
+
+      # 7. Dangerous Dew Point —————————————————————————————————————————————
+      # Dew point ≥ 27.8°C (82°F): perspiration stops cooling effectively.
+      # Muscat coastal summer (Aug–Sep) regularly sustains 28–32°C dew points.
+      - uid: gdc-dewpoint-warning
+        title: "Dangerous Dew Point — Heat Stress Amplifier"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 1800, to: 0 }
+            datasourceUid: "${DS_INFLUXDB}"
+            model:
+              refId: A
+              hide: false
+              query: |
+                from(bucket: "weather")
+                  |> range(start: -30m)
+                  |> filter(fn: (r) => r._measurement == "weather" and r._field == "dew_point")
+                  |> mean()
+                  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))
+          - refId: B
+            datasourceUid: "-100"
+            model: { refId: B, hide: false, type: reduce, reducer: last, expression: A }
+          - refId: C
+            datasourceUid: "-100"
+            model:
+              refId: C
+              hide: false
+              type: threshold
+              expression: B
+              conditions:
+                - { evaluator: { params: [27.8], type: gt }, operator: { type: and }, query: { params: [B] }, reducer: { type: last }, type: query }
+        noDataState: NoData
+        execErrState: Error
+        for: 15m
+        annotations:
+          summary: 'Dangerous dew point at GDC — {{ $values.B.Value | printf "%.1f" }}°C'
+          description: "Dew point > 28°C. Perspiration cooling is ineffective. Heat stress risk elevated for all outdoor personnel regardless of shade or hydration."
+        labels:
+          severity: warning
+          category: heat
+
+      # 8. Extreme UV Index ————————————————————————————————————————————————
+      # UV ≥ 11 (WHO "extreme"): unprotected skin burns in <10 min.
+      # Muscat UV hits 12–14 from April–September, 09:00–15:00.
+      - uid: gdc-uv-critical
+        title: "Extreme UV Index"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: "${DS_INFLUXDB}"
+            model:
+              refId: A
+              hide: false
+              query: |
+                from(bucket: "weather")
+                  |> range(start: -15m)
+                  |> filter(fn: (r) => r._measurement == "weather" and r._field == "uv_index")
+                  |> max()
+          - refId: B
+            datasourceUid: "-100"
+            model: { refId: B, hide: false, type: reduce, reducer: last, expression: A }
+          - refId: C
+            datasourceUid: "-100"
+            model:
+              refId: C
+              hide: false
+              type: threshold
+              expression: B
+              conditions:
+                - { evaluator: { params: [11.0], type: gt }, operator: { type: and }, query: { params: [B] }, reducer: { type: last }, type: query }
+        noDataState: NoData
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: 'Extreme UV index at GDC — {{ $values.B.Value | printf "%.1f" }}'
+          description: "UV ≥ 11 (extreme). Burns in <10 min. Mandate SPF50+, full-cover clothing, and shade for ALL outdoor personnel."
+        labels:
+          severity: critical
+          category: uv
+
+      # 9. Rapid Pressure Drop — Storm Approach ——————————————————————————————
+      # Drop ≥ 3 hPa over 3 hours: WMO "rapid" threshold.
+      # In Arabian Sea context signals approaching tropical disturbance or squall.
+      # Uses two Flux queries: A = pressure 3h ago, B = pressure now.
+      # Math expression C = A − B; threshold D fires if C ≥ 3.0 hPa.
+      - uid: gdc-pressure-drop
+        title: "Rapid Pressure Drop — Storm Approach"
+        condition: D
+        data:
+          - refId: A
+            relativeTimeRange: { from: 11700, to: 9900 }   # centred at -3h
+            datasourceUid: "${DS_INFLUXDB}"
+            model:
+              refId: A
+              hide: false
+              query: |
+                from(bucket: "weather")
+                  |> range(start: -3h15m, stop: -2h45m)
+                  |> filter(fn: (r) => r._measurement == "weather" and r._field == "bar_sea_level")
+                  |> mean()
+                  |> map(fn: (r) => ({r with _value: r._value * 33.8639}))
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: "${DS_INFLUXDB}"
+            model:
+              refId: B
+              hide: false
+              query: |
+                from(bucket: "weather")
+                  |> range(start: -10m)
+                  |> filter(fn: (r) => r._measurement == "weather" and r._field == "bar_sea_level")
+                  |> mean()
+                  |> map(fn: (r) => ({r with _value: r._value * 33.8639}))
+          - refId: C
+            datasourceUid: "-100"
+            model:
+              refId: C
+              hide: false
+              type: math
+              expression: "$A - $B"
+          - refId: D
+            datasourceUid: "-100"
+            model:
+              refId: D
+              hide: false
+              type: threshold
+              expression: C
+              conditions:
+                - { evaluator: { params: [3.0], type: gt }, operator: { type: and }, query: { params: [C] }, reducer: { type: last }, type: query }
+        noDataState: NoData
+        execErrState: Error
+        for: 0s
+        annotations:
+          summary: 'Rapid pressure drop at GDC — {{ $values.C.Value | printf "%.1f" }} hPa in 3h'
+          description: "Pressure dropped ≥ 3 hPa in 3 hours. Storm system approaching. Check NCM Oman forecast. Prepare for wind and rain."
+        labels:
+          severity: warning
+          category: pressure
+
+      # 10. Extreme Solar Radiation — Equipment Thermal Risk ————————————————
+      # Solar ≥ 1050 W/m²: above AM1.5 standard. Thermal risk to exposed
+      # electronics, vehicles, and rooftop equipment. Also a leading indicator
+      # for peak heat index ~2–3 hours later.
+      - uid: gdc-solar-info
+        title: "Extreme Solar Radiation"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: "${DS_INFLUXDB}"
+            model:
+              refId: A
+              hide: false
+              query: |
+                from(bucket: "weather")
+                  |> range(start: -15m)
+                  |> filter(fn: (r) => r._measurement == "weather" and r._field == "solar_rad")
+                  |> max()
+          - refId: B
+            datasourceUid: "-100"
+            model: { refId: B, hide: false, type: reduce, reducer: last, expression: A }
+          - refId: C
+            datasourceUid: "-100"
+            model:
+              refId: C
+              hide: false
+              type: threshold
+              expression: B
+              conditions:
+                - { evaluator: { params: [1050.0], type: gt }, operator: { type: and }, query: { params: [B] }, reducer: { type: last }, type: query }
+        noDataState: NoData
+        execErrState: Error
+        for: 15m
+        annotations:
+          summary: 'Extreme solar radiation at GDC — {{ $values.B.Value | printf "%.0f" }} W/m²'
+          description: "Solar irradiance > 1050 W/m². Check exposed electronics, vehicle interiors, and rooftop equipment. Peak heat index expected within 2–3 hours."
+        labels:
+          severity: info
+          category: heat
