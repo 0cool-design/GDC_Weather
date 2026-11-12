@@ -1255,135 +1255,6 @@
     },
     {
       "id": 18,
-      "type": "nline-plotlyjs-panel",
-      "title": "Gust Speed vs Wind Direction",
-      "description": "10-minute peak gust and the direction it came from.",
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 25,
-        "w": 8,
-        "h": 10
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "influxdb"
-          },
-          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and (r._field == \"wind_dir_at_hi_speed_last_10_min\" or r._field == \"wind_speed_hi_last_10_min\"))\n  |> group()\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => exists r.wind_dir_at_hi_speed_last_10_min and exists r.wind_speed_hi_last_10_min)\n  |> map(fn: (r) => ({_time: r._time, dir: float(v: r.wind_dir_at_hi_speed_last_10_min), speed: r.wind_speed_hi_last_10_min * 1.609344}))"
-        }
-      ],
-      "options": {
-        "allData": {},
-        "data": [],
-        "layout": {},
-        "config": {},
-        "script": "const BINS = [[0, 10], [10, 20], [20, 30], [30, 40], [40, 50], [50, null]];\nconst s = data.series[0];\nconst viridis = ['#440154', '#414487', '#2A788E', '#22A884', '#7AD151', '#FDE725'];\nif (!s) return { data: [], layout: { annotations: [{ text: 'No data in range', showarrow: false }] } };\nconst col = (name, i) => (s.fields.find(f => f.name === name) || s.fields[i]).values;\nconst dir = col('dir', 2), spd = col('speed', 1);\nconst names = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst counts = BINS.map(() => new Array(16).fill(0));\nlet n = 0;\nfor (let i = 0; i < dir.length; i++) {\n  const d = dir[i], v = spd[i];\n  if (d == null || v == null) continue;\n  const sector = Math.round((((d % 360) + 360) % 360) / 22.5) % 16;\n  const b = BINS.findIndex(([lo, hi]) => v >= lo && (hi === null || v < hi));\n  counts[b][sector]++;\n  n++;\n}\nconst label = ([lo, hi]) => (hi === null ? lo + '+' : lo + ' – ' + hi) + ' km/h';\nconst grid = 'rgba(128,128,128,0.45)';\nreturn {\n  data: BINS.map((bin, i) => ({\n    type: 'barpolar', name: label(bin),\n    theta: names.map((_, k) => k * 22.5), width: 21,\n    r: counts[i].map(c => (n ? (100 * c) / n : 0)),\n    customdata: names,\n    marker: { color: viridis[i], line: { width: 0 } },\n    hovertemplate: '%{customdata} · ' + label(bin) + '<br>%{r:.1f}% of readings<extra></extra>',\n  })),\n  layout: {\n    polar: {\n      bgcolor: 'rgba(0,0,0,0)', barmode: 'stack',\n      angularaxis: { direction: 'clockwise', rotation: 90, thetaunit: 'degrees',\n        tickmode: 'array', tickvals: [0, 45, 90, 135, 180, 225, 270, 315],\n        ticktext: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'], tickfont: { size: 12 },\n        gridcolor: grid, linecolor: 'rgba(0,0,0,0)', ticks: '' },\n      radialaxis: { ticksuffix: '%', angle: 90, tickangle: 90, tickfont: { size: 10 }, nticks: 5,\n        gridcolor: grid, griddash: 'dash', showline: false },\n    },\n    showlegend: true,\n    legend: { orientation: 'v', x: 1.05, y: 0.95, font: { size: 11 }, traceorder: 'reversed' },\n    margin: { t: 30, b: 30, l: 30, r: 30 },\n    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',\n  },\n  config: { displayModeBar: false, responsive: true },\n};",
-        "onclick": "",
-        "syncTimeRange": false,
-        "imgFormat": "png",
-        "exportWidth": 0,
-        "exportHeight": 0,
-        "resScale": 2,
-        "timeCol": ""
-      }
-    },
-    {
-      "id": 19,
-      "type": "heatmap",
-      "title": "Gust Speed",
-      "description": "Each column is 3 h, each cell 5 km/h; brighter = more readings in that bucket.",
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb"
-      },
-      "gridPos": {
-        "x": 8,
-        "y": 25,
-        "w": 16,
-        "h": 10
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "influxdb"
-          },
-          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_hi_last_10_min\")\n  |> map(fn: (r) => ({r with _value: r._value * 1.609344}))\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> rename(columns: {_value: \"Gust\"})"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "scaleDistribution": {
-              "type": "linear"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "calculate": true,
-        "calculation": {
-          "yBuckets": {
-            "mode": "size",
-            "value": "5"
-          },
-          "xBuckets": {
-            "mode": "size",
-            "value": "3h"
-          }
-        },
-        "cellGap": 2,
-        "color": {
-          "mode": "scheme",
-          "scheme": "Viridis",
-          "scale": "linear",
-          "exponent": 0.5,
-          "steps": 64,
-          "reverse": false
-        },
-        "yAxis": {
-          "axisPlacement": "left",
-          "unit": "velocitykmh",
-          "reverse": false
-        },
-        "rowsFrame": {
-          "layout": "auto"
-        },
-        "cellValues": {
-          "unit": "none"
-        },
-        "tooltip": {
-          "mode": "single",
-          "yHistogram": true,
-          "showColorScale": true
-        },
-        "legend": {
-          "show": false
-        },
-        "showValue": "never",
-        "filterValues": {
-          "le": 1e-09
-        },
-        "exemplars": {
-          "color": "rgba(255,0,255,0.7)"
-        }
-      }
-    },
-    {
-      "id": 20,
       "type": "timeseries",
       "title": "Wind & Gust Speed",
       "description": "Per window: max, mean and min wind with max and mean gust, as overlapping translucent areas.",
@@ -1393,7 +1264,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 35,
+        "y": 25,
         "w": 12,
         "h": 10
       },
@@ -1550,7 +1421,7 @@
       }
     },
     {
-      "id": 21,
+      "id": 19,
       "type": "timeseries",
       "title": "Wind Direction History",
       "description": "Percentiles p10–p90 of wind direction per window: purple below the median, green above, median solid. Narrow river = steady wind, wide = shifting. The axis wraps at SE, the rarest direction here.",
@@ -1560,7 +1431,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 35,
+        "y": 25,
         "w": 12,
         "h": 10
       },
@@ -2036,7 +1907,7 @@
       }
     },
     {
-      "id": 22,
+      "id": 20,
       "type": "row",
       "title": "Temperature & Humidity",
       "collapsed": false,
@@ -2044,12 +1915,12 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 35
       },
       "panels": []
     },
     {
-      "id": 23,
+      "id": 21,
       "type": "timeseries",
       "title": "Temperature",
       "description": "Min–max ribbon, mean line, and heat index (dashed). Red dashed line marks 40 °C.",
@@ -2059,7 +1930,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 46,
+        "y": 36,
         "w": 12,
         "h": 9
       },
@@ -2250,7 +2121,7 @@
       }
     },
     {
-      "id": 24,
+      "id": 22,
       "type": "timeseries",
       "title": "Humidity",
       "description": "Relative humidity: min–max ribbon with mean line.",
@@ -2260,7 +2131,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 46,
+        "y": 36,
         "w": 12,
         "h": 9
       },
@@ -2401,7 +2272,7 @@
       }
     },
     {
-      "id": 25,
+      "id": 23,
       "type": "row",
       "title": "Pressure & Rain",
       "collapsed": false,
@@ -2409,12 +2280,12 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 55
+        "y": 45
       },
       "panels": []
     },
     {
-      "id": 26,
+      "id": 24,
       "type": "timeseries",
       "title": "Pressure",
       "description": "Mean sea-level pressure per window.",
@@ -2424,7 +2295,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 56,
+        "y": 46,
         "w": 12,
         "h": 7
       },
@@ -2501,7 +2372,7 @@
       }
     },
     {
-      "id": 27,
+      "id": 25,
       "type": "timeseries",
       "title": "Rain · daily",
       "description": "Total rainfall per day.",
@@ -2511,7 +2382,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 56,
+        "y": 46,
         "w": 12,
         "h": 7
       },
@@ -2589,7 +2460,7 @@
       }
     },
     {
-      "id": 29,
+      "id": 27,
       "type": "row",
       "title": "Long-term",
       "collapsed": true,
@@ -2597,11 +2468,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 63
+        "y": 53
       },
       "panels": [
         {
-          "id": 28,
+          "id": 26,
           "type": "heatmap",
           "title": "Daily Temperature Range · last 400 days",
           "description": "Each column is one day, each cell 1 °C; brighter = more hours at that temperature. Fixed to 400 days regardless of the time picker.",
@@ -2611,7 +2482,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 64,
+            "y": 54,
             "w": 24,
             "h": 10
           },
@@ -2693,7 +2564,7 @@
       ]
     },
     {
-      "id": 34,
+      "id": 32,
       "type": "row",
       "title": "Station health",
       "collapsed": true,
@@ -2701,11 +2572,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 64
+        "y": 54
       },
       "panels": [
         {
-          "id": 30,
+          "id": 28,
           "type": "stat",
           "title": "Exporter",
           "description": "Is Prometheus able to scrape the poller's /metrics endpoint?",
@@ -2715,7 +2586,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 65,
+            "y": 55,
             "w": 6,
             "h": 4
           },
@@ -2787,7 +2658,7 @@
           }
         },
         {
-          "id": 31,
+          "id": 29,
           "type": "stat",
           "title": "Last Reading",
           "description": "Age of the newest sensor reading in InfluxDB. The poller runs every 5 min; amber > 15 min, red > 30 min.",
@@ -2797,7 +2668,7 @@
           },
           "gridPos": {
             "x": 6,
-            "y": 65,
+            "y": 55,
             "w": 6,
             "h": 4
           },
@@ -2858,7 +2729,7 @@
           }
         },
         {
-          "id": 32,
+          "id": 30,
           "type": "stat",
           "title": "Samples · 24 h",
           "description": "Temperature readings stored in the last 24 hours.",
@@ -2868,7 +2739,7 @@
           },
           "gridPos": {
             "x": 12,
-            "y": 65,
+            "y": 55,
             "w": 6,
             "h": 4
           },
@@ -2921,7 +2792,7 @@
           }
         },
         {
-          "id": 33,
+          "id": 31,
           "type": "stat",
           "title": "Uptime · range",
           "description": "Share of scrapes where station data was fresher than 15 min.",
@@ -2931,7 +2802,7 @@
           },
           "gridPos": {
             "x": 18,
-            "y": 65,
+            "y": 55,
             "w": 6,
             "h": 4
           },

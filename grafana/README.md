@@ -38,7 +38,7 @@ min / mean / max / percentile; use 1h for a few days, 3h for a week, 1d for mont
 |---|---|---|
 | **Now** | Temperature, Feels like, Humidity, Wind, Gust · 10 min, Direction | Latest live values (Prometheus). |
 | **Summary** | Max Gust · Min/Max Temp · Min/Max Humidity · Prevailing Wind Direction | Extremes for the selected range, in the article's 8 / 4+4 / 8 grid. Prevailing wind is a speed-weighted *circular* mean, shown as compass point and degrees. |
-| **Wind** | Wind rose + wind heatmap · Gust rose + gust heatmap · Wind & gust speed · Direction history | Roses = where wind comes from and how hard. Heatmaps = where the bulk of readings sit (3 h columns). Direction "river": purple below the median, green above; narrow = steady, wide = shifting. |
+| **Wind** | Wind rose + wind heatmap · Wind & gust speed · Direction history | Roses = where wind comes from and how hard. Heatmaps = where the bulk of readings sit (3 h columns). Direction "river": purple below the median, green above; narrow = steady, wide = shifting. |
 | **Temperature & Humidity** | Temperature band (+ feels-like dashed) · Humidity band | Blue ribbon = min–max per window, red line = mean. Grey dashed line = 40 °C. |
 | **Pressure & Rain** | Sea-level pressure · Daily rain | — |
 | **Long-term** *(collapsed)* | 400-day daily temperature heatmap | Seasonal cycle at a glance; ignores the time picker. |
