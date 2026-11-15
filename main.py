@@ -67,7 +67,7 @@ def build_config() -> dict:
         "station_uuid": os.getenv("WEATHERLINK_STATION_UUID", ""),
         # v1 Device ID (WeatherLinkIP/USB/SER) — found in weatherlink.com station settings
         "did": os.getenv("WEATHERLINK_DID", ""),
-        "poll_interval": int(os.getenv("POLL_INTERVAL", "300")),
+        "poll_interval": int(os.getenv("POLL_INTERVAL", "60")),
         "db_path": Path("data") / "weather.db",
         "log_dir": LOG_DIR,
         "lp_dir": Path("data") / "influx_lp",
@@ -129,7 +129,10 @@ def cmd_backfill(cfg: dict, days: int):
     client = WeatherLinkClient(cfg["api_key"], cfg["api_secret"])
     db = SQLiteStorage(cfg["db_path"])
     jlog = JsonLogger(cfg["log_dir"])
-    lp = InfluxLineProtocolWriter(cfg["lp_dir"])
+    lp = InfluxLineProtocolWriter(
+        cfg["lp_dir"], influx_client=cfg.get("influx_client"),
+        org=cfg["influx_org"], bucket=cfg["influx_bucket"],
+    )
 
     now = datetime.now(tz=timezone.utc)
     # WeatherLink historic endpoint max window = 24 hours per request

@@ -7,7 +7,7 @@ adapted to a Davis WeatherLink station in a hot, dry climate.
 ## Architecture
 
 ```
-WeatherLink API ──► gdc-weather (Python poller, every 5 min)
+WeatherLink API ──► gdc-weather (Python poller, every 60 s)
                       ├─► SQLite + .lp files            (local archive)
                       ├─► InfluxDB 2.7  bucket "weather" (history, 400+ days)
                       └─► :9001/metrics ◄── Prometheus   (live, 60 s scrape)
@@ -38,7 +38,7 @@ min / mean / max / percentile; use 1h for a few days, 3h for a week, 1d for mont
 |---|---|---|
 | **Now** | Temperature, Feels like, Humidity, Wind, Gust · 10 min, Direction | Latest live values (Prometheus). |
 | **Summary** | Max Gust · Min/Max Temp · Min/Max Humidity · Prevailing Wind Direction | Extremes for the selected range, in the article's 8 / 4+4 / 8 grid. Prevailing wind is a speed-weighted *circular* mean, shown as compass point and degrees. |
-| **Wind** | Wind rose + wind heatmap · Wind & gust speed · Direction history | Roses = where wind comes from and how hard. Heatmaps = where the bulk of readings sit (3 h columns). Direction "river": purple below the median, green above; narrow = steady, wide = shifting. |
+| **Wind** | Wind rose + wind heatmap · Wind & gust speed · Direction history | Rose = where wind comes from and how hard (10° sectors, % of readings). Heatmap = where the bulk of readings sit (2 h × 2 km/h cells). Direction "river": purple below the median, green above; narrow = steady, wide = shifting. |
 | **Temperature & Humidity** | Temperature band (+ feels-like dashed) · Humidity band | Blue ribbon = min–max per window, red line = mean. Grey dashed line = 40 °C. |
 | **Pressure & Rain** | Sea-level pressure · Daily rain | — |
 | **Long-term** *(collapsed)* | 400-day daily temperature heatmap | Seasonal cycle at a glance; ignores the time picker. |
@@ -46,14 +46,18 @@ min / mean / max / percentile; use 1h for a few days, 3h for a week, 1d for mont
 
 ### Look and feel
 
-- Follows the article: Viridis heatmaps and roses (low = violet, high = yellow), yellow max gust,
+- Follows the article: rainbow wind rose (calm = blue, strong = red), Turbo wind heatmap
+  (purple = few readings, lime = most; scale pinned 0–13 so it never saturates to red),
+  Plasma long-term heatmap, yellow max gust,
   blue lows/highs, green wind direction, translucent overlapping wind/gust areas, and a
   blue-tinted direction chart with dashed compass lines.
 - "Now" tiles turn colour only at real thresholds: heat index uses NWS bands (32 / 41 / 54 °C),
   wind uses Beaufort (39 / 62 / 89 km/h).
 - Shared crosshair across all time panels; every panel has an ⓘ description.
 - Metric units (°C, km/h, hPa, mm). The station reports °F/mph/inHg/in; conversion happens in the queries.
-- Heatmaps are sparser than the article's: this station archives every 15 min, the article's sensor every few seconds.
+- Resolution: history before 2026-11-15 is the station's 15-min archive; since then the poller stores the live
+  feed every 60 s. The rose and wind heatmap sample one reading per 15 min so old and new data weigh the same;
+  the time-series charts use every reading.
 
 ### Things that differ from the article (and why)
 
@@ -119,6 +123,9 @@ docker compose exec influxdb sh -c 'influx auth delete --token "$DOCKER_INFLUXDB
   Totals must use `sum()`, never `max()`.
 - No solar / UV sensor is installed, so those fields don't exist.
 - The live feed carries no rain values, so rain is history-only (no rain alert).
+- 1-minute *history* isn't available: the station (WeatherLink Pro, console recording interval 15 min)
+  only archives every 15 min. `python main.py --backfill N` fills gaps at that resolution and now writes
+  straight to InfluxDB as well as the `.lp` files.
 
 ## Import historic .lp files
 
