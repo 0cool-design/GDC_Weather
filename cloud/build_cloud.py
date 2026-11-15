@@ -38,6 +38,17 @@ def tgt(expr, legend="", ref="A", instant=False, interval=None, fmt=None):
     return t
 
 
+def combine(targets):
+    """Merge several range targets (same interval) into ONE PromQL query, one series per old target.
+
+    Grafana Cloud's Prometheus answers "429 too many outstanding requests" when a dashboard fires
+    ~40 queries at once; this cuts the count to one per panel. Each series gets a `stat` label set to
+    the old legend, and the new legend is {{stat}}.
+    """
+    expr = " or ".join(f'label_replace(({t["expr"]}), "stat", "{t["legendFormat"]}", "", "")' for t in targets)
+    return [tgt(expr, "{{stat}}", "A", interval=targets[0].get("interval"))]
+
+
 def band(spec):
     """spec: [(legend, fn, metric_expr)] → one range target per line, step = Window."""
     return [tgt(f"{fn}({e}{WIN})" if fn else e, leg, chr(65 + i), interval="$period")
@@ -157,6 +168,8 @@ for t in P[21]["targets"]:
     t["expr"] = C(t["expr"])
 P[22]["targets"] = band([("Min", "min_over_time", M("humidity_pct")), ("Mean", "avg_over_time", M("humidity_pct")),
                          ("Max", "max_over_time", M("humidity_pct"))])
+for _pid in (18, 19, 21, 22):                 # one query per panel instead of 3–9
+    P[_pid]["targets"] = combine(P[_pid]["targets"])
 P[24]["targets"] = [tgt(f'avg_over_time({M("barometer_inhg")}{WIN}) * 33.8639', "Sea-level pressure", interval="$period")]
 
 # Rain: same panel as local. Daily total = highest rolling-24 h rainfall reading in each day.
@@ -192,7 +205,7 @@ if "--no-plotly" not in sys.argv:
     loc = {p["id"]: p for p in walk(local["panels"])}[16]
     rp = copy.deepcopy(loc)
     rp["datasource"] = DS
-    rp["targets"] = [tgt(KMH(spd), "speed", "A", interval="15m"), tgt(dirr, "dir", "B", interval="15m")]  # order matters: script falls back to field 1 = speed, 2 = dir
+    rp["targets"] = combine([tgt(KMH(spd), "speed", "A", interval="15m"), tgt(dirr, "dir", "B", interval="15m")])  # order matters: script falls back to field 1 = speed, 2 = dir
     rp["transformations"] = [{"id": "joinByField", "options": {"byField": "Time", "mode": "inner"}},
                              {"id": "organize", "options": {"renameByName": {}}}]
     for i, p in enumerate(dash["panels"]):
@@ -259,7 +272,8 @@ if "--no-history" not in sys.argv:
     p = P2[14]
     p.update({"type": "nline-plotlyjs-panel", "datasource": MIXED, "fieldConfig": {"defaults": {}, "overrides": []}})
     p.pop("transformations", None)
-    p["targets"] = [tgt(u.replace("[$__range:1m]", "[$__interval:1m]"), "pu", "A", interval="1h"), tgt(v.replace("[$__range:1m]", "[$__interval:1m]"), "pv", "B", interval="1h"),
+    p["targets"] = combine([tgt(u.replace("[$__range:1m]", "[$__interval:1m]"), "pu", "A", interval="1h"),
+                            tgt(v.replace("[$__range:1m]", "[$__interval:1m]"), "pv", "B", interval="1h")]) + [
                     inline(["u", "v"], [(r["ts"], r["u"], r["v"]) for r in hourly])]
     p["transformations"] = [RANGE_T]
     p["options"] = {**copy.deepcopy(P2[16]["options"]), "script": r"""
