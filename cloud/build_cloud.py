@@ -201,53 +201,49 @@ if "--no-plotly" not in sys.argv:
     OUT.write_text(json.dumps(dash, indent=2, ensure_ascii=False))
     print("Plotly rose panel swapped in")
 
-# ══ History: embed the local InfluxDB history (to 15 Nov 2026 12:00 UTC) via Infinity inline CSV ══
-# Each panel gets a second query (refId H) with pre-computed history; transformations merge it with the
-# live Prometheus series ("p_X" + "h_X" → "X"), so the panel shows one continuous line.
+# ══ History: embed the local InfluxDB history (to 15 Nov 2026 12:00 UTC) in the dashboard ══
+# Each panel gets a second query (refId H) on Grafana's built-in "-- Grafana --" data source in snapshot
+# mode: the data frames are stored in the query itself. Every user can use that data source (unlike
+# Infinity, which normal accounts on this stack can't see). Transformations filter the history to the
+# selected time range / Window and merge it with the live Prometheus series ("p_X" + "h_X" → "X").
 if "--no-history" not in sys.argv:
     H = json.loads((OUT.parent / "history.json").read_text())   # from cloud/export_history.py
-    # Not grafanacloud-infinity: Grafana Cloud hides that one from normal users ("datasource not found").
-    INF = {"type": "yesoreyeram-infinity-datasource", "uid": "efu6ubimp6xhcb"}
+    GDS = {"type": "datasource", "uid": "grafana"}
     MIXED = {"type": "datasource", "uid": "-- Mixed --"}
-    BASE = 1759190400000                                   # 2025-09-30T00:00Z; CSV stores minutes since BASE
-    RANGE = "Time >= ${__from} && Time <= ${__to}"
-    PER = '(p == "${period}" || ("${period}" == "15m" && p == "1h"))'
+    CUT = H["cut_ms"]
+    # Keep rows inside the dashboard time range.
+    RANGE_T = {"id": "filterByValue", "options": {"type": "include", "match": "all", "filters": [
+        {"fieldName": "Time", "config": {"id": "greater", "options": {"value": "${__from}"}}},
+        {"fieldName": "Time", "config": {"id": "lower", "options": {"value": "${__to}"}}}]}}
+    # History rows: keep the Window's aggregation (p contains the period; 1h rows are "1h15m" so the 15m
+    # Window uses them). Live rows (after the cut-over) have no p and are always kept.
+    PER_T = {"id": "filterByValue", "options": {"type": "include", "match": "any", "filters": [
+        {"fieldName": "p", "config": {"id": "regex", "options": {"value": "${period}"}}},
+        {"fieldName": "Time", "config": {"id": "greater", "options": {"value": CUT - 1}}}]}}
     P2 = {p["id"]: p for p in walk(dash["panels"])}
 
-    def fmt(v):
-        if isinstance(v, str):
-            return v
-        if v is None:
-            return ""
-        return str(int(v)) if float(v).is_integer() else f"{v:.2f}".rstrip("0").rstrip(".")
+    def num(v):
+        return None if v is None else round(v, 2)
 
-    def inline(cols, rows, filt=RANGE, summ=None):
-        """cols: CSV column names after m (minutes since BASE). rows: [(ms, v1, v2…)]."""
-        text = "m," + ",".join(cols) + "\n" + "".join(
-            f"{(r[0] - BASE) // 60000}," + ",".join(fmt(x) for x in r[1:]) + "\n" for r in rows)
-        t = {"refId": "H", "datasource": INF, "type": "csv", "source": "inline", "parser": "backend", "format": "table",
-             "data": text, "filterExpression": filt,
-             "columns": [{"selector": "m", "text": "m", "type": "number"}]
-                        + [{"selector": c, "text": c, "type": "string" if c == "p" else "number"} for c in cols],
-             "computed_columns": [{"selector": f"m*60000+{BASE}", "text": "Time"}]}
-        if summ:
-            t["summarizeExpression"] = summ
-        return t
+    def inline(cols, rows):
+        """History as a snapshot frame: Time + cols. rows: [(ms, v1, v2…)]."""
+        fields = [{"name": "Time", "type": "time"}] + [{"name": c, "type": "string" if c == "p" else "number"} for c in cols]
+        values = [[r[0] for r in rows]] + [[(r[i + 1] if c == "p" else num(r[i + 1])) for r in rows] for i, c in enumerate(cols)]
+        return {"refId": "H", "datasource": GDS, "queryType": "snapshot",
+                "snapshot": [{"schema": {"name": "history", "fields": fields}, "data": {"values": values}}]}
 
-    def merged(p, names, hist_target, reducer="max"):
-        """Live targets must use legends p_<name>; history columns are h_<name>."""
+    def merged(p, names, hist_target, reducer="max", filters=(RANGE_T,)):
+        """Live targets must use legends p_<name>; history fields are h_<name>."""
         for t in p["targets"]:
             t["legendFormat"] = "p_" + t["legendFormat"]
         p["targets"].append(hist_target)
         p["datasource"] = MIXED
         p["transformations"] = (
-            [{"id": "convertFieldType", "options": {"conversions": [{"targetField": "Time", "destinationType": "time"}]}},
-             {"id": "joinByField", "options": {"byField": "Time", "mode": "outer"}}]
+            list(filters)
+            + [{"id": "joinByField", "options": {"byField": "Time", "mode": "outer"}}]
             + [{"id": "calculateField", "options": {"mode": "reduceRow", "reduce": {"reducer": reducer, "include": [f"p_{n}", f"h_{n}"]},
                                                      "alias": n}} for n in names]
-            + [{"id": "filterFieldsByName", "options": {"include": {"names": ["Time"] + names}}}]
-            + [t for t in p.get("transformations", []) if t["id"] not in ("convertFieldType", "joinByField", "filterFieldsByName")
-               and t.get("options", {}).get("mode") != "reduceRow"])
+            + [{"id": "filterFieldsByName", "options": {"include": {"names": ["Time"] + names}}}])
 
     # Summary tiles: live max/min over the range, history max/min over the range → combined.
     hourly = H["hourly"]
@@ -264,7 +260,8 @@ if "--no-history" not in sys.argv:
     p.update({"type": "nline-plotlyjs-panel", "datasource": MIXED, "fieldConfig": {"defaults": {}, "overrides": []}})
     p.pop("transformations", None)
     p["targets"] = [tgt(u.replace("[$__range:1m]", "[$__interval:1m]"), "pu", "A", interval="1h"), tgt(v.replace("[$__range:1m]", "[$__interval:1m]"), "pv", "B", interval="1h"),
-                    inline(["u", "v"], [(r["ts"], round(r["u"], 1), round(r["v"], 1)) for r in hourly])]
+                    inline(["u", "v"], [(r["ts"], r["u"], r["v"]) for r in hourly])]
+    p["transformations"] = [RANGE_T]
     p["options"] = {**copy.deepcopy(P2[16]["options"]), "script": r"""
 let u = 0, v = 0;
 for (const s of data.series) for (const f of s.fields) {
@@ -293,21 +290,19 @@ return { data: [{ type: 'scatter', x: [0], y: [0], mode: 'markers', marker: { op
 
     bands = H["bands"]
     def band_hist(pid, names, cols):
-        merged(P2[pid], names, inline(["p"] + [f"h_{n}" for n in names], [(b["ts"], b["p"], *(b[c] for c in cols)) for b in bands],
-                                      filt=f"{RANGE} && {PER}"))
+        # History at a fixed 3 h window (the default Window); the live part follows the Window setting.
+        merged(P2[pid], names, inline([f"h_{n}" for n in names], [(b["ts"], *(b[c] for c in cols)) for b in bands if b["p"] == "3h"]))
     band_hist(18, ["Wind min", "Wind mean", "Wind max", "Gust mean", "Gust max"], ["w_min", "w_mean", "w_max", "g_mean", "g_max"])
     band_hist(19, [f"p{q}" for q in range(10, 100, 10)], [f"p{q}" for q in range(10, 100, 10)])
     band_hist(21, ["Min", "Mean", "Max", "Feels like"], ["t_min", "t_mean", "t_max", "feels"])
     band_hist(22, ["Min", "Mean", "Max"], ["h_min", "h_mean", "h_max"])
     band_hist(24, ["Sea-level pressure"], ["pres"])
     merged(P2[25], ["Rain"], inline(["h_Rain"], H["rain"]))
-    merged(P2[26], ["Temperature"], inline(["h_Temperature"], [(r["ts"], r["t_mean"]) for r in hourly], filt=""))
+    merged(P2[26], ["Temperature"], inline(["h_Temperature"], [(r["ts"], r["t_mean"]) for r in hourly]), filters=())
     P2[25]["description"] = "Total rainfall per day. History from the station archive; the live feed carries no rain values."
     P2[26]["description"] = P2[26]["description"].replace("cloud data starts 15 Nov 2026.", "history embedded up to 15 Nov 2026, live after.")
-    for t in P2[26]["targets"]:
-        t.pop("filterExpression", None) if not t.get("filterExpression") else None
 
     dash["description"] = ("GDC weather station, Mirbat — cloud copy. Live data from the cloud Prometheus (since 15 Nov 2026 12:00 UTC); "
                            "history before that is embedded from the station archive.")
-    OUT.write_text(json.dumps(dash, indent=2, ensure_ascii=False))
+    OUT.write_text(json.dumps(dash, separators=(",", ":"), ensure_ascii=False))   # compact: the history arrays are large
     print(f"history embedded; dashboard JSON {OUT.stat().st_size / 1e6:.1f} MB")

@@ -9,7 +9,7 @@ and options.
 | Period | Source | How |
 |---|---|---|
 | From 15 Nov 2026, 12:00 UTC | Cloud Prometheus (`grafanacloud-prom`), metric `weather_station{location="Mirbat", name=…}` | Sent by a separate poller install (not this computer) |
-| 30 Sep 2025 – 15 Nov 2026, 12:00 UTC | Embedded in the dashboard as CSV, read through the Infinity data source `yesoreyeram-infinity-datasource` (not the built-in `grafanacloud-infinity`, which Grafana Cloud hides from normal users) | `export_history.py` exports it from the local InfluxDB |
+| 30 Sep 2025 – 15 Nov 2026, 12:00 UTC | Embedded in the dashboard as data frames on Grafana's built-in `-- Grafana --` data source (snapshot mode), which every user can query. Infinity data sources were tried first, but normal accounts on this stack can't see them | `export_history.py` exports it from the local InfluxDB |
 
 Each history panel queries both sources. The panel's transformations merge them into one continuous series:
 live fields are `p_<name>`, history fields `h_<name>`, and the result is `<name>`.
@@ -23,7 +23,7 @@ Run from the project folder, with the local stack running. `.env` needs `GRAFANA
 
 ```bash
 python3 cloud/export_history.py      # local InfluxDB → cloud/out/history.json   (about 1 min)
-python3 cloud/build_cloud.py         # → cloud/out/cloud_dashboard.json          (about 4.7 MB)
+python3 cloud/build_cloud.py         # → cloud/out/cloud_dashboard.json          (about 3.5 MB)
 python3 cloud/upload.py "what changed"
 ```
 
@@ -39,7 +39,7 @@ Options for `build_cloud.py`:
 
 - **Station health** tiles measure what the cloud receives: scrape status, age of the last reading, samples in
   24 h.
-- The **Window** setting `15m` uses 1-hour history, which keeps the embedded data small.
+- The **line charts** (wind, direction, temperature, humidity, pressure) show history at a fixed 3-hour window. Only the live part follows the **Window** setting.
 - **Rain** after 15 Nov 2026 won't appear in the cloud, because the live feed carries no rain values. Re-running
   the export adds archive rain only up to the cut-over date set in `export_history.py` (`CUT`).
 - **Alert rules** are not in the cloud. They need a token with alerting permissions.
