@@ -4,6 +4,8 @@ A minimal, DevOps-style weather dashboard modelled on
 [jaxzin's "cheap weather station → DevOps dashboard"](https://medium.com/@jaxzin/how-i-turned-a-cheap-weather-station-into-a-personal-devops-dashboard-5c8820790fd5),
 adapted to a Davis WeatherLink station in a hot, dry climate.
 
+New here? Start with the [project README](../README.md) — install, everyday commands, troubleshooting.
+
 ## Architecture
 
 ```
