@@ -181,7 +181,9 @@
         "showPercentChange": false,
         "orientation": "auto",
         "text": {}
-      }
+      },
+      "timeFrom": "15m",
+      "hideTimeOverride": true
     },
     {
       "id": 3,
@@ -259,7 +261,9 @@
         "showPercentChange": false,
         "orientation": "auto",
         "text": {}
-      }
+      },
+      "timeFrom": "15m",
+      "hideTimeOverride": true
     },
     {
       "id": 4,
@@ -325,7 +329,9 @@
         "showPercentChange": false,
         "orientation": "auto",
         "text": {}
-      }
+      },
+      "timeFrom": "15m",
+      "hideTimeOverride": true
     },
     {
       "id": 5,
@@ -403,7 +409,9 @@
         "showPercentChange": false,
         "orientation": "auto",
         "text": {}
-      }
+      },
+      "timeFrom": "15m",
+      "hideTimeOverride": true
     },
     {
       "id": 6,
@@ -481,7 +489,9 @@
         "showPercentChange": false,
         "orientation": "auto",
         "text": {}
-      }
+      },
+      "timeFrom": "15m",
+      "hideTimeOverride": true
     },
     {
       "id": 7,
@@ -718,7 +728,9 @@
         "showPercentChange": false,
         "orientation": "auto",
         "text": {}
-      }
+      },
+      "timeFrom": "15m",
+      "hideTimeOverride": true
     },
     {
       "id": 8,
@@ -2657,7 +2669,9 @@
             "showPercentChange": false,
             "orientation": "auto",
             "text": {}
-          }
+          },
+          "timeFrom": "15m",
+          "hideTimeOverride": true
         },
         {
           "id": 29,
@@ -2728,7 +2742,9 @@
             "showPercentChange": false,
             "orientation": "auto",
             "text": {}
-          }
+          },
+          "timeFrom": "15m",
+          "hideTimeOverride": true
         },
         {
           "id": 30,
@@ -2791,7 +2807,9 @@
             "showPercentChange": false,
             "orientation": "auto",
             "text": {}
-          }
+          },
+          "timeFrom": "24h",
+          "hideTimeOverride": true
         },
         {
           "id": 31,

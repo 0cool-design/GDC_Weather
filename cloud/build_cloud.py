@@ -188,6 +188,11 @@ P[30]["description"] = "Temperature samples received in the last 24 hours."
 P[31]["targets"] = [tgt('avg_over_time(max(up{job="gdc_weather"})[$__range:1m]) * 100', instant=True)]
 P[31]["description"] = "Share of the selected range where the poller was being scraped successfully."
 
+# "Now" and health tiles always show the current state, whatever period the time picker shows.
+for _id in (2, 3, 4, 5, 6, 7, 28, 29, 30):
+    P[_id]["timeFrom"] = "24h" if _id == 30 else "15m"
+    P[_id]["hideTimeOverride"] = True
+
 # Every panel → cloud Prometheus.
 for p in walk(dash["panels"]):
     if p["type"] != "row":
