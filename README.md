@@ -43,7 +43,7 @@ connection, about 2 GB of disk, and this folder, including its `.env` file. `.en
    **Linux / macOS / WSL:**
    ```bash
    cd ~/GDC_Weather
-   ./setup.sh
+   bash setup.sh
    ```
 
 The script:
