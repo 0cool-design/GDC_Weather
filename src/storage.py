@@ -216,6 +216,7 @@ class InfluxLineProtocolWriter:
         self.lp_dir = Path(lp_dir)
         self.lp_dir.mkdir(parents=True, exist_ok=True)
         self._influx = influx_client
+        self._write_api = None
         self._org = org
         self._bucket = bucket
 
@@ -255,8 +256,12 @@ class InfluxLineProtocolWriter:
         # Push to live InfluxDB if configured
         if self._influx:
             try:
-                write_api = self._influx.write_api()
-                write_api.write(bucket=self._bucket, org=self._org, record="\n".join(lines))
+                if self._write_api is None:
+                    # Synchronous: the default batching API spawns a background thread per call and
+                    # can drop points when the process exits before it flushes (e.g. after --backfill).
+                    from influxdb_client.client.write_api import SYNCHRONOUS
+                    self._write_api = self._influx.write_api(write_options=SYNCHRONOUS)
+                self._write_api.write(bucket=self._bucket, org=self._org, record="\n".join(lines))
                 logger.debug("InfluxDB: pushed %d points", len(lines))
             except Exception as e:
                 logger.warning("InfluxDB write failed: %s", e)
