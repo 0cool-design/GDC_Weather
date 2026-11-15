@@ -316,6 +316,12 @@ return { data: [{ type: 'scatter', x: [0], y: [0], mode: 'markers', marker: { op
     band_hist(21, ["Min", "Mean", "Max", "Feels like"], ["t_min", "t_mean", "t_max", "feels"])
     band_hist(22, ["Min", "Mean", "Max"], ["h_min", "h_mean", "h_max"])
     band_hist(24, ["Sea-level pressure"], ["pres"])
+    # Hourly history next to a finer live step: Grafana would treat each hour as a gap and draw dots,
+    # so connect gaps up to 3 h (real outages are days long and stay visible as gaps).
+    for pid in (18, 19, 21, 22, 24):
+        P2[pid]["fieldConfig"]["defaults"].setdefault("custom", {})["spanNulls"] = 3 * 3600 * 1000
+        for o in P2[pid]["fieldConfig"].get("overrides", []):
+            o["properties"] = [x for x in o["properties"] if x["id"] != "custom.spanNulls"]
     merged(P2[25], ["Rain"], inline(["h_Rain"], H["rain"]))
     merged(P2[26], ["Temperature"], inline(["h_Temperature"], [(r["ts"], r["t_mean"]) for r in hourly]), filters=())
     P2[25]["description"] = "Total rainfall per day. History from the station archive; the live feed carries no rain values."
