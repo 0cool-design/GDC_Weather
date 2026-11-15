@@ -48,16 +48,25 @@
       {
         "name": "period",
         "label": "Window",
-        "type": "custom",
+        "type": "interval",
         "hide": 0,
-        "description": "Aggregation window for min / mean / max / percentiles.",
+        "description": "Aggregation window for min / mean / max / percentiles. auto = fits the time range.",
         "query": "15m,1h,3h,6h,12h,1d",
+        "auto": true,
+        "auto_count": 150,
+        "auto_min": "1m",
+        "refresh": 2,
         "current": {
           "selected": true,
-          "text": "3h",
-          "value": "3h"
+          "text": "auto",
+          "value": "$__auto_interval_period"
         },
         "options": [
+          {
+            "selected": true,
+            "text": "auto",
+            "value": "$__auto_interval_period"
+          },
           {
             "selected": false,
             "text": "15m",
@@ -69,7 +78,7 @@
             "value": "1h"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "3h",
             "value": "3h"
           },
@@ -89,8 +98,6 @@
             "value": "1d"
           }
         ],
-        "multi": false,
-        "includeAll": false,
         "skipUrlSync": false
       }
     ]

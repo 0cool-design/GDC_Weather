@@ -309,8 +309,8 @@ return { data: [{ type: 'scatter', x: [0], y: [0], mode: 'markers', marker: { op
 
     bands = H["bands"]
     def band_hist(pid, names, cols):
-        # History at a fixed 3 h window (the default Window); the live part follows the Window setting.
-        merged(P2[pid], names, inline([f"h_{n}" for n in names], [(b["ts"], *(b[c] for c in cols)) for b in bands if b["p"] == "3h"]))
+        # History at a fixed 1 h window, fine enough for short time ranges; the live part follows Window.
+        merged(P2[pid], names, inline([f"h_{n}" for n in names], [(b["ts"], *(b[c] for c in cols)) for b in bands if b["p"] == "1h"]))
     band_hist(18, ["Wind min", "Wind mean", "Wind max", "Gust mean", "Gust max"], ["w_min", "w_mean", "w_max", "g_mean", "g_max"])
     band_hist(19, [f"p{q}" for q in range(10, 100, 10)], [f"p{q}" for q in range(10, 100, 10)])
     band_hist(21, ["Min", "Mean", "Max", "Feels like"], ["t_min", "t_mean", "t_max", "feels"])
