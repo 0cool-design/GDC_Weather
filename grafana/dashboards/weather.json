@@ -131,7 +131,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "(weather_temperature_f - 32) * 5 / 9",
+          "expr": "(weather_station{name=\"temperature_f\"} - 32) * 5 / 9",
           "legendFormat": "",
           "range": false,
           "instant": true
@@ -205,7 +205,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "(weather_heat_index_f - 32) * 5 / 9",
+          "expr": "(weather_station{name=\"heat_index_f\"} - 32) * 5 / 9",
           "legendFormat": "",
           "range": false,
           "instant": true
@@ -283,7 +283,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "weather_humidity_pct",
+          "expr": "weather_station{name=\"humidity_pct\"}",
           "legendFormat": "",
           "range": false,
           "instant": true
@@ -349,7 +349,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "weather_wind_speed_mph * 1.609344",
+          "expr": "weather_station{name=\"wind_speed_mph\"} * 1.609344",
           "legendFormat": "",
           "range": false,
           "instant": true
@@ -427,7 +427,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "weather_wind_speed_hi_10min_mph * 1.609344",
+          "expr": "weather_station{name=\"wind_speed_hi_10min_mph\"} * 1.609344",
           "legendFormat": "",
           "range": false,
           "instant": true
@@ -505,7 +505,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "weather_wind_dir_deg",
+          "expr": "weather_station{name=\"wind_dir_deg\"}",
           "legendFormat": "",
           "range": false,
           "instant": true

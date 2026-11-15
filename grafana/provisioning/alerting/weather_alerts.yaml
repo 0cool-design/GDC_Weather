@@ -52,7 +52,7 @@ groups:
           - refId: A
             relativeTimeRange: {from: 600, to: 0}
             datasourceUid: prometheus
-            model: {refId: A, expr: '(weather_temperature_f - 32) * 5 / 9', instant: true}
+            model: {refId: A, expr: '(weather_station{name="temperature_f"} - 32) * 5 / 9', instant: true}
           - refId: C
             datasourceUid: __expr__
             model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: outside_range, params: [-5, 55]}}]}
@@ -76,7 +76,7 @@ groups:
           - refId: A
             relativeTimeRange: {from: 600, to: 0}
             datasourceUid: prometheus
-            model: {refId: A, expr: '(weather_heat_index_f - 32) * 5 / 9', instant: true}
+            model: {refId: A, expr: '(weather_station{name="heat_index_f"} - 32) * 5 / 9', instant: true}
           - refId: C
             datasourceUid: __expr__
             model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [40]}}]}
@@ -94,7 +94,7 @@ groups:
           - refId: A
             relativeTimeRange: {from: 600, to: 0}
             datasourceUid: prometheus
-            model: {refId: A, expr: '(weather_heat_index_f - 32) * 5 / 9', instant: true}
+            model: {refId: A, expr: '(weather_station{name="heat_index_f"} - 32) * 5 / 9', instant: true}
           - refId: C
             datasourceUid: __expr__
             model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [46]}}]}
@@ -112,7 +112,7 @@ groups:
           - refId: A
             relativeTimeRange: {from: 600, to: 0}
             datasourceUid: prometheus
-            model: {refId: A, expr: 'weather_wind_speed_hi_10min_mph * 1.609344', instant: true}
+            model: {refId: A, expr: 'weather_station{name="wind_speed_hi_10min_mph"} * 1.609344', instant: true}
           - refId: C
             datasourceUid: __expr__
             model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [40]}}]}
@@ -130,7 +130,7 @@ groups:
           - refId: A
             relativeTimeRange: {from: 600, to: 0}
             datasourceUid: prometheus
-            model: {refId: A, expr: 'weather_wind_speed_hi_10min_mph * 1.609344', instant: true}
+            model: {refId: A, expr: 'weather_station{name="wind_speed_hi_10min_mph"} * 1.609344', instant: true}
           - refId: C
             datasourceUid: __expr__
             model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [64]}}]}
@@ -148,7 +148,7 @@ groups:
           - refId: A
             relativeTimeRange: {from: 600, to: 0}
             datasourceUid: prometheus
-            model: {refId: A, expr: '(weather_dew_point_f - 32) * 5 / 9', instant: true}
+            model: {refId: A, expr: '(weather_station{name="dew_point_f"} - 32) * 5 / 9', instant: true}
           - refId: C
             datasourceUid: __expr__
             model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [28]}}]}
@@ -166,7 +166,7 @@ groups:
           - refId: A
             relativeTimeRange: {from: 10800, to: 0}
             datasourceUid: prometheus
-            model: {refId: A, expr: 'delta(weather_barometer_inhg[3h]) * 33.8639', instant: true}
+            model: {refId: A, expr: 'delta(weather_station{name="barometer_inhg"}[3h]) * 33.8639', instant: true}
           - refId: C
             datasourceUid: __expr__
             model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: lt, params: [-3]}}]}

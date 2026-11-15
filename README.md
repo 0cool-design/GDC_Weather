@@ -96,6 +96,7 @@ To start it with Windows, turn on *Settings → General → Start Docker Desktop
 |---|---|---|
 | `WEATHERLINK_API_KEY`, `WEATHERLINK_API_SECRET` | you | WeatherLink v2 API key (weatherlink.com → Account). |
 | `WEATHERLINK_STATION_ID`, `WEATHERLINK_STATION_UUID` | you | Which station to poll. Find with `python main.py --list-stations`. |
+| `STATION_LOCATION` | you | Place name for the `location` label on Prometheus metrics (default `Mirbat`). |
 | `POLL_INTERVAL` | you | Seconds between polls (default 60). |
 | `ALERT_WEBHOOK_URL` | optional | Webhook for the poller's own alerts. |
 | `GF_ADMIN_PASSWORD` | setup script | Grafana login for user `admin`. |
