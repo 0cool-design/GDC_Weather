@@ -98,6 +98,7 @@ To start it with Windows, turn on *Settings → General → Start Docker Desktop
 | `WEATHERLINK_STATION_ID`, `WEATHERLINK_STATION_UUID` | you | Which station to poll. Find with `python main.py --list-stations`. |
 | `STATION_LOCATION` | you | Place name for the `location` label on Prometheus metrics (default `Mirbat`). |
 | `POLL_INTERVAL` | you | Seconds between polls (default 60). |
+| `GRAFANA_CLOUD_URL`, `GRAFANA_CLOUD_TOKEN` | optional | Grafana Cloud stack and service-account token, used only by `cloud/upload.py`. |
 | `ALERT_WEBHOOK_URL` | optional | Webhook for the poller's own alerts. |
 | `GF_ADMIN_PASSWORD` | setup script | Grafana login for user `admin`. |
 | `INFLUXDB_ADMIN_PASSWORD`, `INFLUXDB_ADMIN_TOKEN` | setup script | InfluxDB admin, for maintenance only. |
@@ -147,6 +148,7 @@ src/alerting.py            Poller-side alerts (stale data, webhook)
 Dockerfile                 Poller image (runs as a non-root user)
 docker-compose.yml         The four services
 setup.sh / setup.ps1       First-time install (Linux/macOS/WSL and Windows)
+cloud/                     Builds and uploads the Grafana Cloud copy of the dashboard, see cloud/README.md
 grafana/                   Dashboard, datasources, alert rules, Prometheus config — see grafana/README.md
 dashboard.html, history.html, gdc-weather.service
                            Older stand-alone pages and a systemd unit from before the Docker setup (not used)

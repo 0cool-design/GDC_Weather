@@ -10,3 +10,4 @@ venv/
 influxdb-data/
 grafana-data/
 prometheus-data/
+cloud/out/
