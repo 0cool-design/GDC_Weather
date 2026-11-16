@@ -112,16 +112,16 @@ groups:
           - refId: A
             relativeTimeRange: {from: 600, to: 0}
             datasourceUid: prometheus
-            model: {refId: A, expr: 'weather_station{name="wind_speed_hi_10min_mph"} * 1.609344', instant: true}
+            model: {refId: A, expr: 'weather_station{name="wind_speed_hi_10min_mph"} * 0.868976', instant: true}
           - refId: C
             datasourceUid: __expr__
-            model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [40]}}]}
+            model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [22]}}]}
         noDataState: OK
         execErrState: Error
         for: 10m
         labels: {severity: warning}
         annotations:
-          summary: '10-min gust {{ printf "%.0f" $values.A.Value }} km/h (> 40). Dust likely; secure loose items.'
+          summary: '10-min gust {{ printf "%.0f" $values.A.Value }} kn (> 22, strong breeze). Dust likely; secure loose items.'
 
       - uid: gdcw-wind-critical
         title: Severe wind
@@ -130,16 +130,16 @@ groups:
           - refId: A
             relativeTimeRange: {from: 600, to: 0}
             datasourceUid: prometheus
-            model: {refId: A, expr: 'weather_station{name="wind_speed_hi_10min_mph"} * 1.609344', instant: true}
+            model: {refId: A, expr: 'weather_station{name="wind_speed_hi_10min_mph"} * 0.868976', instant: true}
           - refId: C
             datasourceUid: __expr__
-            model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [64]}}]}
+            model: {refId: C, type: threshold, expression: A, conditions: [{evaluator: {type: gt, params: [34]}}]}
         noDataState: OK
         execErrState: Error
         for: 5m
         labels: {severity: critical}
         annotations:
-          summary: '10-min gust {{ printf "%.0f" $values.A.Value }} km/h (> 64, gale). Structural / crane risk.'
+          summary: '10-min gust {{ printf "%.0f" $values.A.Value }} kn (> 34, gale). Structural / crane risk.'
 
       - uid: gdcw-dew-point
         title: Oppressive dew point

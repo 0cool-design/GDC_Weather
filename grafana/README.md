@@ -87,7 +87,7 @@ Defined in `provisioning/alerting/weather_alerts.yaml` (Prometheus, evaluated ev
 | Station offline | no fresh reading > 15 min, for 5 min | critical |
 | Implausible temperature | outside −5…55 °C for 10 min | warning |
 | High / extreme heat index | > 40 °C for 10 min / > 46 °C for 5 min | warning / critical |
-| High wind / severe wind | 10-min gust > 40 / > 64 km/h | warning / critical |
+| High wind / severe wind | 10-min gust > 22 / > 34 kn | warning / critical |
 | Oppressive dew point | > 28 °C for 15 min | warning |
 | Rapid pressure drop | < −3 hPa over 3 h | warning |
 
