@@ -65,6 +65,8 @@ def walk(ps):
         yield from walk(p.get("panels", []))
 
 
+# The miners sections (ids 200-399) are staging-only tests on the local InfluxDB copy, so they're not deployed.
+dash["panels"] = [p for p in dash["panels"] if not 200 <= p["id"] < 400]
 P = {p["id"]: p for p in walk(dash["panels"])}
 
 # ── Now ──────────────────────────────────────────────────────────────────────
@@ -72,6 +74,21 @@ now = {2: C(M("temperature_f")), 3: C(M("heat_index_f")), 4: M("humidity_pct"),
        5: KN(M("wind_speed_mph")), 6: KN(M("wind_speed_hi_10min_mph")), 7: M("wind_dir_deg")}
 for i, e in now.items():
     P[i]["targets"] = [tgt(e, instant=True)]
+
+# ── Mining site: same PromQL as local, plus the location label ──────────────
+for i in (102, 103, 104, 105):
+    e = P[i]["targets"][0]["expr"].replace('weather_station{', 'weather_station{location="Mirbat", ')
+    P[i]["targets"] = [tgt(e, instant=True)]
+P[106]["targets"] = combine([tgt(C(f"avg_over_time({M(n)}{WIN})"), leg, chr(65 + k), interval="$period")
+                             for k, (leg, n) in enumerate([("Air", "temperature_f"), ("Wet bulb", "wet_bulb_f"), ("Dew point", "dew_point_f")])])
+# Hour counters: one 0/1 point per hour (hourly mean beyond the limit), summed by the stat.
+HOURS = {107: (C(f'avg_over_time({M("temperature_f")}[1h])'), ">=", 35),
+         108: (C(f'avg_over_time({M("wet_bulb_f")}[1h])'), ">=", 27),
+         109: (f'avg_over_time({M("humidity_pct")}[1h])', ">=", 90)}
+for i, (e, op, lim) in HOURS.items():
+    P[i]["targets"] = [tgt(f"({e}) {op} bool {lim}", interval="1h")]
+    P[i]["maxDataPoints"] = 11000          # keeps the step at 1 h even for a 400-day range
+    P[i]["options"]["reduceOptions"]["calcs"] = ["sum"]
 
 # ── Summary (selected range) ─────────────────────────────────────────────────
 summary = {
@@ -189,7 +206,7 @@ P[31]["targets"] = [tgt('avg_over_time(max(up{job="gdc_weather"})[$__range:1m]) 
 P[31]["description"] = "Share of the selected range where the poller was being scraped successfully."
 
 # "Now" and health tiles always show the current state, whatever period the time picker shows.
-for _id in (2, 3, 4, 5, 6, 7, 28, 29, 30):
+for _id in (2, 3, 4, 5, 6, 7, 28, 29, 30, 102, 103, 104, 105):
     P[_id]["timeFrom"] = "24h" if _id == 30 else "15m"
     P[_id]["hideTimeOverride"] = True
 
@@ -316,9 +333,16 @@ return { data: [{ type: 'scatter', x: [0], y: [0], mode: 'markers', marker: { op
     band_hist(21, ["Min", "Mean", "Max", "Feels like"], ["t_min", "t_mean", "t_max", "feels"])
     band_hist(22, ["Min", "Mean", "Max"], ["h_min", "h_mean", "h_max"])
     band_hist(24, ["Sea-level pressure"], ["pres"])
+    band_hist(106, ["Air", "Wet bulb", "Dew point"], ["t_mean", "wb", "dp"])
+    h1 = [b for b in bands if b["p"] == "1h"]
+    for pid, col in ((107, "t_mean"), (108, "wb"), (109, "h_mean")):
+        _, op, lim = HOURS[pid]
+        name = P2[pid]["title"]
+        P2[pid]["targets"][0]["legendFormat"] = name
+        merged(P2[pid], [name], inline([f"h_{name}"], [(b["ts"], None if b[col] is None else int(b[col] >= lim)) for b in h1]))
     # Hourly history next to a finer live step: Grafana would treat each hour as a gap and draw dots,
     # so connect gaps up to 3 h (real outages are days long and stay visible as gaps).
-    for pid in (18, 19, 21, 22, 24):
+    for pid in (18, 19, 21, 22, 24, 106):
         P2[pid]["fieldConfig"]["defaults"].setdefault("custom", {})["spanNulls"] = 3 * 3600 * 1000
         for o in P2[pid]["fieldConfig"].get("overrides", []):
             o["properties"] = [x for x in o["properties"] if x["id"] != "custom.spanNulls"]

@@ -27,6 +27,7 @@ GAUGE_FIELDS = [
     ("humidity_pct", "humidity", "Outdoor relative humidity percent"),
     ("humidity_indoor_pct", "humidity_in", "Indoor relative humidity percent"),
     ("dew_point_f", "dew_point", "Dew point temperature in Fahrenheit"),
+    ("wet_bulb_f", "wet_bulb", "Wet-bulb temperature in Fahrenheit"),
     ("heat_index_f", "heat_index", "Heat index (feels-like) in Fahrenheit"),
     ("wind_speed_mph", "wind_speed_last", "Current wind speed in mph"),
     ("wind_dir_deg", "wind_dir_last", "Current wind direction in degrees"),

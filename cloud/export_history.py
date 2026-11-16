@@ -41,7 +41,7 @@ rows = flux(f'''
 from(bucket: "weather") |> range(start: {START}, stop: {CUT})
   |> filter(fn: (r) => r._measurement == "weather" and ((r.sensor_type == "37" and (r._field == "temp" or r._field == "heat_index"
        or r._field == "humidity" or r._field == "wind_speed_last" or r._field == "wind_speed_hi_last_10_min"
-       or r._field == "wind_dir_last" or r._field == "rainfall_last_24_hr")) or (r.sensor_type == "242" and r._field == "bar_sea_level")))
+       or r._field == "wind_dir_last" or r._field == "rainfall_last_24_hr" or r._field == "wet_bulb" or r._field == "dew_point")) or (r.sensor_type == "242" and r._field == "bar_sea_level")))
   |> map(fn: (r) => ({{_time: r._time, _field: r._field, _value: float(v: r._value)}}))
   |> group(columns: ["_field"]) |> keep(columns: ["_time", "_field", "_value"])''')
 
@@ -108,6 +108,7 @@ for p, pm in PERIODS.items():
             "g_mean": agg(ts, "wind_speed_hi_last_10_min", lambda x: x * KN, "mean"),
             "g_max": agg(ts, "wind_speed_hi_last_10_min", lambda x: x * KN, "max"),
             "pres": agg(ts, "bar_sea_level", lambda x: x * 33.8639, "mean"),
+            "wb": agg(ts, "wet_bulb", F2C, "mean"), "dp": agg(ts, "dew_point", F2C, "mean"),
             **{f"p{q}": quantile(rot, q / 100) for q in range(10, 100, 10)},
         })
 

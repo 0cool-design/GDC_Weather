@@ -740,6 +740,2006 @@
       "hideTimeOverride": true
     },
     {
+      "id": 101,
+      "type": "row",
+      "title": "Mining site",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "panels": []
+    },
+    {
+      "id": 102,
+      "type": "stat",
+      "title": "Wet bulb",
+      "description": "Lowest temperature evaporative cooling (pads, misting, cooling towers) can bring air down to. Yellow ≥ 24 °C, orange ≥ 27 °C (evaporative cooling weak), red ≥ 30 °C.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "(weather_station{name=\"wet_bulb_f\"} - 32) * 5 / 9",
+          "legendFormat": "",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 24
+              },
+              {
+                "color": "orange",
+                "value": 27
+              },
+              {
+                "color": "red",
+                "value": 30
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "orientation": "auto",
+        "text": {}
+      },
+      "timeFrom": "15m",
+      "hideTimeOverride": true
+    },
+    {
+      "id": 103,
+      "type": "stat",
+      "title": "Dew point",
+      "description": "Any surface colder than this gets wet: chilled pipes, cold-aisle walls, hydro-cooling plates.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 6,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "(weather_station{name=\"dew_point_f\"} - 32) * 5 / 9",
+          "legendFormat": "",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "orientation": "auto",
+        "text": {}
+      },
+      "timeFrom": "15m",
+      "hideTimeOverride": true
+    },
+    {
+      "id": 104,
+      "type": "stat",
+      "title": "Dew-point margin",
+      "description": "Air temperature minus dew point. Red < 2 °C, orange < 4 °C: air near saturation, condensation and mist on equipment likely. Miners are rated for non-condensing humidity.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 6,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "(weather_station{name=\"temperature_f\"} - ignoring(name) weather_station{name=\"dew_point_f\"}) * 5 / 9",
+          "legendFormat": "",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 2
+              },
+              {
+                "color": "green",
+                "value": 4
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "orientation": "auto",
+        "text": {}
+      },
+      "timeFrom": "15m",
+      "hideTimeOverride": true
+    },
+    {
+      "id": 105,
+      "type": "stat",
+      "title": "Dust risk",
+      "description": "From the 10-min gust: Watch ≥ 15 kn, High ≥ 22 kn; one step lower when humidity is above 70 % (damp ground lifts less dust). On High: check intake filters and close dampers.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 6,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "clamp_min((weather_station{name=\"wind_speed_hi_10min_mph\"} * 0.868976 >= bool 15) + (weather_station{name=\"wind_speed_hi_10min_mph\"} * 0.868976 >= bool 22) - ignoring(name) (weather_station{name=\"humidity_pct\"} > bool 70), 0)",
+          "legendFormat": "",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 2
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Low"
+                },
+                "1": {
+                  "text": "Watch"
+                },
+                "2": {
+                  "text": "High"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "orientation": "auto",
+        "text": {}
+      },
+      "timeFrom": "15m",
+      "hideTimeOverride": true
+    },
+    {
+      "id": 106,
+      "type": "timeseries",
+      "title": "Cooling conditions",
+      "description": "Mean per window. Air = what air-cooled miners breathe. Wet bulb = the floor for evaporative cooling. Dew point = surfaces below it sweat. Dashed grey line: wet bulb 27 °C.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 10,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "s_air = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"temp\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> set(key: \"_field\", value: \"Air\")\n\ns_wet_bulb = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wet_bulb\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> set(key: \"_field\", value: \"Wet bulb\")\n\ns_dew_point = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"dew_point\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> set(key: \"_field\", value: \"Dew point\")\n\nunion(tables: [s_air, s_wet_bulb, s_dew_point])\n  |> group()\n  |> keep(columns: [\"_time\", \"_field\", \"_value\"])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisSoftMin": null,
+            "axisBorderShow": false,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            },
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "barAlignment": 0,
+            "pointSize": 4,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "#8E8E8E",
+                "value": 27
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Air"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Wet bulb"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Dew point"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    6,
+                    4
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 107,
+      "type": "stat",
+      "title": "Hours ≥ 35 °C",
+      "description": "Hours in the selected range with an hourly mean air temperature of 35 °C or more. Inside a container that is about 40 °C, the usual top of a miner's operating range: expect fans at full speed and derating.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 10,
+        "w": 4,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"temp\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> filter(fn: (r) => r._value >= 35.0)\n  |> group()\n  |> count()\n  |> keep(columns: [\"_value\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix: h",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "noValue": "0 h"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "orientation": "auto",
+        "text": {}
+      }
+    },
+    {
+      "id": 108,
+      "type": "stat",
+      "title": "Hours wet bulb ≥ 27 °C",
+      "description": "Hours in the selected range with an hourly mean wet bulb of 27 °C or more, when evaporative cooling loses most of its effect.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 10,
+        "w": 4,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wet_bulb\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> filter(fn: (r) => r._value >= 27.0)\n  |> group()\n  |> count()\n  |> keep(columns: [\"_value\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix: h",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "noValue": "0 h"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "orientation": "auto",
+        "text": {}
+      }
+    },
+    {
+      "id": 109,
+      "type": "stat",
+      "title": "Hours humidity ≥ 90 %",
+      "description": "Hours in the selected range with an hourly mean humidity of 90 % or more: the top of the non-condensing range miners are rated for. Risk of corrosion on boards and PSUs.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 20,
+        "y": 10,
+        "w": 4,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"humidity\")\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> filter(fn: (r) => r._value >= 90.0)\n  |> group()\n  |> count()\n  |> keep(columns: [\"_value\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix: h",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              },
+              {
+                "color": "blue",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "noValue": "0 h"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "orientation": "auto",
+        "text": {}
+      }
+    },
+    {
+      "id": 201,
+      "type": "row",
+      "title": "Mining container · Hydro A01 (test data)",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "panels": []
+    },
+    {
+      "id": 202,
+      "type": "stat",
+      "title": "Hashrate · mean",
+      "description": "Mean total hashrate of container A01 in the selected range (petahash per second), minutes at 0 left out.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 19,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"total_hashrate_terahashes_per_second\" and r._value > -100.0)\n  |> filter(fn: (r) => r._value > 0.0)\n  |> mean()\n  |> map(fn: (r) => ({_value: r._value / 1000.0}))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix: PH/s",
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "orientation": "auto",
+        "text": {}
+      }
+    },
+    {
+      "id": 203,
+      "type": "stat",
+      "title": "Chip max · peak",
+      "description": "Hottest chip reading in the selected range. Orange ≥ 80 °C, red ≥ 85 °C.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 19,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_max_temperature_celsius\" and r._value > -100.0)\n  |> max()\n  |> keep(columns: [\"_value\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "orientation": "auto",
+        "text": {}
+      }
+    },
+    {
+      "id": 204,
+      "type": "stat",
+      "title": "Supply liquid · mean",
+      "description": "Mean temperature of the cooling liquid going to the miners. Set point 35 °C.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 19,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"supply_liquid_temperature_celsius\" and r._value > -100.0)\n  |> mean()\n  |> keep(columns: [\"_value\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 37
+              },
+              {
+                "color": "red",
+                "value": 40
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "orientation": "auto",
+        "text": {}
+      }
+    },
+    {
+      "id": 205,
+      "type": "stat",
+      "title": "Cooling approach · mean",
+      "description": "Supply liquid minus outdoor wet bulb (hourly means). An evaporative cooling tower can't cool the liquid below the wet bulb; the smaller this gap, the less spare cooling capacity is left.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 19,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "sup = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"supply_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nwb = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wet_bulb\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\njoin(tables: {s: sup, w: wb}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_s - r._value_w}))\n  |> mean()"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "orientation": "auto",
+        "text": {}
+      }
+    },
+    {
+      "id": 206,
+      "type": "timeseries",
+      "title": "Outside vs inside the container",
+      "description": "Station air temperature next to the container's own air sensors (mean per window).",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 23,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "s0 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"temp\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"Outdoor air\")\n\ns1 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"cooling_tower_inlet_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"Cooling-tower inlet\")\n\ns2 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"Inside container\")\n\nunion(tables: [s0, s1, s2])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisSoftMin": null,
+            "axisBorderShow": false,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "barAlignment": 0,
+            "pointSize": 4,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Outdoor air"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cooling-tower inlet"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "yellow"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Inside container"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 207,
+      "type": "timeseries",
+      "title": "Humidity · outside vs inside",
+      "description": "Station humidity next to the container's internal humidity. They move together: the container breathes outside air.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 23,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "s0 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"humidity\")\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"Outdoor\")\n\ns1 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_humidity_percent\" and r._value > -100.0)\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"Inside container\")\n\nunion(tables: [s0, s1])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisSoftMin": null,
+            "axisBorderShow": false,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "barAlignment": 0,
+            "pointSize": 4,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "min": 0,
+          "max": 100
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Outdoor"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Inside container"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 208,
+      "type": "timeseries",
+      "title": "Liquid loop vs wet bulb",
+      "description": "Cooling liquid to (supply) and from (return) the miners, the 35 °C set point, and the outdoor wet bulb: the floor the cooling tower can reach.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 32,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "s0 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"supply_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"Supply liquid\")\n\ns1 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"return_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"Return liquid\")\n\ns2 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"supply_liquid_set_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"Set point\")\n\ns3 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wet_bulb\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"Wet bulb\")\n\nunion(tables: [s0, s1, s2, s3])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisSoftMin": null,
+            "axisBorderShow": false,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "barAlignment": 0,
+            "pointSize": 4,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Supply liquid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Return liquid"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Set point"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#8E8E8E"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    6,
+                    4
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Wet bulb"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 209,
+      "type": "timeseries",
+      "title": "Chip temperature vs wet bulb",
+      "description": "Miner chip and board temperatures next to the outdoor wet bulb (mean per window).",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 32,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "s0 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_max_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"Chip max\")\n\ns1 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_mean_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"Chip mean\")\n\ns2 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"pcb_max_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"PCB max\")\n\ns3 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wet_bulb\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> set(key: \"_field\", value: \"Wet bulb\")\n\nunion(tables: [s0, s1, s2, s3])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisSoftMin": null,
+            "axisBorderShow": false,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "barAlignment": 0,
+            "pointSize": 4,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Chip max"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Chip mean"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PCB max"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "yellow"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Wet bulb"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 302,
+      "type": "row",
+      "title": "Weather × miners · analysis (test data)",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "panels": []
+    },
+    {
+      "id": 301,
+      "type": "nline-plotlyjs-panel",
+      "title": "How closely the container follows the weather",
+      "description": "Pearson correlation r of hourly means over the selected range: +1 = moves exactly with the weather, 0 = unrelated, −1 = moves opposite. |r| ≥ 0.5 is a strong link (orange). Correlation is not cause: load and the controller also move these signals.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 42,
+        "w": 8,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "air = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"temp\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nwb = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wet_bulb\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ndp = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"dew_point\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nrh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"humidity\")\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ntower = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"cooling_tower_inlet_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_t = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_rh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_humidity_percent\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nsupply = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"supply_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nret = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"return_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_max_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip_mean = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_mean_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nhr = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"total_hashrate_terahashes_per_second\" and r._value > -100.0)\n  |> filter(fn: (r) => r._value > 1000.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np1 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_1_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np2 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_2_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\npower = join(tables: {a: p1, b: p2}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a + r._value_b}))\njth = join(tables: {a: power, b: hr}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a * 1000.0 / r._value_b}))\n  |> filter(fn: (r) => r._value > 8.0 and r._value < 30.0)\napproach = join(tables: {a: supply, b: wb}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\nrange = join(tables: {a: ret, b: supply}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\n\nunion(tables: [air |> set(key: \"_field\", value: \"air\"), wb |> set(key: \"_field\", value: \"wb\"), dp |> set(key: \"_field\", value: \"dp\"), rh |> set(key: \"_field\", value: \"rh\"), tower |> set(key: \"_field\", value: \"tower\"), in_t |> set(key: \"_field\", value: \"in_t\"), in_rh |> set(key: \"_field\", value: \"in_rh\"), supply |> set(key: \"_field\", value: \"supply\"), ret |> set(key: \"_field\", value: \"ret\"), chip |> set(key: \"_field\", value: \"chip\"), chip_mean |> set(key: \"_field\", value: \"chip_mean\"), hr |> set(key: \"_field\", value: \"hr\"), power |> set(key: \"_field\", value: \"power\"), jth |> set(key: \"_field\", value: \"jth\"), approach |> set(key: \"_field\", value: \"approach\"), range |> set(key: \"_field\", value: \"range\")])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "options": {
+        "allData": {},
+        "data": [],
+        "layout": {},
+        "config": {},
+        "script": "const s = data.series[0];\nconst none = { data: [], layout: { annotations: [{ text: 'No data in range', showarrow: false, font: { size: 16 } }],\n  xaxis: { visible: false }, yaxis: { visible: false }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' } };\nconst tf = s && s.fields.find(f => f.type === 'time');\nif (!tf) return none;\nconst col = n => { const f = s.fields.find(f => f.name === n); return f ? Array.from(f.values) : []; };\nconst time = Array.from(tf.values);\nfunction fit(x, y) {           // least-squares line and Pearson r over the hours that have both values\n  const p = [];\n  for (let i = 0; i < x.length; i++) if (x[i] != null && y[i] != null) p.push([x[i], y[i]]);\n  const n = p.length; if (n < 3) return null;\n  const mx = p.reduce((a, q) => a + q[0], 0) / n, my = p.reduce((a, q) => a + q[1], 0) / n;\n  let sxx = 0, sxy = 0, syy = 0;\n  for (const [a, b] of p) { sxx += (a - mx) ** 2; sxy += (a - mx) * (b - my); syy += (b - my) ** 2; }\n  const slope = sxy / sxx;\n  return { p, n, slope, icpt: my - slope * mx, r: sxy / Math.sqrt(sxx * syy) };\n}\nconst GRID = 'rgba(128,128,128,0.22)';\nconst axis = (title, extra) => Object.assign({ title: { text: title, standoff: 6 }, gridcolor: GRID, zeroline: false }, extra || {});\nconst base = (xt, yt, extra) => Object.assign({ margin: { t: 30, b: 46, l: 52, r: 12 }, paper_bgcolor: 'rgba(0,0,0,0)',\n  plot_bgcolor: 'rgba(0,0,0,0)', xaxis: axis(xt, { type: 'linear' }), yaxis: axis(yt, { type: 'linear' }), showlegend: false, hovermode: 'closest' }, extra || {});\nconst CONFIG = { displayModeBar: false, responsive: true };// Pearson r of hourly means over the selected range, worked out here from the shared hourly table.\nconst PAIRS = [['Inside humidity ↔ outdoor humidity', 'in_rh', 'rh'], ['Tower inlet ↔ outdoor air', 'tower', 'air'],\n  ['Inside temp ↔ outdoor air', 'in_t', 'air'], ['Return liquid ↔ outdoor air', 'ret', 'air'],\n  ['Supply liquid ↔ wet bulb', 'supply', 'wb'], ['Chip max ↔ wet bulb', 'chip', 'wb'],\n  ['Efficiency J/TH ↔ wet bulb', 'jth', 'wb'], ['Hashrate ↔ outdoor air', 'hr', 'air']];\nconst rows = PAIRS.map(([name, a, b]) => { const f = fit(col(a), col(b)); return { name, r: f ? f.r : null, n: f ? f.n : 0 }; })\n  .filter(x => x.r != null).reverse();\nif (!rows.length) return none;\nconst color = r => r >= 0.5 ? '#FF9830' : r >= 0.2 ? '#FFCB7D' : r > -0.2 ? '#8E8E8E' : r > -0.5 ? '#8AB8FF' : '#5794F2';\nreturn { config: CONFIG, data: [{ type: 'bar', orientation: 'h', y: rows.map(x => x.name), x: rows.map(x => x.r),\n    marker: { color: rows.map(x => color(x.r)) }, text: rows.map(x => x.r.toFixed(2)), textposition: 'outside', cliponaxis: false,\n    customdata: rows.map(x => x.n), hovertemplate: '%{y}<br>r = %{x:.2f} over %{customdata} h<extra></extra>' }],\n  layout: base('r  (−1 opposite · 0 unrelated · +1 moves together)', '', { margin: { t: 6, b: 46, l: 210, r: 40 },\n    xaxis: axis('r  (−1 opposite · 0 unrelated · +1 moves together)', { type: 'linear', range: [-1, 1], dtick: 0.5 }),\n    yaxis: { type: 'category', automargin: true }, bargap: 0.35,\n    shapes: [{ type: 'line', x0: 0, x1: 0, yref: 'paper', y0: 0, y1: 1, line: { color: '#8E8E8E', width: 1 } }] }) };",
+        "onclick": "",
+        "syncTimeRange": false,
+        "imgFormat": "png",
+        "exportWidth": 0,
+        "exportHeight": 0,
+        "resScale": 2,
+        "timeCol": ""
+      },
+      "maxDataPoints": 20000
+    },
+    {
+      "id": 303,
+      "type": "timeseries",
+      "title": "Cooling tower · approach & range",
+      "description": "Hourly. Approach = cold liquid minus outdoor wet bulb; the tower can never cool below the wet bulb. Range = how much the miners heat the liquid (the load; steady ≈ 10 °C here). The cold liquid is held at a 35 °C set point, so approach simply grows as the weather gets drier and cooler. Trouble shows as approach SHRINKING toward ~5 °C on humid days, the cold liquid climbing above 35 °C (see Supply liquid vs wet bulb), or range jumping (load change or low flow).",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 42,
+        "w": 16,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "air = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"temp\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nwb = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wet_bulb\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ndp = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"dew_point\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nrh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"humidity\")\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ntower = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"cooling_tower_inlet_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_t = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_rh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_humidity_percent\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nsupply = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"supply_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nret = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"return_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_max_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip_mean = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_mean_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nhr = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"total_hashrate_terahashes_per_second\" and r._value > -100.0)\n  |> filter(fn: (r) => r._value > 1000.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np1 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_1_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np2 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_2_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\npower = join(tables: {a: p1, b: p2}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a + r._value_b}))\njth = join(tables: {a: power, b: hr}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a * 1000.0 / r._value_b}))\n  |> filter(fn: (r) => r._value > 8.0 and r._value < 30.0)\napproach = join(tables: {a: supply, b: wb}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\nrange = join(tables: {a: ret, b: supply}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\n\nunion(tables: [approach |> set(key: \"_field\", value: \"Approach (cold liquid − wet bulb)\"), range |> set(key: \"_field\", value: \"Range (hot − cold liquid)\")])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisSoftMin": null,
+            "axisBorderShow": false,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "barAlignment": 0,
+            "pointSize": 4,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Approach (cold liquid − wet bulb)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Range (hot − cold liquid)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "maxDataPoints": 20000
+    },
+    {
+      "id": 304,
+      "type": "nline-plotlyjs-panel",
+      "title": "Supply liquid vs wet bulb",
+      "description": "Each dot is one hour. Flat along the 35 °C set point (dashed) = the tower keeps up; dots rising at the right = the wet bulb is too high for the tower to hold the set point. Red line: trend.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 52,
+        "w": 8,
+        "h": 11
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "air = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"temp\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nwb = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wet_bulb\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ndp = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"dew_point\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nrh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"humidity\")\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ntower = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"cooling_tower_inlet_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_t = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_rh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_humidity_percent\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nsupply = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"supply_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nret = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"return_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_max_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip_mean = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_mean_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nhr = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"total_hashrate_terahashes_per_second\" and r._value > -100.0)\n  |> filter(fn: (r) => r._value > 1000.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np1 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_1_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np2 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_2_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\npower = join(tables: {a: p1, b: p2}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a + r._value_b}))\njth = join(tables: {a: power, b: hr}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a * 1000.0 / r._value_b}))\n  |> filter(fn: (r) => r._value > 8.0 and r._value < 30.0)\napproach = join(tables: {a: supply, b: wb}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\nrange = join(tables: {a: ret, b: supply}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\n\nunion(tables: [air |> set(key: \"_field\", value: \"air\"), wb |> set(key: \"_field\", value: \"wb\"), dp |> set(key: \"_field\", value: \"dp\"), rh |> set(key: \"_field\", value: \"rh\"), tower |> set(key: \"_field\", value: \"tower\"), in_t |> set(key: \"_field\", value: \"in_t\"), in_rh |> set(key: \"_field\", value: \"in_rh\"), supply |> set(key: \"_field\", value: \"supply\"), ret |> set(key: \"_field\", value: \"ret\"), chip |> set(key: \"_field\", value: \"chip\"), chip_mean |> set(key: \"_field\", value: \"chip_mean\"), hr |> set(key: \"_field\", value: \"hr\"), power |> set(key: \"_field\", value: \"power\"), jth |> set(key: \"_field\", value: \"jth\"), approach |> set(key: \"_field\", value: \"approach\"), range |> set(key: \"_field\", value: \"range\")])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "options": {
+        "allData": {},
+        "data": [],
+        "layout": {},
+        "config": {},
+        "script": "const s = data.series[0];\nconst none = { data: [], layout: { annotations: [{ text: 'No data in range', showarrow: false, font: { size: 16 } }],\n  xaxis: { visible: false }, yaxis: { visible: false }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' } };\nconst tf = s && s.fields.find(f => f.type === 'time');\nif (!tf) return none;\nconst col = n => { const f = s.fields.find(f => f.name === n); return f ? Array.from(f.values) : []; };\nconst time = Array.from(tf.values);\nfunction fit(x, y) {           // least-squares line and Pearson r over the hours that have both values\n  const p = [];\n  for (let i = 0; i < x.length; i++) if (x[i] != null && y[i] != null) p.push([x[i], y[i]]);\n  const n = p.length; if (n < 3) return null;\n  const mx = p.reduce((a, q) => a + q[0], 0) / n, my = p.reduce((a, q) => a + q[1], 0) / n;\n  let sxx = 0, sxy = 0, syy = 0;\n  for (const [a, b] of p) { sxx += (a - mx) ** 2; sxy += (a - mx) * (b - my); syy += (b - my) ** 2; }\n  const slope = sxy / sxx;\n  return { p, n, slope, icpt: my - slope * mx, r: sxy / Math.sqrt(sxx * syy) };\n}\nconst GRID = 'rgba(128,128,128,0.22)';\nconst axis = (title, extra) => Object.assign({ title: { text: title, standoff: 6 }, gridcolor: GRID, zeroline: false }, extra || {});\nconst base = (xt, yt, extra) => Object.assign({ margin: { t: 30, b: 46, l: 52, r: 12 }, paper_bgcolor: 'rgba(0,0,0,0)',\n  plot_bgcolor: 'rgba(0,0,0,0)', xaxis: axis(xt, { type: 'linear' }), yaxis: axis(yt, { type: 'linear' }), showlegend: false, hovermode: 'closest' }, extra || {});\nconst CONFIG = { displayModeBar: false, responsive: true };const X = 'wb', Y = 'supply';\nconst f = fit(col(X), col(Y));\nif (!f) return none;\nconst xs = f.p.map(q => q[0]), lo = Math.min(...xs), hi = Math.max(...xs);\nconst traces = [\n  { type: 'scatter', mode: 'markers', x: xs, y: f.p.map(q => q[1]), name: 'hours',\n    marker: { size: 5, color: '#5794F2', opacity: 0.35 }, hovertemplate: 'Wet bulb %{x:.1f} °C<br>Supply liquid %{y:.1f} °C<extra></extra>' },\n  { type: 'scatter', mode: 'lines', x: [lo, hi], y: [f.icpt + f.slope * lo, f.icpt + f.slope * hi], name: 'trend',\n    line: { color: '#E02F44', width: 2 }, hoverinfo: 'skip' },\n];\nconst shapes = [{ type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 35, y1: 35, line: { color: '#8E8E8E', dash: 'dash', width: 1 } }];\nconst sign = f.slope >= 0 ? '+' : '−';\nreturn { data: traces, config: CONFIG, layout: base('Wet bulb (°C, hourly mean)', 'Supply liquid (°C)', { shapes,\n  annotations: [{ xref: 'paper', yref: 'paper', x: 0.01, y: 1.07, xanchor: 'left', showarrow: false, align: 'left', font: { size: 12 },\n    text: 'r = ' + f.r.toFixed(2) + '   ·   ' + sign + Math.abs(f.slope).toFixed(2) + ' °C per °C   ·   ' + f.n + ' h' }] }) };",
+        "onclick": "",
+        "syncTimeRange": false,
+        "imgFormat": "png",
+        "exportWidth": 0,
+        "exportHeight": 0,
+        "resScale": 2,
+        "timeCol": ""
+      },
+      "maxDataPoints": 20000
+    },
+    {
+      "id": 305,
+      "type": "nline-plotlyjs-panel",
+      "title": "Chip max vs wet bulb",
+      "description": "Each dot is one hour of hottest-chip temperature against the outdoor wet bulb, with the trend line, correlation r and slope (°C of chip per °C of wet bulb).",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 52,
+        "w": 8,
+        "h": 11
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "air = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"temp\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nwb = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wet_bulb\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ndp = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"dew_point\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nrh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"humidity\")\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ntower = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"cooling_tower_inlet_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_t = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_rh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_humidity_percent\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nsupply = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"supply_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nret = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"return_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_max_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip_mean = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_mean_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nhr = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"total_hashrate_terahashes_per_second\" and r._value > -100.0)\n  |> filter(fn: (r) => r._value > 1000.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np1 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_1_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np2 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_2_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\npower = join(tables: {a: p1, b: p2}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a + r._value_b}))\njth = join(tables: {a: power, b: hr}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a * 1000.0 / r._value_b}))\n  |> filter(fn: (r) => r._value > 8.0 and r._value < 30.0)\napproach = join(tables: {a: supply, b: wb}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\nrange = join(tables: {a: ret, b: supply}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\n\nunion(tables: [air |> set(key: \"_field\", value: \"air\"), wb |> set(key: \"_field\", value: \"wb\"), dp |> set(key: \"_field\", value: \"dp\"), rh |> set(key: \"_field\", value: \"rh\"), tower |> set(key: \"_field\", value: \"tower\"), in_t |> set(key: \"_field\", value: \"in_t\"), in_rh |> set(key: \"_field\", value: \"in_rh\"), supply |> set(key: \"_field\", value: \"supply\"), ret |> set(key: \"_field\", value: \"ret\"), chip |> set(key: \"_field\", value: \"chip\"), chip_mean |> set(key: \"_field\", value: \"chip_mean\"), hr |> set(key: \"_field\", value: \"hr\"), power |> set(key: \"_field\", value: \"power\"), jth |> set(key: \"_field\", value: \"jth\"), approach |> set(key: \"_field\", value: \"approach\"), range |> set(key: \"_field\", value: \"range\")])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "options": {
+        "allData": {},
+        "data": [],
+        "layout": {},
+        "config": {},
+        "script": "const s = data.series[0];\nconst none = { data: [], layout: { annotations: [{ text: 'No data in range', showarrow: false, font: { size: 16 } }],\n  xaxis: { visible: false }, yaxis: { visible: false }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' } };\nconst tf = s && s.fields.find(f => f.type === 'time');\nif (!tf) return none;\nconst col = n => { const f = s.fields.find(f => f.name === n); return f ? Array.from(f.values) : []; };\nconst time = Array.from(tf.values);\nfunction fit(x, y) {           // least-squares line and Pearson r over the hours that have both values\n  const p = [];\n  for (let i = 0; i < x.length; i++) if (x[i] != null && y[i] != null) p.push([x[i], y[i]]);\n  const n = p.length; if (n < 3) return null;\n  const mx = p.reduce((a, q) => a + q[0], 0) / n, my = p.reduce((a, q) => a + q[1], 0) / n;\n  let sxx = 0, sxy = 0, syy = 0;\n  for (const [a, b] of p) { sxx += (a - mx) ** 2; sxy += (a - mx) * (b - my); syy += (b - my) ** 2; }\n  const slope = sxy / sxx;\n  return { p, n, slope, icpt: my - slope * mx, r: sxy / Math.sqrt(sxx * syy) };\n}\nconst GRID = 'rgba(128,128,128,0.22)';\nconst axis = (title, extra) => Object.assign({ title: { text: title, standoff: 6 }, gridcolor: GRID, zeroline: false }, extra || {});\nconst base = (xt, yt, extra) => Object.assign({ margin: { t: 30, b: 46, l: 52, r: 12 }, paper_bgcolor: 'rgba(0,0,0,0)',\n  plot_bgcolor: 'rgba(0,0,0,0)', xaxis: axis(xt, { type: 'linear' }), yaxis: axis(yt, { type: 'linear' }), showlegend: false, hovermode: 'closest' }, extra || {});\nconst CONFIG = { displayModeBar: false, responsive: true };const X = 'wb', Y = 'chip';\nconst f = fit(col(X), col(Y));\nif (!f) return none;\nconst xs = f.p.map(q => q[0]), lo = Math.min(...xs), hi = Math.max(...xs);\nconst traces = [\n  { type: 'scatter', mode: 'markers', x: xs, y: f.p.map(q => q[1]), name: 'hours',\n    marker: { size: 5, color: '#FF9830', opacity: 0.35 }, hovertemplate: 'Wet bulb %{x:.1f} °C<br>Chip max %{y:.1f} °C<extra></extra>' },\n  { type: 'scatter', mode: 'lines', x: [lo, hi], y: [f.icpt + f.slope * lo, f.icpt + f.slope * hi], name: 'trend',\n    line: { color: '#E02F44', width: 2 }, hoverinfo: 'skip' },\n];\nconst shapes = [];\nconst sign = f.slope >= 0 ? '+' : '−';\nreturn { data: traces, config: CONFIG, layout: base('Wet bulb (°C, hourly mean)', 'Chip max (°C)', { shapes,\n  annotations: [{ xref: 'paper', yref: 'paper', x: 0.01, y: 1.07, xanchor: 'left', showarrow: false, align: 'left', font: { size: 12 },\n    text: 'r = ' + f.r.toFixed(2) + '   ·   ' + sign + Math.abs(f.slope).toFixed(2) + ' °C per °C   ·   ' + f.n + ' h' }] }) };",
+        "onclick": "",
+        "syncTimeRange": false,
+        "imgFormat": "png",
+        "exportWidth": 0,
+        "exportHeight": 0,
+        "resScale": 2,
+        "timeCol": ""
+      },
+      "maxDataPoints": 20000
+    },
+    {
+      "id": 306,
+      "type": "nline-plotlyjs-panel",
+      "title": "Chip max by wet-bulb band",
+      "description": "Hourly chip max grouped by outdoor wet bulb in 2 °C bands. Box = middle half of the hours, line = median, whiskers = typical spread. Read left to right: how much hotter the chips run as the weather gets more humid-hot.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 52,
+        "w": 8,
+        "h": 11
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "air = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"temp\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nwb = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wet_bulb\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ndp = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"dew_point\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nrh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"humidity\")\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ntower = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"cooling_tower_inlet_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_t = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_rh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_humidity_percent\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nsupply = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"supply_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nret = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"return_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_max_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip_mean = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_mean_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nhr = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"total_hashrate_terahashes_per_second\" and r._value > -100.0)\n  |> filter(fn: (r) => r._value > 1000.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np1 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_1_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np2 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_2_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\npower = join(tables: {a: p1, b: p2}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a + r._value_b}))\njth = join(tables: {a: power, b: hr}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a * 1000.0 / r._value_b}))\n  |> filter(fn: (r) => r._value > 8.0 and r._value < 30.0)\napproach = join(tables: {a: supply, b: wb}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\nrange = join(tables: {a: ret, b: supply}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\n\nunion(tables: [air |> set(key: \"_field\", value: \"air\"), wb |> set(key: \"_field\", value: \"wb\"), dp |> set(key: \"_field\", value: \"dp\"), rh |> set(key: \"_field\", value: \"rh\"), tower |> set(key: \"_field\", value: \"tower\"), in_t |> set(key: \"_field\", value: \"in_t\"), in_rh |> set(key: \"_field\", value: \"in_rh\"), supply |> set(key: \"_field\", value: \"supply\"), ret |> set(key: \"_field\", value: \"ret\"), chip |> set(key: \"_field\", value: \"chip\"), chip_mean |> set(key: \"_field\", value: \"chip_mean\"), hr |> set(key: \"_field\", value: \"hr\"), power |> set(key: \"_field\", value: \"power\"), jth |> set(key: \"_field\", value: \"jth\"), approach |> set(key: \"_field\", value: \"approach\"), range |> set(key: \"_field\", value: \"range\")])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "options": {
+        "allData": {},
+        "data": [],
+        "layout": {},
+        "config": {},
+        "script": "const s = data.series[0];\nconst none = { data: [], layout: { annotations: [{ text: 'No data in range', showarrow: false, font: { size: 16 } }],\n  xaxis: { visible: false }, yaxis: { visible: false }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' } };\nconst tf = s && s.fields.find(f => f.type === 'time');\nif (!tf) return none;\nconst col = n => { const f = s.fields.find(f => f.name === n); return f ? Array.from(f.values) : []; };\nconst time = Array.from(tf.values);\nfunction fit(x, y) {           // least-squares line and Pearson r over the hours that have both values\n  const p = [];\n  for (let i = 0; i < x.length; i++) if (x[i] != null && y[i] != null) p.push([x[i], y[i]]);\n  const n = p.length; if (n < 3) return null;\n  const mx = p.reduce((a, q) => a + q[0], 0) / n, my = p.reduce((a, q) => a + q[1], 0) / n;\n  let sxx = 0, sxy = 0, syy = 0;\n  for (const [a, b] of p) { sxx += (a - mx) ** 2; sxy += (a - mx) * (b - my); syy += (b - my) ** 2; }\n  const slope = sxy / sxx;\n  return { p, n, slope, icpt: my - slope * mx, r: sxy / Math.sqrt(sxx * syy) };\n}\nconst GRID = 'rgba(128,128,128,0.22)';\nconst axis = (title, extra) => Object.assign({ title: { text: title, standoff: 6 }, gridcolor: GRID, zeroline: false }, extra || {});\nconst base = (xt, yt, extra) => Object.assign({ margin: { t: 30, b: 46, l: 52, r: 12 }, paper_bgcolor: 'rgba(0,0,0,0)',\n  plot_bgcolor: 'rgba(0,0,0,0)', xaxis: axis(xt, { type: 'linear' }), yaxis: axis(yt, { type: 'linear' }), showlegend: false, hovermode: 'closest' }, extra || {});\nconst CONFIG = { displayModeBar: false, responsive: true };const wb = col('wb'), chip = col('chip');\nconst W = 2, groups = {};\nfor (let i = 0; i < wb.length; i++) if (wb[i] != null && chip[i] != null) {\n  const lo = Math.floor(wb[i] / W) * W; (groups[lo] = groups[lo] || []).push(chip[i]);\n}\nconst keys = Object.keys(groups).map(Number).sort((a, b) => a - b).filter(k => groups[k].length >= 5);\nif (!keys.length) return none;\nconst label = k => k + '–' + (k + W) + ' °C';\nreturn { config: CONFIG, data: keys.map(k => ({ type: 'box', y: groups[k], name: label(k), boxpoints: false,\n    marker: { color: '#FF9830' }, line: { width: 1.5 }, fillcolor: 'rgba(255,152,48,0.25)',\n    hovertemplate: label(k) + ' wet bulb<br>%{y:.1f} °C<extra></extra>' })),\n  layout: base('Outdoor wet bulb band (hours in band above each box)', 'Chip max (°C)', { xaxis: axis('Outdoor wet bulb band (hours in band above each box)', { type: 'category' }),\n    annotations: keys.map(k => ({ x: label(k), xref: 'x', y: 1.0, yref: 'paper', yanchor: 'bottom',\n    text: groups[k].length + ' h', showarrow: false, font: { size: 10 } })) }) };",
+        "onclick": "",
+        "syncTimeRange": false,
+        "imgFormat": "png",
+        "exportWidth": 0,
+        "exportHeight": 0,
+        "resScale": 2,
+        "timeCol": ""
+      },
+      "maxDataPoints": 20000
+    },
+    {
+      "id": 307,
+      "type": "nline-plotlyjs-panel",
+      "title": "Average day",
+      "description": "Mean of each signal per hour of the day (Oman time) over the selected range: when the daily peak arrives outside and how it carries through the container and the liquid loop.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 63,
+        "w": 12,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "air = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"temp\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nwb = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wet_bulb\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ndp = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"dew_point\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nrh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"humidity\")\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ntower = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"cooling_tower_inlet_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_t = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_rh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_humidity_percent\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nsupply = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"supply_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nret = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"return_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_max_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip_mean = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_mean_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nhr = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"total_hashrate_terahashes_per_second\" and r._value > -100.0)\n  |> filter(fn: (r) => r._value > 1000.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np1 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_1_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np2 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_2_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\npower = join(tables: {a: p1, b: p2}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a + r._value_b}))\njth = join(tables: {a: power, b: hr}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a * 1000.0 / r._value_b}))\n  |> filter(fn: (r) => r._value > 8.0 and r._value < 30.0)\napproach = join(tables: {a: supply, b: wb}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\nrange = join(tables: {a: ret, b: supply}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\n\nunion(tables: [air |> set(key: \"_field\", value: \"air\"), wb |> set(key: \"_field\", value: \"wb\"), dp |> set(key: \"_field\", value: \"dp\"), rh |> set(key: \"_field\", value: \"rh\"), tower |> set(key: \"_field\", value: \"tower\"), in_t |> set(key: \"_field\", value: \"in_t\"), in_rh |> set(key: \"_field\", value: \"in_rh\"), supply |> set(key: \"_field\", value: \"supply\"), ret |> set(key: \"_field\", value: \"ret\"), chip |> set(key: \"_field\", value: \"chip\"), chip_mean |> set(key: \"_field\", value: \"chip_mean\"), hr |> set(key: \"_field\", value: \"hr\"), power |> set(key: \"_field\", value: \"power\"), jth |> set(key: \"_field\", value: \"jth\"), approach |> set(key: \"_field\", value: \"approach\"), range |> set(key: \"_field\", value: \"range\")])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "options": {
+        "allData": {},
+        "data": [],
+        "layout": {},
+        "config": {},
+        "script": "const s = data.series[0];\nconst none = { data: [], layout: { annotations: [{ text: 'No data in range', showarrow: false, font: { size: 16 } }],\n  xaxis: { visible: false }, yaxis: { visible: false }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' } };\nconst tf = s && s.fields.find(f => f.type === 'time');\nif (!tf) return none;\nconst col = n => { const f = s.fields.find(f => f.name === n); return f ? Array.from(f.values) : []; };\nconst time = Array.from(tf.values);\nfunction fit(x, y) {           // least-squares line and Pearson r over the hours that have both values\n  const p = [];\n  for (let i = 0; i < x.length; i++) if (x[i] != null && y[i] != null) p.push([x[i], y[i]]);\n  const n = p.length; if (n < 3) return null;\n  const mx = p.reduce((a, q) => a + q[0], 0) / n, my = p.reduce((a, q) => a + q[1], 0) / n;\n  let sxx = 0, sxy = 0, syy = 0;\n  for (const [a, b] of p) { sxx += (a - mx) ** 2; sxy += (a - mx) * (b - my); syy += (b - my) ** 2; }\n  const slope = sxy / sxx;\n  return { p, n, slope, icpt: my - slope * mx, r: sxy / Math.sqrt(sxx * syy) };\n}\nconst GRID = 'rgba(128,128,128,0.22)';\nconst axis = (title, extra) => Object.assign({ title: { text: title, standoff: 6 }, gridcolor: GRID, zeroline: false }, extra || {});\nconst base = (xt, yt, extra) => Object.assign({ margin: { t: 30, b: 46, l: 52, r: 12 }, paper_bgcolor: 'rgba(0,0,0,0)',\n  plot_bgcolor: 'rgba(0,0,0,0)', xaxis: axis(xt, { type: 'linear' }), yaxis: axis(yt, { type: 'linear' }), showlegend: false, hovermode: 'closest' }, extra || {});\nconst CONFIG = { displayModeBar: false, responsive: true };// Mean per hour of the day, site time (Gulf Standard Time, UTC+4).\nconst SERIES = [['air', 'Outdoor air', '#FF9830', 'solid'], ['wb', 'Wet bulb', '#73BF69', 'solid'],\n  ['tower', 'Tower inlet', '#FADE2A', 'dot'], ['in_t', 'Inside container', '#F2495C', 'solid'],\n  ['supply', 'Supply liquid', '#5794F2', 'solid'], ['ret', 'Return liquid', '#B877D9', 'solid']];\nconst hourOf = t => (new Date(t).getUTCHours() + 4) % 24;\nconst traces = SERIES.map(([k, name, color, dash]) => {\n  const v = col(k), sum = new Array(24).fill(0), n = new Array(24).fill(0);\n  v.forEach((x, i) => { if (x != null) { const h = hourOf(time[i]); sum[h] += x; n[h]++; } });\n  return { type: 'scatter', mode: 'lines', name, x: [...Array(24).keys()], y: sum.map((a, h) => n[h] ? a / n[h] : null),\n    line: { color, width: 2, dash, shape: 'spline' }, hovertemplate: name + ' %{y:.1f} °C<extra>%{x}:00</extra>' };\n});\nreturn { data: traces, config: CONFIG, layout: base('Hour of day (Oman time)', '°C', {\n  showlegend: true, legend: { orientation: 'h', y: -0.22, font: { size: 11 } }, margin: { t: 10, b: 70, l: 52, r: 12 },\n  hovermode: 'x unified', xaxis: axis('Hour of day (Oman time)', { type: 'linear', range: [0, 23], tickvals: [0, 3, 6, 9, 12, 15, 18, 21], ticksuffix: ':00' }) }) };",
+        "onclick": "",
+        "syncTimeRange": false,
+        "imgFormat": "png",
+        "exportWidth": 0,
+        "exportHeight": 0,
+        "resScale": 2,
+        "timeCol": ""
+      },
+      "maxDataPoints": 20000
+    },
+    {
+      "id": 308,
+      "type": "timeseries",
+      "title": "Mining efficiency",
+      "description": "Joules per terahash: container power (distribution boxes 1 + 2) ÷ hashrate, hourly. Lower is better. Compare with the Average day and wet-bulb charts to see whether hot or humid hours cost efficiency.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 63,
+        "w": 12,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb"
+          },
+          "query": "air = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"temp\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nwb = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wet_bulb\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ndp = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"dew_point\")\n  |> map(fn: (r) => ({r with _value: (r._value - 32.0) * 5.0 / 9.0}))\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nrh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"humidity\")\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\ntower = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"cooling_tower_inlet_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_t = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nin_rh = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"internal_humidity_percent\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nsupply = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"supply_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nret = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"return_liquid_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_max_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nchip_mean = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"chip_mean_temperature_celsius\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\nhr = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"total_hashrate_terahashes_per_second\" and r._value > -100.0)\n  |> filter(fn: (r) => r._value > 1000.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np1 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_1_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\np2 = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"miners\" and r._field == \"distribution_box_2_power_kilowatts\" and r._value > -100.0)\n  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\npower = join(tables: {a: p1, b: p2}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a + r._value_b}))\njth = join(tables: {a: power, b: hr}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a * 1000.0 / r._value_b}))\n  |> filter(fn: (r) => r._value > 8.0 and r._value < 30.0)\napproach = join(tables: {a: supply, b: wb}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\nrange = join(tables: {a: ret, b: supply}, on: [\"_time\"])\n  |> map(fn: (r) => ({_time: r._time, _value: r._value_a - r._value_b}))\n\njth\n  |> rename(columns: {_value: \"Efficiency\"})"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix: J/TH",
+          "decimals": 2,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "showPoints": "never",
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisSoftMin": null,
+            "axisBorderShow": false,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "barAlignment": 0,
+            "pointSize": 4,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Efficiency"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": false,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "maxDataPoints": 20000
+    },
+    {
       "id": 8,
       "type": "row",
       "title": "Summary",
@@ -748,7 +2748,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 73
       },
       "panels": []
     },
@@ -763,7 +2763,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 6,
+        "y": 74,
         "w": 8,
         "h": 8
       },
@@ -826,7 +2826,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 6,
+        "y": 74,
         "w": 4,
         "h": 4
       },
@@ -889,7 +2889,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 6,
+        "y": 74,
         "w": 4,
         "h": 4
       },
@@ -952,7 +2952,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 10,
+        "y": 78,
         "w": 4,
         "h": 4
       },
@@ -1015,7 +3015,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 10,
+        "y": 78,
         "w": 4,
         "h": 4
       },
@@ -1078,7 +3078,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 6,
+        "y": 74,
         "w": 8,
         "h": 8
       },
@@ -1139,7 +3139,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 82
       },
       "panels": []
     },
@@ -1154,7 +3154,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 15,
+        "y": 83,
         "w": 10,
         "h": 12
       },
@@ -1194,7 +3194,7 @@
       },
       "gridPos": {
         "x": 10,
-        "y": 15,
+        "y": 83,
         "w": 14,
         "h": 12
       },
@@ -1285,7 +3285,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 27,
+        "y": 95,
         "w": 12,
         "h": 10
       },
@@ -1452,7 +3452,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 27,
+        "y": 95,
         "w": 12,
         "h": 10
       },
@@ -1936,7 +3936,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 105
       },
       "panels": []
     },
@@ -1951,7 +3951,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 38,
+        "y": 106,
         "w": 12,
         "h": 9
       },
@@ -2152,7 +4152,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 38,
+        "y": 106,
         "w": 12,
         "h": 9
       },
@@ -2301,7 +4301,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 115
       },
       "panels": []
     },
@@ -2316,7 +4316,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 48,
+        "y": 116,
         "w": 12,
         "h": 7
       },
@@ -2403,7 +4403,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 48,
+        "y": 116,
         "w": 12,
         "h": 7
       },
@@ -2489,7 +4489,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 55
+        "y": 123
       },
       "panels": [
         {
@@ -2503,7 +4503,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 56,
+            "y": 124,
             "w": 24,
             "h": 10
           },
@@ -2593,7 +4593,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 56
+        "y": 124
       },
       "panels": [
         {
@@ -2607,7 +4607,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 57,
+            "y": 125,
             "w": 6,
             "h": 4
           },
@@ -2691,7 +4691,7 @@
           },
           "gridPos": {
             "x": 6,
-            "y": 57,
+            "y": 125,
             "w": 6,
             "h": 4
           },
@@ -2764,7 +4764,7 @@
           },
           "gridPos": {
             "x": 12,
-            "y": 57,
+            "y": 125,
             "w": 6,
             "h": 4
           },
@@ -2829,7 +4829,7 @@
           },
           "gridPos": {
             "x": 18,
-            "y": 57,
+            "y": 125,
             "w": 6,
             "h": 4
           },
