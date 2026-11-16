@@ -52,7 +52,7 @@ times = sorted(data)
 print(f"{len(rows)} values, {len(times)} timestamps, {datetime.fromtimestamp(times[0]/1000, timezone.utc)} → {datetime.fromtimestamp(times[-1]/1000, timezone.utc)}")
 
 F2C = lambda f: (f - 32) * 5 / 9
-KMH = 1.609344
+KN = 0.868976               # mph → knots
 
 
 def get(t, f, conv=None):
@@ -66,7 +66,7 @@ last15 = {}
 for t in times:
     if get(t, "wind_speed_last") is not None and get(t, "wind_dir_last") is not None:
         last15[(t - 1) // W] = t        # window (start, end], stamped at window end
-wind15 = [((k + 1) * W, round(get(t, "wind_speed_last") * KMH, 1), int(get(t, "wind_dir_last"))) for k, t in sorted(last15.items())]
+wind15 = [((k + 1) * W, round(get(t, "wind_speed_last") * KN, 1), int(get(t, "wind_dir_last"))) for k, t in sorted(last15.items())]
 
 
 # ── Windowed aggregates (window end stamps, like Flux aggregateWindow) ──
@@ -103,10 +103,10 @@ for p, pm in PERIODS.items():
             "t_min": agg(ts, "temp", F2C, "min"), "t_mean": agg(ts, "temp", F2C, "mean"), "t_max": agg(ts, "temp", F2C, "max"),
             "feels": agg(ts, "heat_index", F2C, "mean"),
             "h_min": agg(ts, "humidity", None, "min"), "h_mean": agg(ts, "humidity", None, "mean"), "h_max": agg(ts, "humidity", None, "max"),
-            "w_min": agg(ts, "wind_speed_last", lambda x: x * KMH, "min"), "w_mean": agg(ts, "wind_speed_last", lambda x: x * KMH, "mean"),
-            "w_max": agg(ts, "wind_speed_last", lambda x: x * KMH, "max"),
-            "g_mean": agg(ts, "wind_speed_hi_last_10_min", lambda x: x * KMH, "mean"),
-            "g_max": agg(ts, "wind_speed_hi_last_10_min", lambda x: x * KMH, "max"),
+            "w_min": agg(ts, "wind_speed_last", lambda x: x * KN, "min"), "w_mean": agg(ts, "wind_speed_last", lambda x: x * KN, "mean"),
+            "w_max": agg(ts, "wind_speed_last", lambda x: x * KN, "max"),
+            "g_mean": agg(ts, "wind_speed_hi_last_10_min", lambda x: x * KN, "mean"),
+            "g_max": agg(ts, "wind_speed_hi_last_10_min", lambda x: x * KN, "max"),
             "pres": agg(ts, "bar_sea_level", lambda x: x * 33.8639, "mean"),
             **{f"p{q}": quantile(rot, q / 100) for q in range(10, 100, 10)},
         })

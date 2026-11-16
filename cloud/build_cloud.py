@@ -24,7 +24,7 @@ def M(name):
 
 
 C = lambda e: f"({e} - 32) * 5 / 9"          # °F → °C
-KMH = lambda e: f"{e} * 1.609344"            # mph → km/h
+KN = lambda e: f"{e} * 0.868976"             # mph → knots
 WIN = "[$__interval]"                        # one "Window" ($period) per point
 
 
@@ -69,13 +69,13 @@ P = {p["id"]: p for p in walk(dash["panels"])}
 
 # ── Now ──────────────────────────────────────────────────────────────────────
 now = {2: C(M("temperature_f")), 3: C(M("heat_index_f")), 4: M("humidity_pct"),
-       5: KMH(M("wind_speed_mph")), 6: KMH(M("wind_speed_hi_10min_mph")), 7: M("wind_dir_deg")}
+       5: KN(M("wind_speed_mph")), 6: KN(M("wind_speed_hi_10min_mph")), 7: M("wind_dir_deg")}
 for i, e in now.items():
     P[i]["targets"] = [tgt(e, instant=True)]
 
 # ── Summary (selected range) ─────────────────────────────────────────────────
 summary = {
-    9: KMH(f'max_over_time({M("wind_speed_hi_10min_mph")}[$__range])'),
+    9: KN(f'max_over_time({M("wind_speed_hi_10min_mph")}[$__range])'),
     10: C(f'min_over_time({M("temperature_f")}[$__range])'),
     11: C(f'max_over_time({M("temperature_f")}[$__range])'),
     12: f'min_over_time({M("humidity_pct")}[$__range])',
@@ -106,8 +106,8 @@ sector = f"floor((({dirr} + 11.25) % 360) / 22.5)"
 total = f"scalar(count_over_time({dirr}[$__range:15m]))"
 rose_t, rose_ov, rename = [], [], {}
 for i, (lo, hi) in enumerate(BINS):
-    cond = f"{KMH(spd)} >= {lo}" + (f" < {hi}" if hi else "")
-    label = f"{lo}–{hi} km/h" if hi else f"≥ {lo} km/h"
+    cond = f"{KN(spd)} >= {lo}" + (f" < {hi}" if hi else "")
+    label = f"{lo}–{hi} kn" if hi else f"≥ {lo} kn"
     ref = chr(65 + i)
     rose_t.append(tgt(
         f'100 * sum by (sector) (count_over_time(count_values("sector", {sector} and on(station) ({cond}))[$__range:15m])) / {total}',
@@ -122,7 +122,7 @@ r = P[16]
 r.update({
     "type": "barchart",
     "pluginVersion": None,
-    "description": "Share of time the wind blew FROM each of 16 compass sectors, stacked by speed (km/h). "
+    "description": "Share of time the wind blew FROM each of 16 compass sectors, stacked by speed (knots). "
                    "One reading per 15 min. Same colours as the local wind rose.",
     "targets": rose_t,
     "transformations": [
@@ -150,13 +150,13 @@ r.pop("pluginVersion")
 r["title"] = "Wind Speed vs Wind Direction"
 
 # ── Wind heatmap / bands / direction ribbon ──────────────────────────────────
-P[17]["targets"] = [tgt(KMH(spd), "Wind", interval="15m")]
+P[17]["targets"] = [tgt(KN(spd), "Wind", interval="15m")]
 P[18]["targets"] = band([
     ("Wind min", "min_over_time", spd), ("Wind mean", "avg_over_time", spd), ("Wind max", "max_over_time", spd),
     ("Gust mean", "avg_over_time", M("wind_speed_hi_10min_mph")), ("Gust max", "max_over_time", M("wind_speed_hi_10min_mph")),
 ])
 for t in P[18]["targets"]:
-    t["expr"] = KMH(t["expr"])
+    t["expr"] = KN(t["expr"])
 rot = f"((({dirr} + 225) % 360) * 400 / 360)"   # same 135° wrap + 0–400 rescale as local
 P[19]["targets"] = [tgt(f"quantile_over_time({q / 100}, {rot}[$__interval:1m])", f"p{q}", chr(65 + i), interval="$period")
                     for i, q in enumerate(range(10, 100, 10))]
@@ -210,7 +210,7 @@ if "--no-plotly" not in sys.argv:
     loc = {p["id"]: p for p in walk(local["panels"])}[16]
     rp = copy.deepcopy(loc)
     rp["datasource"] = DS
-    rp["targets"] = combine([tgt(KMH(spd), "speed", "A", interval="15m"), tgt(dirr, "dir", "B", interval="15m")])  # order matters: script falls back to field 1 = speed, 2 = dir
+    rp["targets"] = combine([tgt(KN(spd), "speed", "A", interval="15m"), tgt(dirr, "dir", "B", interval="15m")])  # order matters: script falls back to field 1 = speed, 2 = dir
     rp["transformations"] = [{"id": "joinByField", "options": {"byField": "Time", "mode": "inner"}},
                              {"id": "organize", "options": {"renameByName": {}}}]
     for i, p in enumerate(dash["panels"]):

@@ -118,7 +118,7 @@ After editing `.env`, run `docker compose up -d` to apply it.
 - **Since 2026-11-15 the poller saves the live feed every minute.**
 - **Known outages** (no data exists on WeatherLink either): 2–6 Oct 2025, 12 Apr 2026, 7–8 Jul 2026 and
   22 Jul – 4 Aug 2026.
-- **Units:** the station reports °F, mph, inHg and inches. The dashboard converts them to °C, km/h, hPa and mm.
+- **Units:** the station reports °F, mph, inHg and inches. The dashboard converts them to °C, knots, hPa and mm.
 - **No solar or UV sensor** is installed. The live feed carries no rain values, so rain is history-only.
 
 **Where it is stored:** in Docker volumes, not in this folder. They survive `docker compose down` and reboots:

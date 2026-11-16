@@ -362,7 +362,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "weather_station{name=\"wind_speed_mph\"} * 1.609344",
+          "expr": "weather_station{name=\"wind_speed_mph\"} * 0.868976",
           "legendFormat": "",
           "range": false,
           "instant": true
@@ -370,7 +370,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "velocitykmh",
+          "unit": "velocityknot",
           "decimals": 1,
           "thresholds": {
             "mode": "absolute",
@@ -381,15 +381,15 @@
               },
               {
                 "color": "yellow",
-                "value": 39
+                "value": 22
               },
               {
                 "color": "orange",
-                "value": 62
+                "value": 34
               },
               {
                 "color": "red",
-                "value": 89
+                "value": 48
               }
             ]
           },
@@ -424,7 +424,7 @@
       "id": 6,
       "type": "stat",
       "title": "Gust · 10 min",
-      "description": "Highest gust in the last 10 minutes. Yellow ≥ 39 km/h strong breeze, orange ≥ 62 gale, red ≥ 89 storm.",
+      "description": "Highest gust in the last 10 minutes. Yellow ≥ 22 kn strong breeze, orange ≥ 34 gale, red ≥ 48 storm.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -442,7 +442,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "weather_station{name=\"wind_speed_hi_10min_mph\"} * 1.609344",
+          "expr": "weather_station{name=\"wind_speed_hi_10min_mph\"} * 0.868976",
           "legendFormat": "",
           "range": false,
           "instant": true
@@ -450,7 +450,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "velocitykmh",
+          "unit": "velocityknot",
           "decimals": 1,
           "thresholds": {
             "mode": "absolute",
@@ -461,15 +461,15 @@
               },
               {
                 "color": "yellow",
-                "value": 39
+                "value": 22
               },
               {
                 "color": "orange",
-                "value": 62
+                "value": 34
               },
               {
                 "color": "red",
-                "value": 89
+                "value": 48
               }
             ]
           },
@@ -774,12 +774,12 @@
             "type": "influxdb",
             "uid": "influxdb"
           },
-          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_hi_last_10_min\")\n  |> map(fn: (r) => ({r with _value: r._value * 1.609344}))\n  |> max()\n  |> keep(columns: [\"_value\"])"
+          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_hi_last_10_min\")\n  |> map(fn: (r) => ({r with _value: r._value * 0.868976}))\n  |> max()\n  |> keep(columns: [\"_value\"])"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "velocitykmh",
+          "unit": "velocityknot",
           "decimals": 0,
           "thresholds": {
             "mode": "absolute",
@@ -1165,7 +1165,7 @@
             "type": "influxdb",
             "uid": "influxdb"
           },
-          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and (r._field == \"wind_dir_last\" or r._field == \"wind_speed_last\"))\n  |> aggregateWindow(every: 15m, fn: last, createEmpty: false)\n  |> group()\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => exists r.wind_dir_last and exists r.wind_speed_last)\n  |> map(fn: (r) => ({_time: r._time, dir: float(v: r.wind_dir_last), speed: r.wind_speed_last * 1.609344}))"
+          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and (r._field == \"wind_dir_last\" or r._field == \"wind_speed_last\"))\n  |> aggregateWindow(every: 15m, fn: last, createEmpty: false)\n  |> group()\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => exists r.wind_dir_last and exists r.wind_speed_last)\n  |> map(fn: (r) => ({_time: r._time, dir: float(v: r.wind_dir_last), speed: r.wind_speed_last * 0.868976}))"
         }
       ],
       "options": {
@@ -1173,7 +1173,7 @@
         "data": [],
         "layout": {},
         "config": {},
-        "script": "const BINS = [[0, 2], [2, 4], [4, 6], [6, 8], [8, 10], [10, 12], [12, 15], [15, 20], [20, null]];\nconst s = data.series[0];\n// Rainbow speed scale, calm = blue → strong = red (as in the article).\nconst COLORS = ['#3D3DF5', '#3B8CF2', '#3CC7E8', '#3DE8B0', '#45E85A', '#A9EE3C', '#F0E23C', '#F2A43A', '#F0503C'];\nif (!s) return { data: [], layout: { annotations: [{ text: 'No data in range', showarrow: false }] } };\nconst col = (name, i) => (s.fields.find(f => f.name === name) || s.fields[i]).values;\nconst dir = col('dir', 2), spd = col('speed', 1);\nconst SECT = 36, STEP = 360 / SECT;                      // 10° sectors\nconst counts = BINS.map(() => new Array(SECT).fill(0));\nlet n = 0;\nfor (let i = 0; i < dir.length; i++) {\n  const d = dir[i], v = spd[i];\n  if (d == null || v == null) continue;\n  const k = Math.round((((d % 360) + 360) % 360) / STEP) % SECT;\n  const b = BINS.findIndex(([lo, hi]) => v >= lo && (hi === null || v < hi));\n  counts[b][k]++;\n  n++;\n}\nconst compass = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst name = deg => compass[Math.round(deg / 22.5) % 16];\nconst label = ([lo, hi]) => (hi === null ? lo + '+' : lo + ' - ' + hi) + ' km/h';\nconst axis = 'rgba(200,200,200,0.85)', ring = 'rgba(160,160,160,0.6)';\nconst theta = counts[0].map((_, k) => k * STEP);\nreturn {\n  data: BINS.map((bin, i) => ({\n    type: 'barpolar', name: label(bin), theta, width: STEP * 0.92,\n    r: counts[i].map(c => (n ? (100 * c) / n : 0)),\n    customdata: theta.map(t => name(t) + ' (' + t + '°)'),\n    marker: { color: COLORS[i % COLORS.length], line: { width: 0 } },\n    hovertemplate: '%{customdata}<br>' + label(bin) + ': %{r:.1f}%<extra></extra>',\n  })),\n  layout: {\n    polar: {\n      bgcolor: 'rgba(0,0,0,0)', barmode: 'stack', hole: 0,\n      angularaxis: { direction: 'clockwise', rotation: 90, thetaunit: 'degrees',\n        tickmode: 'array', tickvals: [0, 45, 90, 135, 180, 225, 270, 315],\n        ticktext: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'], tickfont: { size: 13 },\n        showgrid: true, gridcolor: axis, gridwidth: 1, showline: false, ticks: 'outside', ticklen: 6, tickcolor: axis },\n      radialaxis: { ticksuffix: '%', angle: 90, tickangle: 0, tickfont: { size: 11 }, nticks: 4,\n        showgrid: true, gridcolor: ring, griddash: 'dash', showline: false, ticks: '', layer: 'above traces' },\n    },\n    showlegend: true,\n    legend: { orientation: 'v', x: 1, xanchor: 'right', y: 1, yanchor: 'top', font: { size: 11 },\n      traceorder: 'reversed', bgcolor: 'rgba(0,0,0,0)', itemclick: 'toggle' },\n    margin: { t: 34, b: 34, l: 34, r: 34 },\n    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',\n  },\n  config: { displayModeBar: false, responsive: true },\n};",
+        "script": "const BINS = [[0, 2], [2, 4], [4, 6], [6, 8], [8, 10], [10, 12], [12, 15], [15, 20], [20, null]];\nconst s = data.series[0];\n// Rainbow speed scale, calm = blue → strong = red (as in the article).\nconst COLORS = ['#3D3DF5', '#3B8CF2', '#3CC7E8', '#3DE8B0', '#45E85A', '#A9EE3C', '#F0E23C', '#F2A43A', '#F0503C'];\nif (!s) return { data: [], layout: { annotations: [{ text: 'No data in range', showarrow: false }] } };\nconst col = (name, i) => (s.fields.find(f => f.name === name) || s.fields[i]).values;\nconst dir = col('dir', 2), spd = col('speed', 1);\nconst SECT = 36, STEP = 360 / SECT;                      // 10° sectors\nconst counts = BINS.map(() => new Array(SECT).fill(0));\nlet n = 0;\nfor (let i = 0; i < dir.length; i++) {\n  const d = dir[i], v = spd[i];\n  if (d == null || v == null) continue;\n  const k = Math.round((((d % 360) + 360) % 360) / STEP) % SECT;\n  const b = BINS.findIndex(([lo, hi]) => v >= lo && (hi === null || v < hi));\n  counts[b][k]++;\n  n++;\n}\nconst compass = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst name = deg => compass[Math.round(deg / 22.5) % 16];\nconst label = ([lo, hi]) => (hi === null ? lo + '+' : lo + ' - ' + hi) + ' kn';\nconst axis = 'rgba(200,200,200,0.85)', ring = 'rgba(160,160,160,0.6)';\nconst theta = counts[0].map((_, k) => k * STEP);\nreturn {\n  data: BINS.map((bin, i) => ({\n    type: 'barpolar', name: label(bin), theta, width: STEP * 0.92,\n    r: counts[i].map(c => (n ? (100 * c) / n : 0)),\n    customdata: theta.map(t => name(t) + ' (' + t + '°)'),\n    marker: { color: COLORS[i % COLORS.length], line: { width: 0 } },\n    hovertemplate: '%{customdata}<br>' + label(bin) + ': %{r:.1f}%<extra></extra>',\n  })),\n  layout: {\n    polar: {\n      bgcolor: 'rgba(0,0,0,0)', barmode: 'stack', hole: 0,\n      angularaxis: { direction: 'clockwise', rotation: 90, thetaunit: 'degrees',\n        tickmode: 'array', tickvals: [0, 45, 90, 135, 180, 225, 270, 315],\n        ticktext: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'], tickfont: { size: 13 },\n        showgrid: true, gridcolor: axis, gridwidth: 1, showline: false, ticks: 'outside', ticklen: 6, tickcolor: axis },\n      radialaxis: { ticksuffix: '%', angle: 90, tickangle: 0, tickfont: { size: 11 }, nticks: 4,\n        showgrid: true, gridcolor: ring, griddash: 'dash', showline: false, ticks: '', layer: 'above traces' },\n    },\n    showlegend: true,\n    legend: { orientation: 'v', x: 1, xanchor: 'right', y: 1, yanchor: 'top', font: { size: 11 },\n      traceorder: 'reversed', bgcolor: 'rgba(0,0,0,0)', itemclick: 'toggle' },\n    margin: { t: 34, b: 34, l: 34, r: 34 },\n    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',\n  },\n  config: { displayModeBar: false, responsive: true },\n};",
         "onclick": "",
         "syncTimeRange": false,
         "imgFormat": "png",
@@ -1187,7 +1187,7 @@
       "id": 17,
       "type": "heatmap",
       "title": "Wind Speed",
-      "description": "Each column is 2 h, each cell 2 km/h; purple = few readings, green/yellow = most readings.",
+      "description": "Each column is 2 h, each cell 1 kn; purple = few readings, green/yellow = most readings.",
       "datasource": {
         "type": "influxdb",
         "uid": "influxdb"
@@ -1205,7 +1205,7 @@
             "type": "influxdb",
             "uid": "influxdb"
           },
-          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_last\")\n  |> map(fn: (r) => ({r with _value: r._value * 1.609344}))\n  |> aggregateWindow(every: 15m, fn: last, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> rename(columns: {_value: \"Wind\"})"
+          "query": "from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_last\")\n  |> map(fn: (r) => ({r with _value: r._value * 0.868976}))\n  |> aggregateWindow(every: 15m, fn: last, createEmpty: false)\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> rename(columns: {_value: \"Wind\"})"
         }
       ],
       "fieldConfig": {
@@ -1228,7 +1228,7 @@
         "calculation": {
           "yBuckets": {
             "mode": "size",
-            "value": "2"
+            "value": "1"
           },
           "xBuckets": {
             "mode": "size",
@@ -1248,7 +1248,7 @@
         },
         "yAxis": {
           "axisPlacement": "left",
-          "unit": "velocitykmh",
+          "unit": "velocityknot",
           "reverse": false
         },
         "rowsFrame": {
@@ -1296,12 +1296,12 @@
             "type": "influxdb",
             "uid": "influxdb"
           },
-          "query": "s_wind_min = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_last\")\n  |> map(fn: (r) => ({r with _value: r._value * 1.609344}))\n  |> aggregateWindow(every: ${period}, fn: min, createEmpty: false)\n  |> set(key: \"_field\", value: \"Wind min\")\n\ns_wind_mean = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_last\")\n  |> map(fn: (r) => ({r with _value: r._value * 1.609344}))\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> set(key: \"_field\", value: \"Wind mean\")\n\ns_wind_max = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_last\")\n  |> map(fn: (r) => ({r with _value: r._value * 1.609344}))\n  |> aggregateWindow(every: ${period}, fn: max, createEmpty: false)\n  |> set(key: \"_field\", value: \"Wind max\")\n\ns_gust_mean = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_hi_last_10_min\")\n  |> map(fn: (r) => ({r with _value: r._value * 1.609344}))\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> set(key: \"_field\", value: \"Gust mean\")\n\ns_gust_max = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_hi_last_10_min\")\n  |> map(fn: (r) => ({r with _value: r._value * 1.609344}))\n  |> aggregateWindow(every: ${period}, fn: max, createEmpty: false)\n  |> set(key: \"_field\", value: \"Gust max\")\n\nunion(tables: [s_wind_min, s_wind_mean, s_wind_max, s_gust_mean, s_gust_max])\n  |> group()\n  |> keep(columns: [\"_time\", \"_field\", \"_value\"])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
+          "query": "s_wind_min = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_last\")\n  |> map(fn: (r) => ({r with _value: r._value * 0.868976}))\n  |> aggregateWindow(every: ${period}, fn: min, createEmpty: false)\n  |> set(key: \"_field\", value: \"Wind min\")\n\ns_wind_mean = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_last\")\n  |> map(fn: (r) => ({r with _value: r._value * 0.868976}))\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> set(key: \"_field\", value: \"Wind mean\")\n\ns_wind_max = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_last\")\n  |> map(fn: (r) => ({r with _value: r._value * 0.868976}))\n  |> aggregateWindow(every: ${period}, fn: max, createEmpty: false)\n  |> set(key: \"_field\", value: \"Wind max\")\n\ns_gust_mean = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_hi_last_10_min\")\n  |> map(fn: (r) => ({r with _value: r._value * 0.868976}))\n  |> aggregateWindow(every: ${period}, fn: mean, createEmpty: false)\n  |> set(key: \"_field\", value: \"Gust mean\")\n\ns_gust_max = from(bucket: \"weather\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"weather\" and r.sensor_type == \"37\" and r._field == \"wind_speed_hi_last_10_min\")\n  |> map(fn: (r) => ({r with _value: r._value * 0.868976}))\n  |> aggregateWindow(every: ${period}, fn: max, createEmpty: false)\n  |> set(key: \"_field\", value: \"Gust max\")\n\nunion(tables: [s_wind_min, s_wind_mean, s_wind_max, s_gust_mean, s_gust_max])\n  |> group()\n  |> keep(columns: [\"_time\", \"_field\", \"_value\"])\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> sort(columns: [\"_time\"])"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "velocitykmh",
+          "unit": "velocityknot",
           "decimals": 1,
           "color": {
             "mode": "fixed",
